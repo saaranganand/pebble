@@ -1,0 +1,10 @@
+@keyframes shake {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  25%       { transform: translateX(calc(-1 * var(--xdist))) translateY(calc(-1 * var(--ydist))); }
+  75%       { transform: translateX(var(--xdist)) translateY(var(--ydist)); }
+}
+
+.shake_letter {
+  display: inline-block;
+  animation: shake var(--duration) ease-in-out var(--delay) infinite;
+}

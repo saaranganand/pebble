@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "lib": ["ES6", "DOM", "es2020"],
+    "rootDir": "./ts",
+    "outDir": "./js"
+  }
+}

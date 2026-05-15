@@ -1,0 +1,6 @@
+*.exe
+*.elf
+*.so
+*.dll
+release/*
+debug/*

@@ -1,0 +1,47 @@
+- id: intro
+  items:
+    - type: paragraph
+      content: You stand at the edge of the village. Smoke drifts from somewhere to the east.
+    - type: paragraph,
+      content: A soldier approaches. He looks tired.
+    - type: quote
+      content: Traveller. You shouldn't be here.
+    - type: choice
+      id: choice_met_soldier
+      options:
+        - id: choice_met_soldier_asked
+          label: Ask what happened.
+          mutations:
+            - key: karma
+              op: add
+              value: 1
+        - id: choice_met_soldier_ignored
+          label: Ignore him and walk past.
+
+    - type: paragraph
+      content: The smoke grows thicker as you move further in.
+
+  next:
+    - id: soldier_talk
+      condition: "contains(state.temporary_choices, 'choice_met_soldier_asked')"
+    - id: village_edge
+
+- id: soldier_talk
+  items:
+    - type: quote
+      content: The eastern quarter burned last night. We don't know how it started.
+    - type: paragraph
+      content: He studies your face, as if deciding whether to trust you.
+  next:
+    - id: village_edge
+
+- id: village_edge
+  items:
+    - type: paragraph
+      content: You reach the edge of the village. The damage is worse than it looked from the road.
+    - type: paragraph
+      content: >
+        You have spoken to 
+        {{contains(state.temporary_choices, 'choice_met_soldier_asked') and 'the soldier' or 'no one'}}
+        .
+  next:

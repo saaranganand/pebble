@@ -1,0 +1,25 @@
+body {
+    max-width: 600px;
+    margin: 60px auto;
+    line-height: 1.7;
+    font-family: Georgia, serif;
+}
+
+button {
+    padding: 10px 16px;
+    text-align: left;
+    cursor: pointer;
+
+    font-family: "Open Sans", sans-serif;
+}
+
+.back_btn {
+    margin-right: 20px;
+}
+
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+
+    font-family: "Open Sans", sans-serif;
+}
