@@ -51,7 +51,7 @@ main :: proc() {
     camY: f32 = 0
 
     aimAngle: f32
-    
+
     // game loop
     running := true
     for running {
@@ -68,42 +68,16 @@ main :: proc() {
             }
         }
 
-        keyboard := sdl.GetKeyboardState(nil)
-        // speed: f32 = PLAYER_SPEED
-        inputX, inputY: f32
+        input := process_input()
 
-        if keyboard != nil {
-            if keyboard[sdl.Scancode.W] {
-                inputY -= 1
-            }
-            if keyboard[sdl.Scancode.S] {
-                inputY += 1
-            }
-            if keyboard[sdl.Scancode.A] {
-                inputX -= 1
-            }
-            if keyboard[sdl.Scancode.D] {
-                inputX += 1
-            }
-            // normalize diaognal
-            if inputX != 0 && inputY != 0 {
-                inputX *= 0.7
-                inputY *= 0.7
-            }
-        }
-        
         // bg moves opposite to player direction
-        camX += inputX * CAM_SPEED
-        camY += inputY * CAM_SPEED
+        camX += input.dx * CAM_SPEED
+        camY += input.dy * CAM_SPEED
 
-        targetX := centerX + inputX * NUDGE_RADIUS
-        targetY := centerY + inputY * NUDGE_RADIUS
+        targetX := centerX + input.dx * NUDGE_RADIUS
+        targetY := centerY + input.dy * NUDGE_RADIUS
         playerX += (targetX-playerX) * NUDGE_SPEED
         playerY += (targetY-playerY) * NUDGE_SPEED
-
-        mouseX, mouseY: f32
-        _ = sdl.GetMouseState(&mouseX, &mouseY)
-        aimAngle = math.atan2(mouseY - playerY, mouseX - playerX)
 
         //background
         sdl.SetRenderDrawColor(renderer, 255, 255, 255, 255)
@@ -129,8 +103,9 @@ main :: proc() {
         }
         sdl.SetRenderDrawColor(renderer, 255, 0, 0, 255)
         sdl.RenderFillRect(renderer, &playerRect)
-        
+
         // aim indicator
+        aimAngle := math.atan2(input.mouseY - playerY, input.mouseX - playerX)
         aimX := playerX + math.cos(aimAngle) * AIM_DIST
         aimY := playerY + math.sin(aimAngle) * AIM_DIST
         aimRect:=sdl.FRect{
