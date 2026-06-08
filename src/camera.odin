@@ -6,11 +6,6 @@ Camera :: struct {
     x, y: f32
 }
 
-update_camera :: proc(cam: ^Camera, dx, dy: f32) {
-    cam.x += dx * CAM_SPEED
-    cam.y += dy * CAM_SPEED
-}
-
 draw_camera :: proc(renderer: ^sdl.Renderer, cam: Camera) {
     //background
     sdl.SetRenderDrawColor(renderer, 255, 255, 255, 255)
@@ -26,4 +21,9 @@ draw_camera :: proc(renderer: ^sdl.Renderer, cam: Camera) {
     for y:=startY; y < WINDOW_H; y += TILE_SIZE {
         sdl.RenderLine(renderer, 0, y, WINDOW_W, y)
     }
+}
+
+update_camera :: proc(cam: ^Camera, dx, dy: f32) {
+    cam.x += dx * CAM_SPEED
+    cam.y += dy * CAM_SPEED
 }
