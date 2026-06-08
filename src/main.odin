@@ -47,8 +47,7 @@ main :: proc() {
     playerX: f32 = centerX
     playerY: f32 = centerY
 
-    camX: f32 = 0
-    camY: f32 = 0
+    camera := Camera{}
 
     aimAngle: f32
 
@@ -69,30 +68,14 @@ main :: proc() {
         }
 
         input := process_input()
-
-        // bg moves opposite to player direction
-        camX += input.dx * CAM_SPEED
-        camY += input.dy * CAM_SPEED
+        update_camera(&camera, input.dx, input.dy)
 
         targetX := centerX + input.dx * NUDGE_RADIUS
         targetY := centerY + input.dy * NUDGE_RADIUS
         playerX += (targetX-playerX) * NUDGE_SPEED
         playerY += (targetY-playerY) * NUDGE_SPEED
 
-        //background
-        sdl.SetRenderDrawColor(renderer, 255, 255, 255, 255)
-        sdl.RenderClear(renderer)
-
-        // bg texture
-        sdl.SetRenderDrawColor(renderer, 40, 40, 50, 255)
-        startX:= -math.mod(camX, f32(TILE_SIZE))
-        for x:=startX; x < WINDOW_W; x += TILE_SIZE {
-            sdl.RenderLine(renderer, x, 0, x, WINDOW_H)
-        }
-        startY:= -math.mod(camY, f32(TILE_SIZE))
-        for y:=startY; y < WINDOW_H; y += TILE_SIZE {
-            sdl.RenderLine(renderer, 0, y, WINDOW_W, y)
-        }
+        draw_camera(renderer, camera)
 
         // rectangel
         playerRect:=sdl.FRect{
