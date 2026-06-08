@@ -23,7 +23,7 @@ draw_camera :: proc(renderer: ^sdl.Renderer, cam: Camera) {
     }
 }
 
-update_camera :: proc(cam: ^Camera, dx, dy: f32) {
-    cam.x += dx * CAM_SPEED
-    cam.y += dy * CAM_SPEED
+update_camera :: proc(cam: ^Camera, dx, dy: f32, dt: f32) {
+    cam.x += dx * CAM_SPEED * dt
+    cam.y += dy * CAM_SPEED * dt
 }

@@ -1,6 +1,6 @@
 package main
 
-BITPISTOL_COOLDOWN :: 0.1
+BITPISTOL_COOLDOWN :: 0.15
 
 WeaponManual :: enum {
     BitPistol,

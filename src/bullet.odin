@@ -3,7 +3,7 @@ import sdl "vendor:sdl3"
 import "core:math"
 
 MAX_BULLETS :: 256
-BULLET_SPEED :: 300
+BULLET_SPEED :: 600
 BULLET_SIZE :: 8.0
 
 Bullet :: struct {
@@ -33,12 +33,13 @@ draw_bullets :: proc(renderer: ^sdl.Renderer, pool: ^BulletPool) {
 
 update_bullets :: proc(pool: ^BulletPool, dt: f32, input: ^Input) {
     for &b in pool.bullets {
-        if !b.alive { continue }
-
+        if !b.alive {
+            continue
+        }
         b.x += b.vx * dt
         b.y += b.vy * dt
-        b.x -= input.dx * CAM_SPEED
-        b.y -= input.dy * CAM_SPEED
+        b.x -= input.dx * CAM_SPEED * dt
+        b.y -= input.dy * CAM_SPEED * dt
         if b.x < 0 || b.x > WINDOW_W || b.y < 0 || b.y > WINDOW_H {
             b.alive = false
         }

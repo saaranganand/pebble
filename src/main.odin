@@ -9,7 +9,7 @@ PLAYER_SIZE :: 100
 AIM_DIST :: 80 // distance of indicator from player
 AIM_SIZE :: 16
 
-CAM_SPEED :: 4.0 // how far world moves under player
+CAM_SPEED :: 250.0 // how far world moves under player
 NUDGE_RADIUS :: 30.0 // how far player leans from center when moving
 NUDGE_SPEED :: 0.15 // how fast they lean
 
@@ -68,7 +68,7 @@ main :: proc() {
         last_time = current_time
 
         input := process_input()
-        update_camera(&camera, input.dx, input.dy)
+        update_camera(&camera, input.dx, input.dy, dt)
         update_player(&player, &bullets, centerX, centerY, input, dt)
         update_bullets(&bullets, dt, &input)
 
