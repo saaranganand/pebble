@@ -3,13 +3,16 @@ import sdl "vendor:sdl3"
 
 Input :: struct {
     dx, dy: f32,
-    mouseX, mouseY: f32
+    mouseX, mouseY: f32,
+    fire: bool
 }
 
 process_input :: proc() -> Input {
     inp : Input
     keyboard := sdl.GetKeyboardState(nil)
-    _ = sdl.GetMouseState(&inp.mouseX, &inp.mouseY)
+    mouse := sdl.GetMouseState(&inp.mouseX, &inp.mouseY)
+
+    inp.fire = .LEFT in mouse
 
     if keyboard != nil {
         if keyboard[sdl.Scancode.W] {

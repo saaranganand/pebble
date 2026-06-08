@@ -1,7 +1,6 @@
 package main
 
 import "core:fmt"
-import "core:math"
 import sdl "vendor:sdl3"
 
 WINDOW_W :: 1280
@@ -45,7 +44,9 @@ main :: proc() {
     centerY: f32 = WINDOW_H / 2
     camera := Camera{}
     player := player_init()
+    bullets := BulletPool{}
 
+    last_time := sdl.GetTicks()
     // game loop
     running := true
     for running {
@@ -62,12 +63,18 @@ main :: proc() {
             }
         }
 
+        current_time := sdl.GetTicks()
+        dt := f32(current_time - last_time) / 1000.0
+        last_time = current_time
+
         input := process_input()
         update_camera(&camera, input.dx, input.dy)
-        update_player(&player, centerX, centerY, input)
+        update_player(&player, &bullets, centerX, centerY, input, dt)
+        update_bullets(&bullets, dt, &input)
 
         draw_camera(renderer, camera)
         draw_player(renderer, player)
+        draw_bullets(renderer, &bullets)
 
         sdl.RenderPresent(renderer)
     }
