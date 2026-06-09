@@ -34,3 +34,12 @@ draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player) {
     sdl.RenderTexture(renderer, texture, nil, &dst)
     sdl.DestroyTexture(texture)
 }
+
+update_cursor :: proc(player: Player, crosshair: ^sdl.Cursor) {
+    if player.active_category == .Manual && player.weaponManual == .Scope {
+        _ = sdl.SetCursor(crosshair)
+    }
+    else {
+        _ =sdl.SetCursor(sdl.GetDefaultCursor())
+    }
+}

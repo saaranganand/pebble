@@ -3,6 +3,7 @@ package main
 import "core:fmt"
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
+import img "vendor:sdl3/image"
 
 WINDOW_W :: 1280
 WINDOW_H :: 720
@@ -25,8 +26,14 @@ main :: proc() {
 
     ttf.Init()
     font := ttf.OpenFont("assets/font1.ttf", 24)
-    fmt.println(font)
+    // fmt.println(font)
     defer ttf.CloseFont(font)
+
+    crosshair_surface := img.Load("assets/crosshair.png")
+    crosshair_cursor := sdl.CreateColorCursor(crosshair_surface, 32, 32)
+    sdl.DestroySurface(crosshair_surface)
+    _ =sdl.SetCursor(crosshair_cursor)
+    defer sdl.DestroyCursor(crosshair_cursor)
 
     // window
     window := sdl.CreateWindow("Pebble",WINDOW_W,WINDOW_H,{})
@@ -81,10 +88,10 @@ main :: proc() {
                             player.weaponHold = WeaponHold((int(player.weaponHold)+1) % len(WeaponHold))
                         case .Auto:
                             player.weaponAuto = WeaponAuto((int(player.weaponAuto)+1) % len(WeaponAuto))
-                     }
-
-                }
+                    }
             }
+        }
+        update_cursor(player, crosshair_cursor)
 
         current_time := sdl.GetTicks()
         dt := f32(current_time - last_time) / 1000.0
