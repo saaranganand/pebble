@@ -9,7 +9,27 @@ draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player) {
         case .Manual:
             switch player.weaponManual {
                 case .BitPistol: weapon_name = "Bit Pistol"
-                case .Scope: weapon_name = "Scope"
+                case .Scope: 
+                    weapon_name = "Scope"
+                    if player.scope.is_charging {
+                        bgRect :=sdl.FRect{
+                            x =  player.x - 30,
+                            y = player.y + PLAYER_SIZE/2 + 10,
+                            w = 60,
+                            h = 6
+                        }
+                        fill_ratio := min(player.scope.charge / SCOPE_MAX_CHARGE, 1.0)
+                        fillRect :=sdl.FRect{
+                            x = bgRect.x,
+                            y = bgRect.y,
+                            w = 60*(fill_ratio),
+                            h= 6
+                        }
+                        sdl.SetRenderDrawColor(renderer, 50,50,50,255)
+                        sdl.RenderFillRect(renderer, &bgRect)
+                        sdl.SetRenderDrawColor(renderer, 255,200,0,255)
+                        sdl.RenderFillRect(renderer, &fillRect)
+                    }
             }
         case .Hold:
             switch player.weaponHold {
