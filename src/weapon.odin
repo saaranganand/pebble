@@ -49,18 +49,12 @@ update_scope :: proc(sc: ^Scope, pool: ^BulletPool, x: f32, y: f32, input: Input
     if input.fire {
         sc.is_charging = true
         sc.charge += dt
-        if sc.charge >= SCOPE_MAX_CHARGE {
-            spawn_bullet(pool, x, y, aimAngle)
-            sc.charge = 0
-            sc.is_charging = false
-        }
     }
-    else if !input.fire{
-        if sc.is_charging == true {
-            spawn_bullet(pool, x, y, aimAngle)
-            sc.charge = 0
-            sc.is_charging = false
-        }
+    should_fire:= (!input.fire && sc.is_charging) || sc.charge >= SCOPE_MAX_CHARGE
+    if should_fire {
+        spawn_bullet(pool,x,y,aimAngle)
+        sc.is_charging = false
+        sc.charge = 0
     }
 }
 
