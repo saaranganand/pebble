@@ -34,7 +34,7 @@ update_bitpistol :: proc(bp: ^BitPistol, pool: ^BulletPool, x: f32, y: f32, inpu
         bp.cooldown -= dt
     }
     if input.fire && bp.cooldown <= 0 {
-        spawn_bullet(pool, x, y, aimAngle)
+        spawn_bullet(pool, x, y, aimAngle, BulletType.BitPistol)
         bp.cooldown = BITPISTOL_COOLDOWN
     }
 }
@@ -59,7 +59,7 @@ update_scope :: proc(sc: ^Scope, pool: ^BulletPool, x: f32, y: f32, input: Input
     // fire only when mouse let go / max charge reached
     should_fire:= (!input.fire && sc.is_charging) || sc.charge >= SCOPE_MAX_CHARGE
     if should_fire {
-        spawn_bullet(pool,x,y,aimAngle)
+        spawn_bullet(pool,x,y,aimAngle, BulletType.Scope)
         sc.is_charging = false
         sc.charge = 0
     }

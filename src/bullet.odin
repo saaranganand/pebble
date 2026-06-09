@@ -10,7 +10,13 @@ Bullet :: struct {
     x, y: f32,
     vx, vy: f32,
     size: f32,
-    alive: bool
+    alive: bool,
+    type: BulletType
+}
+
+BulletType :: enum {
+    BitPistol,
+    Scope
 }
 
 BulletPool :: struct {
@@ -23,11 +29,22 @@ draw_bullets :: proc(renderer: ^sdl.Renderer, pool: ^BulletPool) {
         if !b.alive {
             continue
         }
-        bulletRect:=sdl.FRect{
-            x = b.x, 
-            y = b.y, 
-            w = b.size, h = b.size}
-        sdl.RenderFillRect(renderer, &bulletRect)
+        switch b.type {
+            case .BitPistol:
+                bulletRect:=sdl.FRect{
+                x = b.x, 
+                y = b.y, 
+                w = b.size, h = b.size}
+                sdl.SetRenderDrawColor(renderer, 255, 165, 0, 255)
+                sdl.RenderFillRect(renderer, &bulletRect)
+            case .Scope:
+                bulletRect:=sdl.FRect{
+                x = b.x, 
+                y = b.y, 
+                w = b.size*3, h = b.size/2}
+                sdl.SetRenderDrawColor(renderer, 0, 255, 0, 255)
+                sdl.RenderFillRect(renderer, &bulletRect)
+        }
     }
 }
 
@@ -47,7 +64,7 @@ update_bullets :: proc(pool: ^BulletPool, dt: f32, input: Input) {
     }
 }
 
-spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32) {
+spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32, type: BulletType) {
     for &b in pool.bullets {
         if !b.alive {
             b.alive = true
@@ -56,6 +73,7 @@ spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32) {
             b.vx = math.cos(aimAngle) * BULLET_SPEED
             b.vy = math.sin(aimAngle) *BULLET_SPEED
             b.size = BULLET_SIZE
+            b.type = type
             return
         }
     }

@@ -18,7 +18,7 @@ Player :: struct {
 }
 
 player_init :: proc() -> Player {
-    return Player{x = WINDOW_W/2, y = WINDOW_H/2, weaponManual = .Scope}
+    return Player{x = WINDOW_W/2, y = WINDOW_H/2}
 }
 
 draw_player :: proc(renderer: ^sdl.Renderer, player: Player) {
