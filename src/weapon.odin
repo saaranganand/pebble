@@ -1,7 +1,7 @@
 package main
 
-BITPISTOL_COOLDOWN :: 0.15
-SCOPE_MAX_CHARGE :: 1.0
+BITPISTOL_COOLDOWN :: 0.15 // time b/w bp bullets
+SCOPE_MAX_CHARGE :: 1.0 // how many s for scope to max charge
 
 WeaponCategory :: enum {
     Manual,
@@ -22,7 +22,7 @@ WeaponAuto :: enum {
     Daemon
 }
 
-// AIM
+// MANUYAL
 
 // bitpistol
 BitPistol :: struct {
@@ -42,20 +42,29 @@ update_bitpistol :: proc(bp: ^BitPistol, pool: ^BulletPool, x: f32, y: f32, inpu
 // scope
 Scope :: struct {
     is_charging: bool,
-    charge: f32
+    charge: f32,
+    was_firing: bool
 }
 
 update_scope :: proc(sc: ^Scope, pool: ^BulletPool, x: f32, y: f32, input: Input, aimAngle: f32, dt: f32) {
-    if input.fire {
+    // check if was firing already
+    if input.fire && !sc.was_firing {
         sc.is_charging = true
+    }
+    // if firing, charge go up
+    if sc.is_charging {
         sc.charge += dt
     }
+
+    // fire only when mouse let go / max charge reached
     should_fire:= (!input.fire && sc.is_charging) || sc.charge >= SCOPE_MAX_CHARGE
     if should_fire {
         spawn_bullet(pool,x,y,aimAngle)
         sc.is_charging = false
         sc.charge = 0
     }
+
+    sc.was_firing = input.fire
 }
 
 // HOLD

@@ -12,7 +12,7 @@ process_input :: proc() -> Input {
     keyboard := sdl.GetKeyboardState(nil)
     mouse := sdl.GetMouseState(&inp.mouseX, &inp.mouseY)
 
-    inp.fire = .LEFT in mouse
+    inp.fire = .LEFT in mouse // left click to fire
 
     if keyboard != nil {
         if keyboard[sdl.Scancode.W] {
