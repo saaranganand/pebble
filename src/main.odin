@@ -53,15 +53,24 @@ main :: proc() {
         event: sdl.Event
 
         for sdl.PollEvent(&event) {
-            if event.type == sdl.EventType.QUIT {
-                running = false
-            }
-            if event.type == sdl.EventType.KEY_DOWN { // key pressed
-                if event.key.key == sdl.K_ESCAPE { // esc key pressed
+            #partial switch event.type {
+                case .QUIT:
                     running = false
+                case .KEY_DOWN:
+                    switch event.key.key {
+                        case sdl.K_ESCAPE:
+                            running = false
+                        case sdl.K_1:
+                            player.weaponManual = WeaponManual((int(player.weaponManual)+1) % len(WeaponManual)) //autowrap
+                        case sdl.K_2:
+                            player.weaponHold = WeaponHold((int(player.weaponHold)+1) % len(WeaponHold))
+                        case sdl.K_3:
+                            player.weaponAuto = WeaponAuto((int(player.weaponAuto)+1) % len(WeaponAuto))
+                    }
+                case .MOUSE_WHEEL:
+                    // scroll
                 }
             }
-        }
 
         current_time := sdl.GetTicks()
         dt := f32(current_time - last_time) / 1000.0
