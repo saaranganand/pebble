@@ -2,6 +2,7 @@ package main
 
 import "core:fmt"
 import sdl "vendor:sdl3"
+import ttf "vendor:sdl3/ttf"
 
 WINDOW_W :: 1280
 WINDOW_H :: 720
@@ -21,6 +22,11 @@ main :: proc() {
         return
     }
     defer sdl.Quit()
+
+    ttf.Init()
+    font := ttf.OpenFont("assets/OXYGENE1.TTF", 24)
+    fmt.println(font)
+    defer ttf.CloseFont(font)
 
     // window
     window := sdl.CreateWindow("Pebble",WINDOW_W,WINDOW_H,{})
@@ -82,6 +88,7 @@ main :: proc() {
 
         draw_camera(renderer, camera)
         draw_player(renderer, player)
+        draw_hud(renderer, font, player)
         draw_bullets(renderer, &bullets)
 
         sdl.RenderPresent(renderer)
