@@ -2,6 +2,12 @@ package main
 
 BITPISTOL_COOLDOWN :: 0.15
 
+WeaponCategory :: enum {
+    Manual,
+    Hold,
+    Auto,
+}
+
 WeaponManual :: enum {
     BitPistol,
     Scope

@@ -31,7 +31,7 @@ draw_bullets :: proc(renderer: ^sdl.Renderer, pool: ^BulletPool) {
     }
 }
 
-update_bullets :: proc(pool: ^BulletPool, dt: f32, input: ^Input) {
+update_bullets :: proc(pool: ^BulletPool, dt: f32, input: Input) {
     for &b in pool.bullets {
         if !b.alive {
             continue

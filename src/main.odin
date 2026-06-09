@@ -24,7 +24,7 @@ main :: proc() {
     defer sdl.Quit()
 
     ttf.Init()
-    font := ttf.OpenFont("assets/OXYGENE1.TTF", 24)
+    font := ttf.OpenFont("assets/font1.ttf", 24)
     fmt.println(font)
     defer ttf.CloseFont(font)
 
@@ -67,14 +67,22 @@ main :: proc() {
                         case sdl.K_ESCAPE:
                             running = false
                         case sdl.K_1:
-                            player.weaponManual = WeaponManual((int(player.weaponManual)+1) % len(WeaponManual)) //autowrap
+                            player.active_category = WeaponCategory.Manual
                         case sdl.K_2:
-                            player.weaponHold = WeaponHold((int(player.weaponHold)+1) % len(WeaponHold))
+                            player.active_category = WeaponCategory.Hold
                         case sdl.K_3:
-                            player.weaponAuto = WeaponAuto((int(player.weaponAuto)+1) % len(WeaponAuto))
+                            player.active_category = WeaponCategory.Auto
                     }
                 case .MOUSE_WHEEL:
-                    // scroll
+                    switch player.active_category {
+                        case .Manual:
+                            player.weaponManual = WeaponManual((int(player.weaponManual)+1) % len(WeaponManual)) //autowrap
+                        case .Hold:
+                            player.weaponHold = WeaponHold((int(player.weaponHold)+1) % len(WeaponHold))
+                        case .Auto:
+                            player.weaponAuto = WeaponAuto((int(player.weaponAuto)+1) % len(WeaponAuto))
+                     }
+
                 }
             }
 
@@ -84,7 +92,7 @@ main :: proc() {
 
         input := process_input()
         update_player(&player, &camera, &bullets, centerX, centerY, input, dt)
-        update_bullets(&bullets, dt, &input)
+        update_bullets(&bullets, dt, input)
 
         draw_camera(renderer, camera)
         draw_player(renderer, player)

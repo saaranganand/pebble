@@ -8,6 +8,7 @@ Player :: struct {
     weaponManual: WeaponManual,
     weaponHold: WeaponHold,
     weaponAuto: WeaponAuto,
+    active_category: WeaponCategory,
     bitPistol: BitPistol,
     scope: Scope,
     bus: Bus,
@@ -47,29 +48,36 @@ update_player :: proc(player: ^Player, camera: ^Camera, bullets: ^BulletPool, ce
     
     input := input
 
-    switch player.weaponManual {
-        case .BitPistol:
-            update_bitpistol(&player.bitPistol, bullets, player.x, player.y, input, player.aimAngle, dt)
-        case .Scope:
-            update_scope(&player.scope, bullets, player.x, player.y, input, player.aimAngle, dt)
-            if player.scope.is_charging {
-                input.dx *= 0.2
-                input.dy *= 0.2
-            }       
-    }
-    switch player.weaponHold {
-        case .Bus:
-            update_bus()
-        case .Trace:
-            update_trace()
-    }
-    switch player.weaponAuto {
-        case .Ping:
-            update_ping()
-        case .Daemon:
-            update_daemon()
-    }
+    switch player.active_category {
+        case .Manual:
+            switch player.weaponManual {
+                case .BitPistol:
+                    update_bitpistol(&player.bitPistol, bullets, player.x, player.y, input, player.aimAngle, dt)
+                case .Scope:
+                    update_scope(&player.scope, bullets, player.x, player.y, input, player.aimAngle, dt)
+                    if player.scope.is_charging {
+                        input.dx *= 0.2
+                        input.dy *= 0.2
+                    }       
+            }
 
+        case .Hold:
+            switch player.weaponHold {
+                case .Bus:
+                    update_bus()
+                case .Trace:
+                    update_trace()
+            }
+
+        case .Auto:
+            switch player.weaponAuto {
+                case .Ping:
+                    update_ping()
+                case .Daemon:
+                    update_daemon()
+            }
+    }
+    
     update_camera(camera, input.dx, input.dy, dt)
 
     targetX := centerX + input.dx * NUDGE_RADIUS

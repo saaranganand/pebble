@@ -5,17 +5,22 @@ import ttf "vendor:sdl3/ttf"
 
 draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player) {
     weapon_name : cstring
-    switch player.weaponManual {
-        case .BitPistol: weapon_name = "Bit Pistol"
-        case .Scope: weapon_name = "Scope"
-    }
-    switch player.weaponHold {
-        case .Bus: weapon_name = "Bus"
-        case .Trace: weapon_name = "Trace"
-    }
-    switch player.weaponAuto {
-        case .Ping: weapon_name = "Ping"
-        case .Daemon: weapon_name = "Daemon"
+    switch player.active_category {
+        case .Manual:
+            switch player.weaponManual {
+                case .BitPistol: weapon_name = "Bit Pistol"
+                case .Scope: weapon_name = "Scope"
+            }
+        case .Hold:
+            switch player.weaponHold {
+                case .Bus: weapon_name = "Bus"
+                case .Trace: weapon_name = "Trace"
+            }
+        case .Auto:
+            switch player.weaponAuto {
+                case .Ping: weapon_name = "Ping"
+                case .Daemon: weapon_name = "Daemon"
+            }
     }
 
     surf := ttf.RenderText_Blended(font, weapon_name, 0, sdl.Color{0, 0, 0, 255})
