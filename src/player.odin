@@ -17,7 +17,7 @@ Player :: struct {
 }
 
 player_init :: proc() -> Player {
-    return Player{x = WINDOW_W/2, y = WINDOW_H/2}
+    return Player{x = WINDOW_W/2, y = WINDOW_H/2, weaponManual = .Scope}
 }
 
 draw_player :: proc(renderer: ^sdl.Renderer, player: Player) {
@@ -43,18 +43,19 @@ draw_player :: proc(renderer: ^sdl.Renderer, player: Player) {
     sdl.RenderFillRect(renderer, &aimRect)
 }
 
-update_player :: proc(player: ^Player, bullets: ^BulletPool, centerX: f32, centerY: f32, input: Input, dt: f32) {
-    targetX := centerX + input.dx * NUDGE_RADIUS
-    targetY := centerY + input.dy * NUDGE_RADIUS
-    player.x += (targetX-player.x) * NUDGE_SPEED
-    player.y += (targetY-player.y) * NUDGE_SPEED
-    player.aimAngle = math.atan2(input.mouseY - player.y, input.mouseX - player.x)
+update_player :: proc(player: ^Player, camera: ^Camera, bullets: ^BulletPool, centerX: f32, centerY: f32, input: Input, dt: f32) {
+    
+    input := input
 
     switch player.weaponManual {
         case .BitPistol:
             update_bitpistol(&player.bitPistol, bullets, player.x, player.y, input, player.aimAngle, dt)
         case .Scope:
-            update_scope()
+            update_scope(&player.scope, bullets, player.x, player.y, input, player.aimAngle, dt)
+            if player.scope.is_charging {
+                input.dx *= 0.2
+                input.dy *= 0.2
+            }       
     }
     switch player.weaponHold {
         case .Bus:
@@ -68,4 +69,12 @@ update_player :: proc(player: ^Player, bullets: ^BulletPool, centerX: f32, cente
         case .Daemon:
             update_daemon()
     }
+
+    update_camera(camera, input.dx, input.dy, dt)
+
+    targetX := centerX + input.dx * NUDGE_RADIUS
+    targetY := centerY + input.dy * NUDGE_RADIUS
+    player.x += (targetX-player.x) * NUDGE_SPEED
+    player.y += (targetY-player.y) * NUDGE_SPEED
+    player.aimAngle = math.atan2(input.mouseY - player.y, input.mouseX - player.x)
 }

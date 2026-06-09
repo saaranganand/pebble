@@ -68,8 +68,7 @@ main :: proc() {
         last_time = current_time
 
         input := process_input()
-        update_camera(&camera, input.dx, input.dy, dt)
-        update_player(&player, &bullets, centerX, centerY, input, dt)
+        update_player(&player, &camera, &bullets, centerX, centerY, input, dt)
         update_bullets(&bullets, dt, &input)
 
         draw_camera(renderer, camera)

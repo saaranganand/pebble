@@ -38,8 +38,18 @@ Scope :: struct {
     charge: f32
 }
 
-update_scope :: proc() {
-
+update_scope :: proc(sc: ^Scope, pool: ^BulletPool, x: f32, y: f32, input: Input, aimAngle: f32, dt: f32) {
+    if input.fire {
+        sc.is_charging = true
+        sc.charge += dt
+    }
+    else if !input.fire{
+        if sc.is_charging == true {
+            spawn_bullet(pool, x, y, aimAngle)
+            sc.charge = 0
+            sc.is_charging = false
+        }
+    }
 }
 
 // HOLD
