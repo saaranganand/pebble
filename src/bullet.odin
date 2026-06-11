@@ -41,7 +41,7 @@ draw_bullets :: proc(renderer: ^sdl.Renderer, pool: ^BulletPool) {
                 bulletRect:=sdl.FRect{
                 x = b.x, 
                 y = b.y, 
-                w = b.size*3, h = b.size/2}
+                w = b.size*4, h = b.size/2}
                 sdl.SetRenderDrawColor(renderer, 0, 255, 0, 255)
                 sdl.RenderFillRect(renderer, &bulletRect)
         }
@@ -76,5 +76,15 @@ spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32, type: Bul
             b.type = type
             return
         }
+    }
+}
+
+// bus
+
+draw_bus :: proc(renderer: ^sdl.Renderer, bus: Bus, input: Input, x: f32, y: f32, aimAngle: f32) {
+    if input.fire && !bus.is_overheated {
+        end_x := x + math.cos(aimAngle) * 2000
+        end_y := y + math.sin(aimAngle) * 2000
+        line := sdl.RenderLine(renderer, x, y, end_x, end_y)
     }
 }

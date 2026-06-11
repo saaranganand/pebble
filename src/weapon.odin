@@ -2,6 +2,8 @@ package main
 
 BITPISTOL_COOLDOWN :: 0.15 // time b/w bp bullets
 SCOPE_MAX_CHARGE :: 0.75 // how many s for scope to max charge
+BUS_MAX_HEAT :: 3.0
+BUS_OVERHEAT_COOLDOWN :: 1.0
 
 WeaponCategory :: enum {
     Manual,
@@ -76,8 +78,26 @@ Bus :: struct {
     cooldown: f32
 }
 
-update_bus :: proc() {
-
+update_bus :: proc(bus: ^Bus, input: Input, dt: f32) {
+    if bus.is_overheated {
+        bus.cooldown -= dt
+        if bus.cooldown <= 0 { // not overheated anymore
+            bus.is_overheated = false
+            bus.cooldown = 0
+        }
+    }
+    else {
+        if input.fire {
+            bus.heat += dt
+            if bus.heat >= BUS_MAX_HEAT { // overheat
+                bus.is_overheated = true
+                bus.heat = 0
+            }
+        }
+        else {
+            bus.heat = max(bus.heat - dt, 0)
+        }
+    }
 }
 
 // trace

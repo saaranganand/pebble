@@ -105,6 +105,7 @@ main :: proc() {
         draw_player(renderer, player)
         draw_hud(renderer, font, player)
         draw_bullets(renderer, &bullets)
+        draw_bus(renderer, player.bus, input, player.x, player.y, player.aimAngle)
 
         sdl.RenderPresent(renderer)
     }
