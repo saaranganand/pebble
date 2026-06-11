@@ -85,6 +85,14 @@ draw_bus :: proc(renderer: ^sdl.Renderer, bus: Bus, input: Input, x: f32, y: f32
     if input.fire && !bus.is_overheated {
         end_x := x + math.cos(aimAngle) * 2000
         end_y := y + math.sin(aimAngle) * 2000
-        line := sdl.RenderLine(renderer, x, y, end_x, end_y)
+        
+        perp_x := -math.sin(aimAngle)
+        perp_y :=  math.cos(aimAngle)
+
+        for i in -2..=2 {
+            ox := perp_x * f32(i)
+            oy := perp_y * f32(i)
+            sdl.RenderLine(renderer, x + ox, y + oy, end_x + ox, end_y + oy)
+        }
     }
 }
