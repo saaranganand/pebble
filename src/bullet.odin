@@ -1,3 +1,5 @@
+// projectile logic, drawing
+
 package main
 import sdl "vendor:sdl3"
 import "core:math"

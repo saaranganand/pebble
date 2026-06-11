@@ -24,11 +24,12 @@ main :: proc() {
     }
     defer sdl.Quit()
 
+    // font
     ttf.Init()
     font := ttf.OpenFont("assets/font1.ttf", 24)
-    // fmt.println(font)
     defer ttf.CloseFont(font)
 
+    // scope crosshair
     crosshair_surface := img.Load("assets/crosshair.png")
     crosshair_cursor := sdl.CreateColorCursor(crosshair_surface, 32, 32)
     sdl.DestroySurface(crosshair_surface)
@@ -92,11 +93,13 @@ main :: proc() {
             }
         }
         update_cursor(player, crosshair_cursor)
-
+        
+        // deltatime
         current_time := sdl.GetTicks()
         dt := f32(current_time - last_time) / 1000.0
         last_time = current_time
 
+        // procs
         input := process_input()
         update_player(&player, &camera, &bullets, centerX, centerY, input, dt)
         update_bullets(&bullets, dt, input)

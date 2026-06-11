@@ -1,3 +1,5 @@
+// hud elements like meters, text, hotbars and things
+
 package main
 
 import sdl "vendor:sdl3"
@@ -8,9 +10,11 @@ draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player) {
     switch player.active_category {
         case .Manual:
             switch player.weaponManual {
-                case .BitPistol: weapon_name = "Bit Pistol"
+                case .BitPistol: 
+                    weapon_name = "Bit Pistol"
                 case .Scope: 
                     weapon_name = "Scope"
+                    // scope charge meter
                     if player.scope.is_charging {
                         bgRect :=sdl.FRect{
                             x =  player.x - 30,
@@ -33,7 +37,9 @@ draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player) {
             }
         case .Hold:
             switch player.weaponHold {
-                case .Bus: weapon_name = "Bus"
+                case .Bus: 
+                    weapon_name = "Bus"
+                     // TODO: add bus overheat meter
                 case .Trace: weapon_name = "Trace"
             }
         case .Auto:
@@ -43,6 +49,7 @@ draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player) {
             }
     }
 
+    // weapon name on bottom left
     surf := ttf.RenderText_Blended(font, weapon_name, 0, sdl.Color{0, 0, 0, 255})
     texture := sdl.CreateTextureFromSurface(renderer, surf)
     sdl.DestroySurface(surf)

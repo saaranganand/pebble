@@ -1,3 +1,5 @@
+// player drawing and handling
+
 package main
 import sdl "vendor:sdl3"
 import "core:math"
@@ -22,7 +24,7 @@ player_init :: proc() -> Player {
 }
 
 draw_player :: proc(renderer: ^sdl.Renderer, player: Player) {
-    // rectangel
+    // player rectangle
     playerRect:=sdl.FRect{
         x = player.x - PLAYER_SIZE / 2,
         y = player.y - PLAYER_SIZE / 2,
@@ -32,6 +34,7 @@ draw_player :: proc(renderer: ^sdl.Renderer, player: Player) {
     sdl.SetRenderDrawColor(renderer, 255, 0, 0, 255)
     sdl.RenderFillRect(renderer, &playerRect)
 
+    // player aim cube
     aimX := player.x + math.cos(player.aimAngle) * AIM_DIST
     aimY := player.y + math.sin(player.aimAngle) * AIM_DIST
     aimRect:=sdl.FRect{
@@ -49,12 +52,14 @@ update_player :: proc(player: ^Player, camera: ^Camera, bullets: ^BulletPool, ce
     input := input
 
     switch player.active_category {
+        
         case .Manual:
             switch player.weaponManual {
                 case .BitPistol:
                     update_bitpistol(&player.bitPistol, bullets, player.x, player.y, input, player.aimAngle, dt)
                 case .Scope:
                     update_scope(&player.scope, bullets, player.x, player.y, input, player.aimAngle, dt)
+                    // slow player down
                     if player.scope.is_charging {
                         input.dx *= 0.2
                         input.dy *= 0.2
@@ -78,6 +83,7 @@ update_player :: proc(player: ^Player, camera: ^Camera, bullets: ^BulletPool, ce
             }
     }
     
+    // always centers player
     update_camera(camera, input.dx, input.dy, dt)
 
     targetX := centerX + input.dx * NUDGE_RADIUS

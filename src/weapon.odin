@@ -1,3 +1,5 @@
+// weapon definitions and behaviours
+
 package main
 
 BITPISTOL_COOLDOWN :: 0.15 // time b/w bp bullets

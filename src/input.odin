@@ -1,3 +1,5 @@
+// input handling
+
 package main
 import sdl "vendor:sdl3"
 
