@@ -5,7 +5,7 @@ package main
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
-draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player) {
+draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player, input: Input) {
     weapon_name : cstring
     switch player.active_category {
         case .Manual:
@@ -14,7 +14,7 @@ draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player) {
                     weapon_name = "Bit Pistol"
                 case .Scope: 
                     weapon_name = "Scope"
-                    // scope charge meter
+                    // scope charge meter - attached to player
                     if player.scope.is_charging {
                         bgRect :=sdl.FRect{
                             x =  player.x - 30,
@@ -39,7 +39,34 @@ draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player) {
             switch player.weaponHold {
                 case .Bus: 
                     weapon_name = "Bus"
-                     // TODO: add bus overheat meter
+                    // bus overheat meter - attached to cursor
+                    bgRect :=sdl.FRect{
+                        x =  input.mouseX - 25,
+                        y = input.mouseY + 40,
+                        w = 60,
+                        h = 6
+                    }
+                    fill_ratio := min(player.bus.heat / BUS_MAX_HEAT, 1.0)
+                    fillRect :=sdl.FRect{
+                        x = bgRect.x,
+                        y = bgRect.y,
+                        w = 60*(fill_ratio),
+                        h= 6
+                    }
+                    sdl.SetRenderDrawColor(renderer, 50,50,50,255)
+                    sdl.RenderFillRect(renderer, &bgRect)
+
+                    r, g : u8
+                    if fill_ratio < 0.5 {
+                        r = u8(fill_ratio * 2 * 255)
+                        g = 255
+                    } else {
+                        r = 255
+                        g = u8((1 - fill_ratio) * 2 * 255)
+                    }
+                    sdl.SetRenderDrawColor(renderer, r, g, 0, 255)
+                    sdl.RenderFillRect(renderer, &fillRect)
+                    
                 case .Trace: weapon_name = "Trace"
             }
         case .Auto:

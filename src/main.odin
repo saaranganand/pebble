@@ -106,9 +106,11 @@ main :: proc() {
 
         draw_camera(renderer, camera)
         draw_player(renderer, player)
-        draw_hud(renderer, font, player)
+        draw_hud(renderer, font, player, input)
         draw_bullets(renderer, &bullets)
-        draw_bus(renderer, player.bus, input, player.x, player.y, player.aimAngle)
+        if player.active_category == .Hold && player.weaponHold == .Bus {
+            draw_bus(renderer, player.bus, input, player.x, player.y, player.aimAngle)
+        }
 
         sdl.RenderPresent(renderer)
     }
