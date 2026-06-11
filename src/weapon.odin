@@ -1,7 +1,7 @@
 package main
 
 BITPISTOL_COOLDOWN :: 0.15 // time b/w bp bullets
-SCOPE_MAX_CHARGE :: 1.0 // how many s for scope to max charge
+SCOPE_MAX_CHARGE :: 0.75 // how many s for scope to max charge
 
 WeaponCategory :: enum {
     Manual,
