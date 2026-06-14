@@ -75,9 +75,9 @@ update_player :: proc(player: ^Player, camera: ^Camera, bullets: ^BulletPool, wa
             }
 
         case .Auto:
-            switch player.weaponAuto {
-                case .Ping:
-                    update_ping(&player.ping, waves, player.x, player.y, dt)
+            #partial switch player.weaponAuto {
+                // case .Ping:
+                //     update_ping(&player.ping, waves, player.x, player.y, input, is_selected, dt)
                 case .Daemon:
                     update_daemon()
             }

@@ -4,11 +4,12 @@ package main
 
 BITPISTOL_COOLDOWN :: 0.15 // time b/w bullets
 SCOPE_MAX_CHARGE :: 0.75 // how many s for scope to max charge
-BUS_MAX_HEAT :: 3.0
-TRACE_COOLDOWN :: 0.5
-PING_COOLDOWN :: 0.5
-PING_MAX_RADIUS :: 300
-PING_EXPAND_SPEED :: 150
+BUS_MAX_HEAT :: 3.0 // how many s for bus to hit max heat
+TRACE_COOLDOWN :: 0.5 // time b/w missiles
+PING_MAX_RADIUS :: 500 // how far a ping wave extends
+PING_EXPAND_SPEED :: 150 // how fast a ping wave extends
+PING_COOLDOWN :: f32(PING_MAX_RADIUS) / f32(PING_EXPAND_SPEED) / f32(MAX_PING_WAVES)
+PING_DURATION :: 20 // how many s ping runs for after activation
 
 WeaponCategory :: enum {
     Manual,
@@ -121,10 +122,33 @@ update_trace :: proc(tr: ^Trace, pool: ^BulletPool, x: f32, y: f32, input: Input
 
 // ping
 Ping :: struct {
-    cooldown: f32
+    cooldown: f32,
+    is_active: bool,
+    timer: f32
 }
 
-update_ping :: proc(ping: ^Ping, pool: ^PingWavePool, x, y: f32, dt: f32) {
+update_ping :: proc(ping: ^Ping, pool: ^PingWavePool, x, y: f32, input: Input, is_selected: bool, dt: f32) {
+    // TODO: add rendered warning for expiry
+    
+    if is_selected && input.fire && !ping.is_active {
+        ping.is_active = true
+        ping.timer = PING_DURATION
+        ping.cooldown = 0
+    }
+
+    if !ping.is_active {
+        return
+    }
+
+    ping.timer -= dt
+    if ping.timer <= 0 {
+        ping.is_active = false
+        for &w in pool.waves {
+            w.alive = false
+        }
+        return
+    }
+    
     if ping.cooldown > 0 {
         ping.cooldown -= dt
     }

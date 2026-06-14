@@ -109,6 +109,9 @@ main :: proc() {
         update_player(&player, &camera, &bullets, &waves, centerX, centerY, input, dt)
         update_bullets(&bullets, dt, input)
 
+        is_ping_selected := player.active_category == .Auto && player.weaponAuto == .Ping
+        update_ping(&player.ping, &waves, player.x, player.y, input, is_ping_selected, dt)
+
         draw_camera(renderer, camera)
         draw_player(renderer, player)
         draw_hud(renderer, font, player, input)
@@ -116,7 +119,7 @@ main :: proc() {
         if player.active_category == .Hold && player.weaponHold == .Bus {
             draw_bus(renderer, player.bus, input, player.x, player.y, player.aimAngle)
         }
-        if player.active_category == .Auto && player.weaponAuto == .Ping {
+        if player.ping.is_active {
             draw_ping_waves(renderer, &waves)
         }
 

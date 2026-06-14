@@ -7,9 +7,9 @@ import "core:math"
 MAX_BULLETS :: 256
 BULLET_SPEED :: 600
 BULLET_SIZE :: 8.0
-MAX_PING_WAVES :: 3
+MAX_PING_WAVES :: 3 // simultaneous ping waves and spacing
 
-// defs
+// bullets (bp, scope, trace)
 
 Bullet :: struct {
     x, y: f32,
@@ -28,19 +28,6 @@ BulletType :: enum {
 BulletPool :: struct {
     bullets : [MAX_BULLETS]Bullet
 }
-
-PingWave :: struct {
-    r: f32,
-    x, y: f32,
-    alive: bool
-}
-
-PingWavePool :: struct {
-    waves : [MAX_PING_WAVES]PingWave
-}
-
-// procs
-// ---
 
 draw_bullets :: proc(renderer: ^sdl.Renderer, pool: ^BulletPool, trace_tex: ^sdl.Texture) {
     sdl.SetRenderDrawColor(renderer, 255, 165, 0, 255)
@@ -126,7 +113,18 @@ draw_bus :: proc(renderer: ^sdl.Renderer, bus: Bus, input: Input, x: f32, y: f32
 
 // ping
 
+PingWave :: struct {
+    r: f32,
+    x, y: f32,
+    alive: bool
+}
+
+PingWavePool :: struct {
+    waves : [MAX_PING_WAVES]PingWave
+}
+
 draw_ping_waves :: proc(renderer: ^sdl.Renderer, pool: ^PingWavePool) {
+    sdl.SetRenderDrawBlendMode(renderer, sdl.BLENDMODE_BLEND)
     for w in pool.waves {
         if !w.alive {
             continue
@@ -134,10 +132,12 @@ draw_ping_waves :: proc(renderer: ^sdl.Renderer, pool: ^PingWavePool) {
         else {
             alpha := u8(255*(1- w.r/PING_MAX_RADIUS))
             color := sdl.Color{0, 255, 0, alpha}
+            thickness := f32(12) * (1 - w.r/PING_MAX_RADIUS)
             
-            draw_circle(renderer, w.x, w.y, w.r, color) 
+            draw_circle(renderer, w.x, w.y, w.r, color, thickness) 
         }
     }
+    sdl.SetRenderDrawBlendMode(renderer, sdl.BLENDMODE_NONE)
 }
 
 spawn_wave :: proc(pool: ^PingWavePool, x, y: f32) {
