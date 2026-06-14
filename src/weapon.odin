@@ -2,9 +2,10 @@
 
 package main
 
-BITPISTOL_COOLDOWN :: 0.15 // time b/w bp bullets
+BITPISTOL_COOLDOWN :: 0.15 // time b/w bullets
 SCOPE_MAX_CHARGE :: 0.75 // how many s for scope to max charge
 BUS_MAX_HEAT :: 3.0
+TRACE_COOLDOWN :: 0.5
 
 WeaponCategory :: enum {
     Manual,
@@ -103,8 +104,14 @@ Trace :: struct {
     cooldown: f32
 }
 
-update_trace :: proc() {
-
+update_trace :: proc(tr: ^Trace, pool: ^BulletPool, x: f32, y: f32, input: Input, aimAngle: f32, dt: f32) {
+    if tr.cooldown > 0 {
+        tr.cooldown -= dt
+    }
+    if input.fire && tr.cooldown <= 0 {
+        spawn_bullet(pool, x, y, aimAngle, BulletType.Trace)
+        tr.cooldown = TRACE_COOLDOWN
+    }
 }
 
 // AUTO

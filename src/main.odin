@@ -24,18 +24,6 @@ main :: proc() {
     }
     defer sdl.Quit()
 
-    // font
-    ttf.Init()
-    font := ttf.OpenFont("assets/font1.ttf", 24)
-    defer ttf.CloseFont(font)
-
-    // scope crosshair
-    crosshair_surface := img.Load("assets/crosshair.png")
-    crosshair_cursor := sdl.CreateColorCursor(crosshair_surface, 32, 32)
-    sdl.DestroySurface(crosshair_surface)
-    _ =sdl.SetCursor(crosshair_cursor)
-    defer sdl.DestroyCursor(crosshair_cursor)
-
     // window
     window := sdl.CreateWindow("Pebble",WINDOW_W,WINDOW_H,{})
     if window == nil {
@@ -51,6 +39,22 @@ main :: proc() {
         return
     }
     defer sdl.DestroyRenderer(renderer)
+
+    // font
+    ttf.Init()
+    font := ttf.OpenFont("assets/font1.ttf", 24)
+    defer ttf.CloseFont(font)
+
+    // scope crosshair
+    crosshair_surface := img.Load("assets/crosshair.png")
+    crosshair_cursor := sdl.CreateColorCursor(crosshair_surface, 32, 32)
+    sdl.DestroySurface(crosshair_surface)
+    _ =sdl.SetCursor(crosshair_cursor)
+    defer sdl.DestroyCursor(crosshair_cursor)
+
+    // trace missile
+    trace_tex := img.LoadTexture(renderer, "assets/trace.png")
+    defer sdl.DestroyTexture(trace_tex)
 
     sdl.SetRenderVSync(renderer, 1)
 
@@ -107,7 +111,7 @@ main :: proc() {
         draw_camera(renderer, camera)
         draw_player(renderer, player)
         draw_hud(renderer, font, player, input)
-        draw_bullets(renderer, &bullets)
+        draw_bullets(renderer, &bullets, trace_tex)
         if player.active_category == .Hold && player.weaponHold == .Bus {
             draw_bus(renderer, player.bus, input, player.x, player.y, player.aimAngle)
         }

@@ -18,14 +18,15 @@ Bullet :: struct {
 
 BulletType :: enum {
     BitPistol,
-    Scope
+    Scope,
+    Trace
 }
 
 BulletPool :: struct {
     bullets : [MAX_BULLETS]Bullet
 }
 
-draw_bullets :: proc(renderer: ^sdl.Renderer, pool: ^BulletPool) {
+draw_bullets :: proc(renderer: ^sdl.Renderer, pool: ^BulletPool, trace_tex: ^sdl.Texture) {
     sdl.SetRenderDrawColor(renderer, 255, 165, 0, 255)
     for b in pool.bullets {
         if !b.alive {
@@ -46,6 +47,14 @@ draw_bullets :: proc(renderer: ^sdl.Renderer, pool: ^BulletPool) {
                 w = b.size*4, h = b.size/2}
                 sdl.SetRenderDrawColor(renderer, 0, 255, 0, 255)
                 sdl.RenderFillRect(renderer, &bulletRect)
+            case .Trace:
+                angle_deg := math.to_degrees(math.atan2(b.vy, b.vx))
+                dst:=sdl.FRect{
+                    x = b.x,
+                    y = b.y,
+                    w = b.size*5, h = b.size*5
+                }
+                sdl.RenderTextureRotated(renderer, trace_tex, nil, &dst, f64(angle_deg), nil, .NONE)
         }
     }
 }

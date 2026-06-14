@@ -71,7 +71,7 @@ update_player :: proc(player: ^Player, camera: ^Camera, bullets: ^BulletPool, ce
                 case .Bus:
                     update_bus(&player.bus, input, dt)
                 case .Trace:
-                    update_trace()
+                    update_trace(&player.trace, bullets, player.x, player.y, input, player.aimAngle, dt)
             }
 
         case .Auto:
