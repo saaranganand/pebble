@@ -47,7 +47,7 @@ draw_player :: proc(renderer: ^sdl.Renderer, player: Player) {
     sdl.RenderFillRect(renderer, &aimRect)
 }
 
-update_player :: proc(player: ^Player, camera: ^Camera, bullets: ^BulletPool, centerX: f32, centerY: f32, input: Input, dt: f32) {
+update_player :: proc(player: ^Player, camera: ^Camera, bullets: ^BulletPool, waves: ^PingWavePool, centerX: f32, centerY: f32, input: Input, dt: f32) {
     
     input := input
 
@@ -77,7 +77,7 @@ update_player :: proc(player: ^Player, camera: ^Camera, bullets: ^BulletPool, ce
         case .Auto:
             switch player.weaponAuto {
                 case .Ping:
-                    update_ping()
+                    update_ping(&player.ping, waves, player.x, player.y, dt)
                 case .Daemon:
                     update_daemon()
             }

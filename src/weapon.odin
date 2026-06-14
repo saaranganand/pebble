@@ -6,6 +6,9 @@ BITPISTOL_COOLDOWN :: 0.15 // time b/w bullets
 SCOPE_MAX_CHARGE :: 0.75 // how many s for scope to max charge
 BUS_MAX_HEAT :: 3.0
 TRACE_COOLDOWN :: 0.5
+PING_COOLDOWN :: 0.5
+PING_MAX_RADIUS :: 300
+PING_EXPAND_SPEED :: 150
 
 WeaponCategory :: enum {
     Manual,
@@ -121,8 +124,25 @@ Ping :: struct {
     cooldown: f32
 }
 
-update_ping :: proc() {
-
+update_ping :: proc(ping: ^Ping, pool: ^PingWavePool, x, y: f32, dt: f32) {
+    if ping.cooldown > 0 {
+        ping.cooldown -= dt
+    }
+    else {
+        spawn_wave(pool, x, y)
+        ping.cooldown = PING_COOLDOWN
+    }
+    for &w in pool.waves {
+        if !w.alive {
+            continue
+        }
+        else {
+            w.r += PING_EXPAND_SPEED * dt
+            if w.r >= PING_MAX_RADIUS {
+                w.alive = false
+            }
+        }
+    }
 }
 
 // daemin

@@ -63,6 +63,7 @@ main :: proc() {
     camera := Camera{}
     player := player_init()
     bullets := BulletPool{}
+    waves := PingWavePool{}
 
     last_time := sdl.GetTicks()
     // game loop
@@ -105,7 +106,7 @@ main :: proc() {
 
         // procs
         input := process_input()
-        update_player(&player, &camera, &bullets, centerX, centerY, input, dt)
+        update_player(&player, &camera, &bullets, &waves, centerX, centerY, input, dt)
         update_bullets(&bullets, dt, input)
 
         draw_camera(renderer, camera)
@@ -114,6 +115,9 @@ main :: proc() {
         draw_bullets(renderer, &bullets, trace_tex)
         if player.active_category == .Hold && player.weaponHold == .Bus {
             draw_bus(renderer, player.bus, input, player.x, player.y, player.aimAngle)
+        }
+        if player.active_category == .Auto && player.weaponAuto == .Ping {
+            draw_ping_waves(renderer, &waves)
         }
 
         sdl.RenderPresent(renderer)
