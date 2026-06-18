@@ -73,10 +73,14 @@ draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player, input
             switch player.weaponAuto {
                 case .Ping: 
                     weapon_name = "Ping"
-                    if player.ping.is_active && player.ping.timer <= 3.0 {
-                        draw_expiry_exclamation(renderer, font)
-                    }
-                case .Daemon: weapon_name = "Daemon"
+                case .Daemon: 
+                    weapon_name = "Daemon"
+            }
+            if player.ping.is_active && player.ping.timer <= 3.0 {
+                draw_expiry_exclamation(renderer, font)
+            }
+            if player.daemon.is_active && player.daemon.timer <= 3.0 {
+                draw_expiry_exclamation(renderer, font)
             }
     }
 

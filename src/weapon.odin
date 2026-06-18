@@ -3,13 +3,21 @@
 package main
 
 BITPISTOL_COOLDOWN :: 0.15 // time b/w bullets
+
 SCOPE_MAX_CHARGE :: 0.75 // how many s for scope to max charge
+
 BUS_MAX_HEAT :: 3.0 // how many s for bus to hit max heat
+
 TRACE_COOLDOWN :: 0.5 // time b/w missiles
+
 PING_MAX_RADIUS :: 500 // how far a ping wave extends
 PING_EXPAND_SPEED :: 150 // how fast a ping wave extends
 PING_COOLDOWN :: f32(PING_MAX_RADIUS) / f32(PING_EXPAND_SPEED) / f32(MAX_PING_WAVES)
-PING_DURATION :: 13 // how many s ping runs for after activation
+PING_DURATION :: 15 // how many s ping runs for after activation
+
+DAEMON_ORBIT_RADIUS :: 80 // how far from the player daemon orbits
+DAEMON_ORBIT_SPEED :: 2 // how fast daemon orbits player
+DAEMON_DURATION :: 15 // how many s daemon runs for after activation
 
 WeaponCategory :: enum {
     Manual,
@@ -122,7 +130,7 @@ update_trace :: proc(tr: ^Trace, pool: ^BulletPool, x: f32, y: f32, input: Input
 
 // ping
 Ping :: struct {
-    cooldown: f32,
+    cooldown: f32, // wave cooldown
     is_active: bool,
     timer: f32
 }
@@ -170,11 +178,26 @@ update_ping :: proc(ping: ^Ping, pool: ^PingWavePool, x, y: f32, input: Input, i
 
 // daemin
 Daemon :: struct {
-    cooldown: f32,
-    is_deployed: bool,
-    timer: f32
+    is_active: bool,
+    timer: f32,
+    orbit_angle: f32
 }
 
-update_daemon :: proc() {
+update_daemon :: proc(d: ^Daemon, is_selected: bool, input: Input, dt: f32) {
+    if is_selected && input.fire && !d.is_active {
+        d.is_active = true
+        d.timer = DAEMON_DURATION
+    }
 
+    if !d.is_active {
+        return
+    }
+
+    d.timer -= dt
+    if d.timer <= 0 {
+        d.is_active = false
+        return
+    }
+
+    d.orbit_angle += DAEMON_ORBIT_SPEED * dt
 }

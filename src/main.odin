@@ -111,6 +111,9 @@ main :: proc() {
 
         is_ping_selected := player.active_category == .Auto && player.weaponAuto == .Ping
         update_ping(&player.ping, &waves, player.x, player.y, input, is_ping_selected, dt)
+        
+        is_daemon_selected := player.active_category == .Auto && player.weaponAuto == .Daemon
+        update_daemon(&player.daemon, is_daemon_selected, input, dt)
 
         draw_camera(renderer, camera)
         draw_player(renderer, player)
@@ -121,6 +124,9 @@ main :: proc() {
         }
         if player.ping.is_active {
             draw_ping_waves(renderer, &waves)
+        }
+        if player.daemon.is_active{
+            draw_daemon(renderer, player.daemon, player.x, player.y)
         }
 
         sdl.RenderPresent(renderer)

@@ -151,3 +151,21 @@ spawn_wave :: proc(pool: ^PingWavePool, x, y: f32) {
         }
     }
 }
+
+// daemon
+
+draw_daemon :: proc(renderer: ^sdl.Renderer, d: Daemon, px, py: f32) {
+    if !d.is_active {
+        return 
+    }
+    dx := px + math.cos(d.orbit_angle) * DAEMON_ORBIT_RADIUS
+    dy := py + math.sin(d.orbit_angle) * DAEMON_ORBIT_RADIUS
+    rect := sdl.FRect{
+        x = dx-8,
+        y = dy-8,
+        w= 16,
+        h = 16
+    }
+    sdl.SetRenderDrawColor(renderer, 180, 0, 255, 255)
+    sdl.RenderFillRect(renderer, &rect)
+}
