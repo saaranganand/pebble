@@ -4,8 +4,6 @@ package main
 
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
-import "core:math"
-import "core:fmt"
 
 draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player, input: Input) {
     weapon_name : cstring
@@ -76,24 +74,7 @@ draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player, input
                 case .Ping: 
                     weapon_name = "Ping"
                     if player.ping.is_active && player.ping.timer <= 3.0 {
-                        // display timer when ping about to end
-                        count := int(math.ceil(player.ping.timer))
-                        label := fmt.ctprintf("%d", count)
-                        
-                        surf := ttf.RenderText_Blended(font, label, 0, sdl.Color{64, 0, 0, 255})
-                        texture := sdl.CreateTextureFromSurface(renderer, surf)
-                        sdl.DestroySurface(surf)
-
-                        w, h: f32
-                        sdl.GetTextureSize(texture, &w, &h)
-                        dst := sdl.FRect{
-                            x = WINDOW_W/2 - w/2,
-                            y = WINDOW_H/2,
-                            w = w,
-                            h = h
-                        }
-                        sdl.RenderTexture(renderer, texture, nil, &dst)
-                        sdl.DestroyTexture(texture)
+                        draw_expiry_exclamation(renderer, font)
                     }
                 case .Daemon: weapon_name = "Daemon"
             }
@@ -119,4 +100,22 @@ update_cursor :: proc(player: Player, crosshair: ^sdl.Cursor) {
     else {
         _ =sdl.SetCursor(sdl.GetDefaultCursor())
     }
+}
+
+draw_expiry_exclamation :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font) {
+    // display exclamation when ping about to end
+    surf := ttf.RenderText_Blended(font, "!", 0, sdl.Color{64, 0, 0, 255})
+    texture := sdl.CreateTextureFromSurface(renderer, surf)
+    sdl.DestroySurface(surf)
+
+    w, h: f32
+    sdl.GetTextureSize(texture, &w, &h)
+    dst := sdl.FRect{
+        x = WINDOW_W/2 - w/2,
+        y = WINDOW_H/2,
+        w = w,
+        h = h
+    }
+    sdl.RenderTexture(renderer, texture, nil, &dst)
+    sdl.DestroyTexture(texture)
 }
