@@ -9,7 +9,7 @@ TRACE_COOLDOWN :: 0.5 // time b/w missiles
 PING_MAX_RADIUS :: 500 // how far a ping wave extends
 PING_EXPAND_SPEED :: 150 // how fast a ping wave extends
 PING_COOLDOWN :: f32(PING_MAX_RADIUS) / f32(PING_EXPAND_SPEED) / f32(MAX_PING_WAVES)
-PING_DURATION :: 20 // how many s ping runs for after activation
+PING_DURATION :: 13 // how many s ping runs for after activation
 
 WeaponCategory :: enum {
     Manual,
@@ -128,7 +128,6 @@ Ping :: struct {
 }
 
 update_ping :: proc(ping: ^Ping, pool: ^PingWavePool, x, y: f32, input: Input, is_selected: bool, dt: f32) {
-    // TODO: add rendered warning for expiry
     
     if is_selected && input.fire && !ping.is_active {
         ping.is_active = true
