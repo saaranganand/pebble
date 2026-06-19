@@ -72,6 +72,7 @@ main :: proc() {
     player := player_init()
     bullets := BulletPool{}
     waves := PingWavePool{}
+    enemies := EnemyPool{}
 
     last_time := sdl.GetTicks()
     // game loop
@@ -112,7 +113,7 @@ main :: proc() {
         dt := f32(current_time - last_time) / 1000.0
         last_time = current_time
 
-        // procs
+        // updates
         input := process_input()
         update_player(&player, &camera, &bullets, &waves, centerX, centerY, input, dt)
         update_bullets(&bullets, dt, input)
@@ -126,7 +127,10 @@ main :: proc() {
 
         update_ping(&player.ping, &waves, player.x, player.y, input, is_ping_selected, dt)
         update_daemon(&player.daemon, is_daemon_selected, input, dt)
+        
+        update_enemies(&enemies, player.x, player.y, input, dt)
 
+        // drawing
         draw_camera(renderer, camera)
         draw_player(renderer, player)
         draw_hud(renderer, font, player, input)
@@ -140,6 +144,7 @@ main :: proc() {
         if player.daemon.is_active{
             draw_daemon(renderer, player.daemon, player.x, player.y)
         }
+        draw_enemies(renderer, &enemies)
 
         sdl.RenderPresent(renderer)
     }
