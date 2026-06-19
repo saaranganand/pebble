@@ -76,12 +76,9 @@ draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player, input
                 case .Daemon: 
                     weapon_name = "Daemon"
             }
-            if player.ping.is_active && player.ping.timer <= 3.0 {
-                draw_expiry_exclamation(renderer, font)
-            }
-            if player.daemon.is_active && player.daemon.timer <= 3.0 {
-                draw_expiry_exclamation(renderer, font)
-            }
+    }
+    if any_auto_expiring(player) {
+        draw_expiry_exclamation(renderer, font)
     }
 
     // weapon name on bottom left
@@ -97,6 +94,10 @@ draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player, input
     sdl.DestroyTexture(texture)
 }
 
+any_auto_expiring :: proc(player: Player) -> bool {
+    return (player.ping.is_active && player.ping.timer <= 3.0) || (player.daemon.is_active && player.daemon.timer <= 3.0)
+}
+
 update_cursor :: proc(player: Player, crosshair: ^sdl.Cursor) {
     if player.active_category == .Manual && player.weaponManual == .Scope {
         _ = sdl.SetCursor(crosshair)
@@ -108,7 +109,7 @@ update_cursor :: proc(player: Player, crosshair: ^sdl.Cursor) {
 
 draw_expiry_exclamation :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font) {
     // display exclamation when ping about to end
-    surf := ttf.RenderText_Blended(font, "!", 0, sdl.Color{64, 0, 0, 255})
+    surf := ttf.RenderText_Blended(font, "!", 0, sdl.Color{0, 0, 0, 255})
     texture := sdl.CreateTextureFromSurface(renderer, surf)
     sdl.DestroySurface(surf)
 

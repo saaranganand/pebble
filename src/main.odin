@@ -17,6 +17,14 @@ NUDGE_SPEED :: 0.15 // how fast they lean
 
 TILE_SIZE :: 64
 
+reset_auto_weapons :: proc(player: ^Player, pool: ^PingWavePool) {
+    player.ping.is_active = false
+    for &w in pool.waves {
+        w.alive = false
+    }
+    player.daemon.is_active = false
+}
+
 main :: proc() {
     if !sdl.Init({.VIDEO}) {
         fmt.eprintln("sdl Init fail", sdl.GetError())
@@ -108,11 +116,15 @@ main :: proc() {
         input := process_input()
         update_player(&player, &camera, &bullets, &waves, centerX, centerY, input, dt)
         update_bullets(&bullets, dt, input)
-
         is_ping_selected := player.active_category == .Auto && player.weaponAuto == .Ping
-        update_ping(&player.ping, &waves, player.x, player.y, input, is_ping_selected, dt)
-        
         is_daemon_selected := player.active_category == .Auto && player.weaponAuto == .Daemon
+
+        if (is_ping_selected && input.fire && !player.ping.is_active) ||
+        (is_daemon_selected && input.fire && !player.daemon.is_active) {
+            reset_auto_weapons(&player, &waves)
+        }
+
+        update_ping(&player.ping, &waves, player.x, player.y, input, is_ping_selected, dt)
         update_daemon(&player.daemon, is_daemon_selected, input, dt)
 
         draw_camera(renderer, camera)
