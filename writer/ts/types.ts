@@ -8,6 +8,7 @@ interface ChoiceOption {
     id: string,
     label: string,
     condition?: string,
+    character?: string,
     mutations: Mutation[],
 }
 

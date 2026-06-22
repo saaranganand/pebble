@@ -1,3 +1,8 @@
-pre .paragraph {
-    font-size: 16px;
+.para {
+    --size: 1;
+    font-size: calc(var(--base-size) * var(--size));
+}
+
+.next_button {
+    margin-top: 20px;
 }

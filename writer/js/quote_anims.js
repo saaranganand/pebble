@@ -6,6 +6,7 @@ function shakeText(element) {
     if (element.style.getPropertyValue('--shaken').trim() === 'true')
         return;
     element.style.setProperty('--shaken', 'true');
+    let parent_size = element.style.getPropertyValue('--size').trim();
     let base = 0.3;
     console.log(parseInt(element.style.fontSize));
     if (parseInt(element.style.fontSize) < 32) {
@@ -26,6 +27,11 @@ function shakeText(element) {
                 span.style.setProperty('--duration', `${(0.1).toFixed(2)}s`);
                 span.style.setProperty('--xdist', `${(xneg * (base + Math.random() * 0.1)).toFixed(1)}px`);
                 span.style.setProperty('--ydist', `${(yneg * (base + Math.random() * 0.1)).toFixed(1)}px`);
+                // we have to copy over the size variable, since the .quote -> pre -> span style
+                // uses the size variable, and defaults it to 1
+                // so even though the parent aka creator uses a size,
+                // the child wont inherit
+                span.style.setProperty('--size', parent_size);
                 span.textContent = char === ' ' ? '\u00a0' : char;
                 fragment.appendChild(span);
             }

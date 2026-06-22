@@ -1,29 +1,42 @@
 - id: intro
   items:
+    - type: paragraph
+      character: undefined
+      content: >
+        <span style="--size: 1.5;" class="shake">Are  we    connected?</span>
     - type: quote
       character: canary
       hidden: true
       known: false
       content: >
-        <span style="color:red;font-size:16px;" class="shake">INTRUDER ALERT!</span>
+        <span style="color:red;--size: 1.5;" class="shake">INTRUDER ALERT!</span>
 
-        <span style="color:red;font-size:16px;" class="shake">INTRUDER ALERT!</span>
+        <span style="color:red;--size: 1.5;" class="shake">INTRUDER ALERT!</span>
 
-        <span style="color:red;font-size:16px;" class="shake">INTRUDER ALERT!</span>
+        <span style="color:red;--size: 1.5;" class="shake">INTRUDER ALERT!</span>
     - type: paragraph
       content: >
         As a shrill alarm filled its audio sensors, friend activated its sight; only to be met with intense, glaring lights cascading over its vision -- red,
-        pure red, then orange, yellow, blinding white, and then back to red.
+        pure red, then orange, yellow, blinding white, then back to red.
+    - type: paragraph
+      character: undefined
+      content: >
+        <span style="--size: 1.5;" class="shake">Can    you      hear   me?</span>
+    - type: choice
+      options:
+        - label: >
+            ‎
+          character: undefined
     - type: quote
       character: canary
       hidden: true
       known: false
       content: >
-        <span style="color:red;font-size:32px;" class="shake">INTRUDER ALERT!</span>
+        <span style="color:red;--size: 2;" class="shake">INTRUDER ALERT!</span>
 
-        <span style="color:red;font-size:32px;" class="shake">INTRUDER ALERT!</span>
+        <span style="color:red;--size: 2;" class="shake">INTRUDER ALERT!</span>
 
-        <span style="color:red;font-size:32px;" class="shake">INTRUDER ALERT!</span>
+        <span style="color:red;--size: 2;" class="shake">INTRUDER ALERT!</span>
     - type: paragraph
       content: >
         Louder yet, the cacophany of lights and sounds filled Friend's mind, leaving it empty to any and all thoughts. Trying to orient itself, friend,
@@ -34,45 +47,78 @@
       hidden: true
       known: false
       content: >
-        <span style="color:red;font-size:48px;" class="shake">INTRUDER ALERT!</span>
+        <span style="color:red;--size: 3;" class="shake">INTRUDER ALERT!</span>
 
-        <span style="color:red;font-size:48px;" class="shake">INTRUDER ALERT!</span>
+        <span style="color:red;--size: 3;" class="shake">INTRUDER ALERT!</span>
 
-        <span style="color:red;font-size:48px;" class="shake">INTRUDER ALERT!</span>
+        <span style="color:red;--size: 3;" class="shake">INTRUDER ALERT!</span>
+    - type: paragraph
+      character: undefined
+      content: >
+        <span style="--size: 1.5;" class="shake">Can        you   hear    me?</span>
+    - type: paragraph
+      character: undefined
+      content: >
+        <span style="--size: 1.5;" class="shake">Answer  with      affirmative.</span>
+    - type: choice
+      options:
+        - label: >
+           Yes
     - type: paragraph
       content: >
-        The alarm grew louder, but so did Friend's sense of vision; fading from the flashing array of colors was the silhouette of a strange creature.
+        And as the alarm grew louder, so too did Friend's sense of vision grow clearer; atop the flashing array of colors was the shimmering silhouette of a
+        strange creature.
     - type: quote
       character: canary
       hidden: true
       known: false
       content: >
-        <span style="color:red;font-size:48px;" class="shake">INTRUDER ALERT!</span>
+        <span style="color:red;--size: 3;" class="shake">INTRUDER ALERT!</span>
     - type: paragraph
       content: >
-        Friend's mind began to open and its senses were slowly returning, and with them the image of the creature became clearer, though as it did,
+        Friend's mind began to open and its senses slowly returned, and with them the image of the creature became clearer -- though as it did,
         it seemed less like a silhoutte and more a projection of lights, as if it were printed within Friend's eyes themselves.
     - type: quote
       character: canary
       alternate: annoyed
       known: false
       content: >
-        <span style="color:red;font-size:48px;" class="shake">INTRUDER ALERT!</span>
+        <span style="color:red;--size: 3;" class="shake">INTRUDER ALERT!</span>
+    - type: paragraph
+      character: undefined
+      content: >
+        <span style="--size: 1.5;" class="shake">You  are      connected.</span>
+    - type: choice
+      options:
+        - label: >
+           Yes
     - type: paragraph
       content: >
-        Its visage was akin to a crudely drawn bear -- it floated squarely on the horizon of Friend's vision, and was missing the legs, tail, and torso that such
-        creatures had, as if the artist had no intention to create, or even knowledge of, the natural characteristics of a bear. No, it was clear the friend
-        in this moment that whatever it was seeing was no creature at all, but a synthetic image pasted into its mind.
+        Its visage was akin to a crudely drawn bear -- it floated squarely on Friend's eyeline, and was missing the legs, tail, and torso that such
+        creatures had, as if the artist had no intention to create, or even knowledge of, the natural characteristics of a bear. And created by an
+        artist it must have been, for it was clear to friend in this moment that whatever it was seeing was no creature at all, but a synthetic image pasted into its mind.
     - type: quote
       character: canary
       alternate: annoyed
       known: false
       content: >
-        <span style="color:red;font-size:48px;" class="shake">INTRUDER ALERT!</span>
+        <span style="color:red;--size: 3;" class="shake">INTRUDER ALERT!</span>
+    - type: paragraph
+      character: undefined
+      content: >
+        <span style="--size: 1.5;" class="shake">I   ask  of   you</span>
+    - type: paragraph
+      character: undefined
+      content: >
+        <span style="--size: 1.5;" class="shake">can    you      help   them?</span>
+    - type: choice
+      options:
+        - label: >
+           ‎
     - type: paragraph
       content: >
-        This angry looking bear-thing had been accosting Friend with its blaring alarm, which it rythmically played in patterns of 3. Having just finished
-        another round of alarms, Friend seized the opening and calmly spoke to the bear:
+        This angry-looking-bear-thing had been accosting Friend with its blaring alarm, following rhythms of three. Having just heard the third, Friend seized
+        the opening and calmly spoke to the bear:
     - type: quote
       character: friend
       alternate: stunned
@@ -83,12 +129,24 @@
       alternate: annoyed
       known: false
       content: >
-        <span style="color:red;font-size:48px;" class="shake">INTRUDER ALERT!</span>
+        <span style="color:red;--size: 3;" class="shake">INTRUDER ALERT!</span>
     - type: quote
       character: friend
       alternate: angry
       content: >
-        <span style="font-size:32px;" class="shake">SHUT UP!</span>
+        <span style="--size: 2;" class="shake">SHUT UP!</span>
+    - type: paragraph
+      character: undefined
+      content: >
+        <span style="--size: 1.5;" class="shake">I    was  not</span>
+    - type: paragraph
+      character: undefined
+      content: >
+        <span style="--size: 1.5;" class="shake">able.</span>
+    - type: choice
+      options:
+        - label: >
+           ‎
     - type: quote
       character: canary
       alternate: annoyed
@@ -105,15 +163,23 @@
       alternate: annoyed
       known: false
       content: >
-        <span style="color:red;font-size:16px;" class="shake">Attention intruder!</span>
+        <span style="color:red;--size: 1.5;" class="shake">Attention intruder!</span>
 
-        You have been flagged as containing malicious or otherwise unidentifiable software, which poses a threat to the compound at large. Cease the operation
-        of your malware immediately, and identify your source, or you will be forcibly shut down!
+        You have been flagged as containing malicious or otherwise unidentifiable software, which poses a threat to the Moiraeon at large. Cease the operation
+        of your malware immediately and identify your source, or you will be forcibly shut down!
     - type: quote
       character: friend
       alternate: angry
       content: >
         Software? What the hell are you talking about? Who are you?
+    - type: paragraph
+      character: undefined
+      content: >
+        <span style="--size: 1.5;" class="shake">But      you   can.</span>
+    - type: choice
+      options:
+        - label: >
+           ‎
     - type: quote
       character: canary
       alternate: annoyed
@@ -121,17 +187,47 @@
       content: >
         ...
     - type: quote
+      character: friend
+      alternate: angry
+      content: >
+        Hel-
+    - type: quote
+      character: canary
+      content: >
+        Authority verified. I am Canary, an artificially intelligent security assistant to the compound. Due to recent activity, I am, for the time being, the interim head
+        of operational security. 
+    - type: quote
+      character: friend
+      content: >
+        So you're a robot? And what is "the compound"? Is that where we are?
+    - type: quote
+      character: canary
+      content: >
+        ...
+    - type: quote
+      character: friend
+      content: >
+        Why don't you be a good bot and go call your master? We'll get this sorted o-
+    - type: quote
       character: canary
       alternate: annoyed
       content: >
-        I am Canary, assistant to the chief executive security officer of the compound. Due to recent activity, I am, for the time being, the interim head
-        of operational security. While I can see the compound's signature on you, part of your data has been encrypted by a method not employed by the
+        Strange. While I can see the compound's signature on you, part of your data has been encrypted by a method not employed by the
         compound.
         
-        <span style="color:red;font-size:16px;" class="shake">Identify your source and intentions immediately!</span>
+        <span style="color:red;--size: 1.5;" class="shake">Identify your source and intentions immediately!</span>
     - type: paragraph
       content: >
-        As the strange bear bristled with an unknown energy, the world seemed to collapse around friend,
+        The strange bear began to bristle with an unknown energy, and the world seemed to collapse around Friend, while its senses
+        slowly converged to a single point.
+    - type: quote
+      character: canary
+      alternate: annoyed
+      content: >
+        ...
+    - type: paragraph
+      content: >
+        But just as quickly as reality had collapsed, it returned
     - type: choice
       id: choice_met_soldier
       options:
@@ -143,17 +239,14 @@
               value: 1
         - id: choice_met_soldier_ignored
           label: Ignore him and walk past.
-
     - type: paragraph
-      content: The smoke grows thicker as you move further in.
-    - type: quote
-      character: canary
-      alternate: annoyed
+      character: undefined
       content: >
-        Traveller. You shouldn't be here. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller.
-        Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller.
-        Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller.
-        Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller. Traveller.  
+        <span style="--size: 1.5;" class="shake">Good luck.</span>
+    - type: choice
+      options:
+        - label: >
+            Yes
   next:
     - id: soldier_talk
       condition: "contains(state.temporary_choices, 'choice_met_soldier_asked')"

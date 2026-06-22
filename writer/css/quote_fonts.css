@@ -1,27 +1,27 @@
+/* 
+all classes need to be predated with .quote
+so that, if they specify --size,
+they overwrite the default for .quote pre
+i do not know why this is, or why specifiying the parent class
+makes it inherit. bruh
+*/
+
 .quote_canary_font {
-    font-family: monospace;
+    font-family: "Geo", sans-serif;
+    --size: 1.2;
 }
+.quote .quote_canary_font { --size: 1.2; }
 
-.quote_seed_font {
-    font-family: "Crimson Text", serif;
-}
-
-.quote_flower_font {
-    font-family: "Gamja Flower", sans-serif;
-}
-
-.quote_serf_font {
-    font-family: "Darumadrop One", sans-serif;
-}
-
-.quote_pebble_font {
-    font-family: "Stylish", sans-serif;
-}
-
-.quote_friend_font {
-    font-family: "Work Sans", sans-serif;
-}
+.quote_seed_font { font-family: "Crimson Text", serif; }
+.quote_flower_font { font-family: "Gamja Flower", sans-serif; }
+.quote_serf_font { font-family: "Darumadrop One", sans-serif; }
+.quote_pebble_font { font-family: "Stylish", sans-serif; }
+.quote_friend_font { font-family: "Work Sans", sans-serif; }
 
 .quote_undefined_font {
     font-family: "Yuji Syuku", serif;
+    --size: 1.5;
 }
+.quote .quote_undefined_font { --size: 1.5; }
+
+

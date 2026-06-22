@@ -76,6 +76,7 @@ export class NarrativeEngine {
         for (const item of node.items) {
             if (item.type === "choice") {
                 // We await choices to delay rendering of results
+                // call_anims is called in here, so we dont have to worry about the await not animating things
                 await this.renderChoice(item.choice_id!, item.options!)
             } else if (item.type === "quote") {
                 this.renderQuote(item)
@@ -83,6 +84,7 @@ export class NarrativeEngine {
                 this.renderItem(item)
             }
         }
+        call_anims()
 
         this.renderNext(node)
     }
@@ -114,6 +116,7 @@ export class NarrativeEngine {
 
         // otherwise, we use this button to travel to the next node
         const btn = document.createElement("button")
+        btn.className = "next_button"
         btn.textContent = "Next"
         btn.onclick = async () => {
             btn.disabled = true
@@ -128,8 +131,14 @@ export class NarrativeEngine {
         // Quotes are done with blockquote items.
         // Subject to change
         const el = document.createElement("pre")
-        el.className = "paragraph"
-        el.textContent = lua_interpolate(item.content!)
+        el.innerHTML = lua_interpolate(item.content!)
+        el.className = "para"
+
+        if (item.character) {
+            el.classList.add(`quote_${item.character!}_font`)
+        }
+
+        
         html_content.appendChild(el)
     }
 
@@ -149,8 +158,6 @@ export class NarrativeEngine {
 
         container.appendChild(el)
         html_content.appendChild(container)
-
-        call_anims()
     }
  
     private renderChoice(choice_id: string, options: ChoiceOption[]): Promise<void> {
@@ -175,8 +182,11 @@ export class NarrativeEngine {
                     btn.disabled = true
                 }
 
-
-                btn.textContent = option.label
+                if (option.character) {
+                    btn.classList.add(`quote_${option.character!}_font`)
+                }
+                //btn.textContent = option.label
+                btn.innerHTML = option.label
                 btn.onclick = () => {
                     state.temporary_choices.push(option.id)
                     state.persistent_choices[choice_id] = option.id
@@ -196,6 +206,7 @@ export class NarrativeEngine {
             }
 
             html_content.appendChild(container)
+            call_anims()
         })
     }
  
