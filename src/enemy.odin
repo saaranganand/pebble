@@ -8,17 +8,17 @@ MAX_ENEMIES :: 64
 ENEMY_SPAWN_RATE :: 2
 ENEMY_SPAWN_DIST :: 750 // how far away enemies spawn in relation to player
 
-SMALL_HEALTH :: 1
+SMALL_HEALTH :: 30
 SMALL_SPEED :: 160
 SMALL_SIZE :: 10
 SMALL_DAMAGE :: 0.5
 
-REGULAR_HEALTH :: 3
+REGULAR_HEALTH :: 50
 REGULAR_SPEED :: 80
 REGULAR_SIZE :: 20
 REGULAR_DAMAGE :: 1
 
-LARGE_HEALTH :: 7
+LARGE_HEALTH :: 70
 LARGE_SPEED :: 30
 LARGE_SIZE :: 40
 LARGE_DAMAGE :: 2
@@ -30,7 +30,7 @@ EnemyType :: enum {
 }
 
 Enemy :: struct {
-    health: f32,
+    hp: f32,
     type: EnemyType,
     x,y: f32,
     alive: bool
@@ -110,15 +110,15 @@ spawn_enemy :: proc(pool: ^EnemyPool, px, py: f32) {
             r := rand.float32()
             if r < 0.6 {
                 e.type = .Regular
-                e.health = REGULAR_HEALTH
+                e.hp = REGULAR_HEALTH
             }
             else if r < 0.85 {
                 e.type = .Small
-                e.health = SMALL_HEALTH
+                e.hp = SMALL_HEALTH
             }
             else {
                 e.type = .Large
-                e.health = LARGE_HEALTH
+                e.hp = LARGE_HEALTH
             }
             return
         }

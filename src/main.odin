@@ -133,6 +133,7 @@ main :: proc() {
             update_enemies(&enemies, player.x, player.y, input, dt)
 
             detect_collision(&enemies, &player, dt)
+            detect_bullet_collision(&enemies, &bullets, dt)
 
             // drawing
             draw_camera(renderer, camera)

@@ -3,6 +3,7 @@
 package main
 import sdl "vendor:sdl3"
 import "core:math"
+import "core:math/rand"
 
 MAX_BULLETS :: 256
 BULLET_SPEED :: 600
@@ -15,6 +16,7 @@ Bullet :: struct {
     x, y: f32,
     vx, vy: f32,
     size: f32,
+    damage: f32,
     alive: bool,
     type: BulletType
 }
@@ -78,7 +80,7 @@ update_bullets :: proc(pool: ^BulletPool, dt: f32, input: Input) {
     }
 }
 
-spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32, type: BulletType) {
+spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32, type: BulletType, damage: f32) {
     for &b in pool.bullets {
         if !b.alive {
             b.alive = true
@@ -88,7 +90,58 @@ spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32, type: Bul
             b.vy = math.sin(aimAngle) *BULLET_SPEED
             b.size = BULLET_SIZE
             b.type = type
+            b.damage = damage
             return
+        }
+    }
+}
+
+detect_bullet_collision :: proc(pool: ^EnemyPool, bullets: ^BulletPool, dt: f32) {
+    
+    for &b in bullets.bullets {
+        if !b.alive {
+            continue
+        }
+        bullet_left := b.x
+        bullet_right := b.x + b.size
+        bullet_top := b.y
+        bullet_bottom := b.y + b.size
+
+        for &e in pool.enemies {
+            if !e.alive {
+                continue
+            }
+            size: f32
+            switch e.type {
+                case .Small:
+                    size = SMALL_SIZE
+                case .Regular:
+                    size = REGULAR_SIZE
+                case .Large:
+                    size = LARGE_SIZE
+            }
+
+            enemy_left   := e.x - size
+            enemy_right  := e.x + size
+            enemy_top    := e.y - size
+            enemy_bottom := e.y + size
+
+            overlap := bullet_right > enemy_left &&
+                    bullet_left  < enemy_right &&
+                    bullet_bottom > enemy_top &&
+                    bullet_top   < enemy_bottom
+
+            if overlap {
+                dmg := b.damage
+                if b.type == .BitPistol && rand.float32() < 0.5 {
+                    dmg = 0
+                }
+                e.hp -= dmg
+                b.alive = false
+                if e.hp <= 0 {
+                    e.alive = false
+                }
+            }
         }
     }
 }

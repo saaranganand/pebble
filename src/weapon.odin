@@ -3,12 +3,15 @@
 package main
 
 BITPISTOL_COOLDOWN :: 0.15 // time b/w bullets
+BITPISTOL_DMG :: 10
 
 SCOPE_MAX_CHARGE :: 0.75 // how many s for scope to max charge
+SCOPE_MAX_DMG :: 70
 
 BUS_MAX_HEAT :: 3.0 // how many s for bus to hit max heat
 
 TRACE_COOLDOWN :: 0.5 // time b/w missiles
+TRACE_DMG :: 30
 
 PING_MAX_RADIUS :: 500 // how far a ping wave extends
 PING_EXPAND_SPEED :: 150 // how fast a ping wave extends
@@ -50,7 +53,7 @@ update_bitpistol :: proc(bp: ^BitPistol, pool: ^BulletPool, x: f32, y: f32, inpu
         bp.cooldown -= dt
     }
     if input.fire && bp.cooldown <= 0 {
-        spawn_bullet(pool, x, y, aimAngle, BulletType.BitPistol)
+        spawn_bullet(pool, x, y, aimAngle, BulletType.BitPistol, BITPISTOL_DMG)
         bp.cooldown = BITPISTOL_COOLDOWN
     }
 }
@@ -75,7 +78,7 @@ update_scope :: proc(sc: ^Scope, pool: ^BulletPool, x: f32, y: f32, input: Input
     // fire only when mouse let go / max charge reached
     should_fire:= (!input.fire && sc.is_charging) || sc.charge >= SCOPE_MAX_CHARGE
     if should_fire {
-        spawn_bullet(pool,x,y,aimAngle, BulletType.Scope)
+        spawn_bullet(pool,x,y,aimAngle, BulletType.Scope, sc.charge / SCOPE_MAX_CHARGE * SCOPE_MAX_DMG)
         sc.is_charging = false
         sc.charge = 0
     }
@@ -121,7 +124,7 @@ update_trace :: proc(tr: ^Trace, pool: ^BulletPool, x: f32, y: f32, input: Input
         tr.cooldown -= dt
     }
     if input.fire && tr.cooldown <= 0 {
-        spawn_bullet(pool, x, y, aimAngle, BulletType.Trace)
+        spawn_bullet(pool, x, y, aimAngle, BulletType.Trace, TRACE_DMG)
         tr.cooldown = TRACE_COOLDOWN
     }
 }
