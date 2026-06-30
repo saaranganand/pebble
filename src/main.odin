@@ -73,8 +73,10 @@ main :: proc() {
     bullets := BulletPool{}
     waves := PingWavePool{}
     enemies := EnemyPool{}
+    game_over: bool
 
     last_time := sdl.GetTicks()
+
     // game loop
     running := true
     for running {
@@ -113,38 +115,57 @@ main :: proc() {
         dt := f32(current_time - last_time) / 1000.0
         last_time = current_time
 
-        // updates
-        input := process_input()
-        update_player(&player, &camera, &bullets, &waves, centerX, centerY, input, dt)
-        update_bullets(&bullets, dt, input)
-        is_ping_selected := player.active_category == .Auto && player.weaponAuto == .Ping
-        is_daemon_selected := player.active_category == .Auto && player.weaponAuto == .Daemon
+        if !game_over{
+            // updates
+            input := process_input()
+            update_player(&player, &camera, &bullets, &waves, centerX, centerY, input, dt)
+            update_bullets(&bullets, dt, input)
+            is_ping_selected := player.active_category == .Auto && player.weaponAuto == .Ping
+            is_daemon_selected := player.active_category == .Auto && player.weaponAuto == .Daemon
 
-        if (is_ping_selected && input.fire && !player.ping.is_active) ||
-        (is_daemon_selected && input.fire && !player.daemon.is_active) {
-            reset_auto_weapons(&player, &waves)
-        }
+            if (is_ping_selected && input.fire && !player.ping.is_active) ||
+            (is_daemon_selected && input.fire && !player.daemon.is_active) {
+                reset_auto_weapons(&player, &waves)
+            }
 
-        update_ping(&player.ping, &waves, player.x, player.y, input, is_ping_selected, dt)
-        update_daemon(&player.daemon, is_daemon_selected, input, dt)
-        
-        update_enemies(&enemies, player.x, player.y, input, dt)
+            update_ping(&player.ping, &waves, player.x, player.y, input, is_ping_selected, dt)
+            update_daemon(&player.daemon, is_daemon_selected, input, dt)
+            update_enemies(&enemies, player.x, player.y, input, dt)
 
-        // drawing
-        draw_camera(renderer, camera)
-        draw_player(renderer, player)
-        draw_hud(renderer, font, player, input)
-        draw_bullets(renderer, &bullets, trace_tex)
-        if player.active_category == .Hold && player.weaponHold == .Bus {
-            draw_bus(renderer, player.bus, input, player.x, player.y, player.aimAngle)
+            detect_collision(&enemies, &player, dt)
+
+            // drawing
+            draw_camera(renderer, camera)
+            draw_player(renderer, player)
+            draw_hud(renderer, font, player, input)
+            draw_bullets(renderer, &bullets, trace_tex)
+            if player.active_category == .Hold && player.weaponHold == .Bus {
+                draw_bus(renderer, player.bus, input, player.x, player.y, player.aimAngle)
+            }
+            if player.ping.is_active {
+                draw_ping_waves(renderer, &waves)
+            }
+            if player.daemon.is_active{
+                draw_daemon(renderer, player.daemon, player.x, player.y)
+            }
+            draw_enemies(renderer, &enemies)
+
+            if player.hp <=0 {
+                game_over = true
+            }
+        } else {
+            draw_camera(renderer, camera) // clrscr
+            surf := ttf.RenderText_Blended(font, "GAME OVER", 0, sdl.Color{0, 0, 0, 255})
+            texture := sdl.CreateTextureFromSurface(renderer, surf)
+            sdl.DestroySurface(surf)
+
+            w, h : f32
+            sdl.GetTextureSize(texture, &w, &h)
+
+            dst := sdl.FRect{x = WINDOW_W/2 - w/2, y = WINDOW_H/2 - h/2, w = w, h = h}
+            sdl.RenderTexture(renderer, texture, nil, &dst)
+            sdl.DestroyTexture(texture)
         }
-        if player.ping.is_active {
-            draw_ping_waves(renderer, &waves)
-        }
-        if player.daemon.is_active{
-            draw_daemon(renderer, player.daemon, player.x, player.y)
-        }
-        draw_enemies(renderer, &enemies)
 
         sdl.RenderPresent(renderer)
     }

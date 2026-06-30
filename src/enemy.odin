@@ -6,19 +6,22 @@ import rand "core:math/rand"
 
 MAX_ENEMIES :: 64
 ENEMY_SPAWN_RATE :: 2
-ENEMY_SPAWN_DIST :: 450
+ENEMY_SPAWN_DIST :: 750 // how far away enemies spawn in relation to player
 
 SMALL_HEALTH :: 1
 SMALL_SPEED :: 160
 SMALL_SIZE :: 10
+SMALL_DAMAGE :: 0.5
 
 REGULAR_HEALTH :: 3
 REGULAR_SPEED :: 80
 REGULAR_SIZE :: 20
+REGULAR_DAMAGE :: 1
 
 LARGE_HEALTH :: 7
 LARGE_SPEED :: 30
 LARGE_SIZE :: 40
+LARGE_DAMAGE :: 2
 
 EnemyType :: enum {
     Small,
@@ -118,6 +121,46 @@ spawn_enemy :: proc(pool: ^EnemyPool, px, py: f32) {
                 e.health = LARGE_HEALTH
             }
             return
+        }
+    }
+}
+
+detect_collision :: proc(pool: ^EnemyPool, player: ^Player, dt: f32) {
+    player_left   := player.x - PLAYER_SIZE/2
+    player_right  := player.x + PLAYER_SIZE/2
+    player_top    := player.y - PLAYER_SIZE/2
+    player_bottom := player.y + PLAYER_SIZE/2
+
+    for &e in pool.enemies {
+        if !e.alive {
+            continue
+        }
+        size: f32
+        damage: f32
+        switch e.type {
+            case .Small:
+                size = SMALL_SIZE
+                damage = SMALL_DAMAGE
+            case .Regular:
+                size = REGULAR_SIZE
+                damage = REGULAR_DAMAGE
+            case .Large:
+                size = LARGE_SIZE
+                damage = LARGE_DAMAGE
+        }
+
+        enemy_left   := e.x - size
+        enemy_right  := e.x + size
+        enemy_top    := e.y - size
+        enemy_bottom := e.y + size
+
+        overlap := player_right > enemy_left &&
+                   player_left  < enemy_right &&
+                   player_bottom > enemy_top &&
+                   player_top   < enemy_bottom
+
+        if overlap {
+            player.hp -= damage * dt
         }
     }
 }

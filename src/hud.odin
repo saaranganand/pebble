@@ -6,6 +6,15 @@ import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
 draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player, input: Input) {
+    // top left player health bar
+    hp_ratio := player.hp / PLAYER_MAX_HP
+    bgRect := sdl.FRect{x = 10, y = 10, w = 200, h = 12}
+    fillRect := sdl.FRect{x = 10, y = 10, w = 200 * hp_ratio, h = 12}
+    sdl.SetRenderDrawColor(renderer, 50, 50, 50, 255)
+    sdl.RenderFillRect(renderer, &bgRect)
+    sdl.SetRenderDrawColor(renderer, 0, 200, 0, 255)
+    sdl.RenderFillRect(renderer, &fillRect)
+    
     weapon_name : cstring
     switch player.active_category {
         case .Manual:
