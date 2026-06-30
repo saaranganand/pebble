@@ -10,7 +10,7 @@ SCOPE_MAX_DMG :: 70
 
 BUS_MAX_HEAT :: 3.0 // how many s for bus to hit max heat
 
-TRACE_COOLDOWN :: 0.5 // time b/w missiles
+TRACE_COOLDOWN :: 1 // time b/w missiles
 TRACE_DMG :: 30
 
 PING_MAX_RADIUS :: 500 // how far a ping wave extends

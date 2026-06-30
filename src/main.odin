@@ -119,7 +119,7 @@ main :: proc() {
             // updates
             input := process_input()
             update_player(&player, &camera, &bullets, &waves, centerX, centerY, input, dt)
-            update_bullets(&bullets, dt, input)
+            update_bullets(&bullets, &enemies, dt, input)
             is_ping_selected := player.active_category == .Auto && player.weaponAuto == .Ping
             is_daemon_selected := player.active_category == .Auto && player.weaponAuto == .Daemon
 

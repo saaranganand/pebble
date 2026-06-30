@@ -8,6 +8,9 @@ import "core:math/rand"
 MAX_BULLETS :: 256
 BULLET_SPEED :: 600
 BULLET_SIZE :: 8.0
+
+TRACE_TURN_SPEED :: 3
+
 MAX_PING_WAVES :: 3 // simultaneous ping waves and spacing
 
 // bullets (bp, scope, trace)
@@ -64,21 +67,49 @@ draw_bullets :: proc(renderer: ^sdl.Renderer, pool: ^BulletPool, trace_tex: ^sdl
     }
 }
 
-update_bullets :: proc(pool: ^BulletPool, dt: f32, input: Input) {
+update_bullets :: proc(pool: ^BulletPool, enemies: ^EnemyPool, dt: f32, input: Input) {
     for &b in pool.bullets {
-        if !b.alive {
-            continue
-        }
+        if !b.alive { continue }
+
         b.x += b.vx * dt
         b.y += b.vy * dt
         b.x -= input.dx * CAM_SPEED * dt
         b.y -= input.dy * CAM_SPEED * dt
+
         if b.x < 0 || b.x > WINDOW_W || b.y < 0 || b.y > WINDOW_H {
             b.alive = false
         }
 
+        if b.type == .Trace {
+            nearest_dist := max(f32)
+            nearest_ex, nearest_ey: f32
+            found := false
+
+            for e in enemies.enemies {
+                if !e.alive { continue }
+                dx := e.x - b.x
+                dy := e.y - b.y
+                dist := math.sqrt(dx*dx + dy*dy)
+                if dist < nearest_dist {
+                    nearest_dist = dist
+                    nearest_ex = e.x
+                    nearest_ey = e.y
+                    found = true
+                }
+            }
+
+            if found {
+                target_angle := math.atan2(nearest_ey - b.y, nearest_ex - b.x)
+                current_angle := math.atan2(b.vy, b.vx)
+                angle_diff := math.mod(target_angle - current_angle + math.PI, math.TAU) - math.PI
+                new_angle := current_angle + clamp(angle_diff, -TRACE_TURN_SPEED * dt, TRACE_TURN_SPEED * dt)
+                b.vx = math.cos(new_angle) * BULLET_SPEED
+                b.vy = math.sin(new_angle) * BULLET_SPEED
+            }
+        }
     }
 }
+
 
 spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32, type: BulletType, damage: f32) {
     for &b in pool.bullets {
