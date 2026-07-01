@@ -2,6 +2,8 @@
 
 package main
 
+import sdl "vendor:sdl3"
+
 BITPISTOL_COOLDOWN :: 0.15 // time b/w bullets
 BITPISTOL_DMG :: 10
 
@@ -74,7 +76,7 @@ apply_movement_penalty :: proc(player: Player, input: ^Input) {
     }
 }
 
-update_scope :: proc(sc: ^Scope, enemies: ^EnemyPool, pool: ^BulletPool, x: f32, y: f32, input: Input, aimAngle: f32, dt: f32) {
+update_scope :: proc(sc: ^Scope, enemies: ^EnemyPool, waves: ^PingWavePool, pool: ^BulletPool, x: f32, y: f32, input: Input, aimAngle: f32, dt: f32) {
     // check if was firing already
     if input.fire && !sc.was_firing {
         sc.is_charging = true
@@ -88,7 +90,7 @@ update_scope :: proc(sc: ^Scope, enemies: ^EnemyPool, pool: ^BulletPool, x: f32,
     should_fire:= (!input.fire && sc.is_charging) || sc.charge >= SCOPE_MAX_CHARGE
     if should_fire {
         // spawn_bullet(pool,x,y,aimAngle, BulletType.Scope, sc.charge / SCOPE_MAX_CHARGE * SCOPE_MAX_DMG)
-        scope_hitscan(enemies, x, y, aimAngle, sc.charge)
+        scope_hitscan(enemies, waves, x, y, aimAngle, sc.charge)
         sc.is_charging = false
         sc.charge = 0
     }
@@ -148,8 +150,21 @@ Ping :: struct {
     timer: f32
 }
 
+update_waves :: proc(pool: ^PingWavePool, dt: f32) {
+    for &w in pool.waves {
+        if !w.alive {
+            continue
+        }
+        else {
+            w.r += w.expand_speed * dt
+            if w.r >= w.max_r {
+                w.alive = false
+            }
+        }
+    }
+}
+
 update_ping :: proc(ping: ^Ping, pool: ^PingWavePool, x, y: f32, input: Input, is_selected: bool, dt: f32) {
-    
     if is_selected && input.fire && !ping.is_active {
         ping.is_active = true
         ping.timer = PING_DURATION
@@ -173,19 +188,8 @@ update_ping :: proc(ping: ^Ping, pool: ^PingWavePool, x, y: f32, input: Input, i
         ping.cooldown -= dt
     }
     else {
-        spawn_wave(pool, x, y)
+        spawn_wave(pool, x, y, PING_MAX_RADIUS, PING_EXPAND_SPEED, sdl.Color{0, 255, 0, 255})
         ping.cooldown = PING_COOLDOWN
-    }
-    for &w in pool.waves {
-        if !w.alive {
-            continue
-        }
-        else {
-            w.r += PING_EXPAND_SPEED * dt
-            if w.r >= PING_MAX_RADIUS {
-                w.alive = false
-            }
-        }
     }
 }
 

@@ -98,7 +98,7 @@ detect_bullet_collision :: proc(enemies: ^EnemyPool, bullets: ^BulletPool, dt: f
 }
 
 // scope
-scope_hitscan :: proc(enemies: ^EnemyPool, px, py, aim_angle, charge: f32) {
+scope_hitscan :: proc(enemies: ^EnemyPool, waves: ^PingWavePool, px, py, aim_angle, charge: f32) {
     nearest_dot := max(f32)
     nearest_enemy: ^Enemy = nil
 
@@ -127,6 +127,9 @@ scope_hitscan :: proc(enemies: ^EnemyPool, px, py, aim_angle, charge: f32) {
 
     if nearest_enemy != nil{
         nearest_enemy.hp -= (charge/SCOPE_MAX_CHARGE)*SCOPE_MAX_DMG
+        
+        spawn_wave(waves, nearest_enemy.x, nearest_enemy.y, 50.0, 300.0, sdl.Color{255, 0, 0, 255})
+
         if nearest_enemy.hp <= 0 {
             nearest_enemy.alive = false
         }

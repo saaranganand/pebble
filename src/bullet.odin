@@ -149,7 +149,10 @@ draw_bus :: proc(renderer: ^sdl.Renderer, bus: Bus, input: Input, x: f32, y: f32
 PingWave :: struct {
     r: f32,
     x, y: f32,
-    alive: bool
+    alive: bool,
+    color: sdl.Color,
+    max_r: f32,
+    expand_speed: f32
 }
 
 PingWavePool :: struct {
@@ -163,23 +166,25 @@ draw_ping_waves :: proc(renderer: ^sdl.Renderer, pool: ^PingWavePool) {
             continue
         }
         else {
-            alpha := u8(255*(1- w.r/PING_MAX_RADIUS))
-            color := sdl.Color{0, 255, 0, alpha}
-            thickness := f32(12) * (1 - w.r/PING_MAX_RADIUS)
-            
-            draw_circle(renderer, w.x, w.y, w.r, color, thickness) 
+            thickness := f32(12) * (1 - w.r/w.max_r)
+            alpha := u8(255 * (1 - w.r / w.max_r))
+            color := sdl.Color{w.color.r, w.color.g, w.color.b, alpha}
+            draw_circle(renderer, w.x, w.y, w.r, color, thickness)
         }
     }
     sdl.SetRenderDrawBlendMode(renderer, sdl.BLENDMODE_NONE)
 }
 
-spawn_wave :: proc(pool: ^PingWavePool, x, y: f32) {
+spawn_wave :: proc(pool: ^PingWavePool, x, y, max_r, expand_speed: f32, color: sdl.Color) {
     for &w in pool.waves {
         if !w.alive {
             w.alive = true
             w.x = x
             w.y = y
             w.r = 0
+            w.color = color
+            w.max_r = max_r
+            w.expand_speed = expand_speed
             return
         }
     }

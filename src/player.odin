@@ -61,7 +61,7 @@ update_player :: proc(player: ^Player, camera: ^Camera, enemies: ^EnemyPool, bul
                 case .BitPistol:
                     update_bitpistol(&player.bitPistol, bullets, player.x, player.y, input, player.aimAngle, dt)
                 case .Scope:
-                    update_scope(&player.scope, enemies, bullets, player.x, player.y, input, player.aimAngle, dt)    
+                    update_scope(&player.scope, enemies, waves, bullets, player.x, player.y, input, player.aimAngle, dt)    
             }
 
         case .Hold:

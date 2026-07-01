@@ -66,6 +66,7 @@ main :: proc() {
 
     sdl.SetRenderVSync(renderer, 1)
 
+    // setup
     centerX: f32 = WINDOW_W / 2
     centerY: f32 = WINDOW_H / 2
     camera := Camera{}
@@ -130,6 +131,7 @@ main :: proc() {
                 reset_auto_weapons(&player, &waves)
             }
 
+            update_waves(&waves, dt)
             update_ping(&player.ping, &waves, player.x, player.y, input, is_ping_selected, dt)
             update_daemon(&player.daemon, is_daemon_selected, input, dt)
             update_enemies(&enemies, player.x, player.y, input, dt)
@@ -142,13 +144,14 @@ main :: proc() {
             draw_player(renderer, player)
             draw_hud(renderer, font, player, input)
             draw_bullets(renderer, &bullets, trace_tex)
+            draw_ping_waves(renderer, &waves)
+            
             if player.active_category == .Hold && player.weaponHold == .Bus {
                 detect_bus_damage(&enemies, player.bus, player.x, player.y, player.aimAngle, input, dt)
                 draw_bus(renderer, player.bus, input, player.x, player.y, player.aimAngle)
             }
             if player.ping.is_active {
                 detect_ping_damage(&enemies, &waves, dt)
-                draw_ping_waves(renderer, &waves)
             }
             if player.daemon.is_active{
                 draw_daemon(renderer, player.daemon, player.x, player.y)
