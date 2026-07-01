@@ -138,6 +138,8 @@ spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32, type: Bul
 // bus
 
 draw_bus :: proc(renderer: ^sdl.Renderer, bus: Bus, input: Input, x: f32, y: f32, aimAngle: f32) {
+    sdl.SetRenderDrawColor(renderer, 0, 200, 255, 255) // cyan
+    
     if input.fire && !bus.is_overheated {
         end_x := x + math.cos(aimAngle) * 2000
         end_y := y + math.sin(aimAngle) * 2000
