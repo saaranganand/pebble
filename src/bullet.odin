@@ -25,7 +25,7 @@ Bullet :: struct {
 
 BulletType :: enum {
     BitPistol,
-    Scope,
+    // Scope,
     Trace
 }
 
@@ -47,13 +47,13 @@ draw_bullets :: proc(renderer: ^sdl.Renderer, pool: ^BulletPool, trace_tex: ^sdl
                 w = b.size, h = b.size}
                 sdl.SetRenderDrawColor(renderer, 255, 165, 0, 255)
                 sdl.RenderFillRect(renderer, &bulletRect)
-            case .Scope:
-                bulletRect:=sdl.FRect{
-                x = b.x, 
-                y = b.y, 
-                w = b.size*4, h = b.size/2}
-                sdl.SetRenderDrawColor(renderer, 0, 255, 0, 255)
-                sdl.RenderFillRect(renderer, &bulletRect)
+            // case .Scope:
+            //     bulletRect:=sdl.FRect{
+            //     x = b.x, 
+            //     y = b.y, 
+            //     w = b.size*4, h = b.size/2}
+            //     sdl.SetRenderDrawColor(renderer, 0, 255, 0, 255)
+            //     sdl.RenderFillRect(renderer, &bulletRect)
             case .Trace:
                 angle_deg := math.to_degrees(math.atan2(b.vy, b.vx))
                 dst:=sdl.FRect{

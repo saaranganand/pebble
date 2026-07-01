@@ -67,7 +67,14 @@ Scope :: struct {
     was_firing: bool
 }
 
-update_scope :: proc(sc: ^Scope, pool: ^BulletPool, x: f32, y: f32, input: Input, aimAngle: f32, dt: f32) {
+apply_movement_penalty :: proc(player: Player, input: ^Input) {
+    if player.active_category == .Manual && player.weaponManual == .Scope && player.scope.is_charging {
+        input.dx *= 0.2
+        input.dy *= 0.2
+    }
+}
+
+update_scope :: proc(sc: ^Scope, enemies: ^EnemyPool, pool: ^BulletPool, x: f32, y: f32, input: Input, aimAngle: f32, dt: f32) {
     // check if was firing already
     if input.fire && !sc.was_firing {
         sc.is_charging = true
@@ -80,7 +87,8 @@ update_scope :: proc(sc: ^Scope, pool: ^BulletPool, x: f32, y: f32, input: Input
     // fire only when mouse let go / max charge reached
     should_fire:= (!input.fire && sc.is_charging) || sc.charge >= SCOPE_MAX_CHARGE
     if should_fire {
-        spawn_bullet(pool,x,y,aimAngle, BulletType.Scope, sc.charge / SCOPE_MAX_CHARGE * SCOPE_MAX_DMG)
+        // spawn_bullet(pool,x,y,aimAngle, BulletType.Scope, sc.charge / SCOPE_MAX_CHARGE * SCOPE_MAX_DMG)
+        scope_hitscan(enemies, x, y, aimAngle, sc.charge)
         sc.is_charging = false
         sc.charge = 0
     }

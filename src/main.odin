@@ -118,7 +118,9 @@ main :: proc() {
         if !game_over{
             // updates
             input := process_input()
-            update_player(&player, &camera, &bullets, &waves, centerX, centerY, input, dt)
+            apply_movement_penalty(player, &input)
+
+            update_player(&player, &camera, &enemies, &bullets, &waves, centerX, centerY, input, dt)
             update_bullets(&bullets, &enemies, dt, input)
             is_ping_selected := player.active_category == .Auto && player.weaponAuto == .Ping
             is_daemon_selected := player.active_category == .Auto && player.weaponAuto == .Daemon

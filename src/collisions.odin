@@ -97,6 +97,42 @@ detect_bullet_collision :: proc(enemies: ^EnemyPool, bullets: ^BulletPool, dt: f
     }
 }
 
+// scope
+scope_hitscan :: proc(enemies: ^EnemyPool, px, py, aim_angle, charge: f32) {
+    nearest_dot := max(f32)
+    nearest_enemy: ^Enemy = nil
+
+    for &e in enemies.enemies {
+        if !e.alive{
+            continue
+        }
+        size: f32
+        switch e.type {
+            case .Small:
+                size = SMALL_SIZE
+            case .Regular:
+                size = REGULAR_SIZE
+            case .Large:
+                size = LARGE_SIZE
+        }
+
+        perp_dist := abs((e.x - px) * math.sin(aim_angle) - (e.y - py) * math.cos(aim_angle))
+        dot := (e.x - px) * math.cos(aim_angle) + (e.y - py) * math.sin(aim_angle)
+
+        if perp_dist < size && dot > 0 && dot < nearest_dot {
+            nearest_dot = dot
+            nearest_enemy = &e
+        }
+    }
+
+    if nearest_enemy != nil{
+        nearest_enemy.hp -= (charge/SCOPE_MAX_CHARGE)*SCOPE_MAX_DMG
+        if nearest_enemy.hp <= 0 {
+            nearest_enemy.alive = false
+        }
+    }
+}
+
 // bus beam and enemy
 detect_bus_damage :: proc(enemies: ^EnemyPool, bus: Bus, px, py, aim_angle: f32, input: Input, dt: f32) {
     if !input.fire || bus.is_overheated {

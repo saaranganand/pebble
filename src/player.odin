@@ -50,7 +50,7 @@ draw_player :: proc(renderer: ^sdl.Renderer, player: Player) {
     sdl.RenderFillRect(renderer, &aimRect)
 }
 
-update_player :: proc(player: ^Player, camera: ^Camera, bullets: ^BulletPool, waves: ^PingWavePool, centerX: f32, centerY: f32, input: Input, dt: f32) {
+update_player :: proc(player: ^Player, camera: ^Camera, enemies: ^EnemyPool, bullets: ^BulletPool, waves: ^PingWavePool, centerX: f32, centerY: f32, input: Input, dt: f32) {
     
     input := input
 
@@ -61,12 +61,7 @@ update_player :: proc(player: ^Player, camera: ^Camera, bullets: ^BulletPool, wa
                 case .BitPistol:
                     update_bitpistol(&player.bitPistol, bullets, player.x, player.y, input, player.aimAngle, dt)
                 case .Scope:
-                    update_scope(&player.scope, bullets, player.x, player.y, input, player.aimAngle, dt)
-                    // slow player down
-                    if player.scope.is_charging {
-                        input.dx *= 0.2
-                        input.dy *= 0.2
-                    }       
+                    update_scope(&player.scope, enemies, bullets, player.x, player.y, input, player.aimAngle, dt)    
             }
 
         case .Hold:
