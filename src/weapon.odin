@@ -5,7 +5,8 @@ package main
 import sdl "vendor:sdl3"
 import "core:math"
 
-BITPISTOL_COOLDOWN :: 0.15 // time b/w bullets
+BITPISTOL_FIRERATE :: 1 // shots per s
+BITPISTOL_INTERVAL :: 1.0 / BITPISTOL_FIRERATE // time b/w bullets
 BITPISTOL_DMG :: 10
 
 SCOPE_MAX_CHARGE :: 0.75 // how many s for scope to max charge
@@ -26,7 +27,8 @@ PING_DMG :: 30
 DAEMON_ORBIT_RADIUS :: 80 // how far from the player daemon orbits
 DAEMON_ORBIT_SPEED :: 2 // how fast daemon orbits player
 DAEMON_DURATION :: 15 // how many s daemon runs for after activation
-DAEMON_FIRERATE :: 0.5
+DAEMON_FIRERATE :: 3 // shots per s
+DAEMON_INTERVAL :: 1.0 / DAEMON_FIRERATE // time b/w bullets
 DAEMON_DMG :: 10
 
 WeaponCategory :: enum {
@@ -48,9 +50,11 @@ WeaponAuto :: enum {
     Daemon
 }
 
-// MANUYAL
+// ---
+// MANUAL
+// ---
 
-// bitpistol
+// BITPISTOL
 BitPistol :: struct {
     cooldown: f32
 }
@@ -61,11 +65,11 @@ update_bitpistol :: proc(bp: ^BitPistol, pool: ^BulletPool, x: f32, y: f32, inpu
     }
     if input.fire && bp.cooldown <= 0 {
         spawn_bullet(pool, x, y, aimAngle, BulletType.BitPistol, BITPISTOL_DMG)
-        bp.cooldown = BITPISTOL_COOLDOWN
+        bp.cooldown = BITPISTOL_INTERVAL
     }
 }
 
-// scope
+// SCOPE
 Scope :: struct {
     is_charging: bool,
     charge: f32,
@@ -76,7 +80,7 @@ Scope :: struct {
 // must run before update_player and update_enemies or it fucks up cam :(
 apply_movement_penalty :: proc(player: Player, input: ^Input) {
     if player.active_category == .Manual && player.weaponManual == .Scope && player.scope.is_charging {
-        input.dx *= 0.2
+        input.dx *= 0.2 // 80% slowdown
         input.dy *= 0.2
     }
 }
@@ -103,9 +107,11 @@ update_scope :: proc(sc: ^Scope, enemies: ^EnemyPool, waves: ^PingWavePool, pool
     sc.was_firing = input.fire
 }
 
+// ---
 // HOLD
+// ---
 
-// bus
+// BUS
 Bus :: struct {
     heat: f32,
     is_overheated: bool
@@ -131,7 +137,7 @@ update_bus :: proc(bus: ^Bus, input: Input, dt: f32) {
     }
 }
 
-// trace
+// TRACE
 Trace :: struct {
     cooldown: f32
 }
@@ -146,9 +152,11 @@ update_trace :: proc(tr: ^Trace, pool: ^BulletPool, x: f32, y: f32, input: Input
     }
 }
 
+// ---
 // AUTO
+// ---
 
-// ping
+// PING
 Ping :: struct {
     cooldown: f32, // wave cooldown
     is_active: bool,
@@ -198,7 +206,7 @@ update_ping :: proc(ping: ^Ping, pool: ^PingWavePool, x, y: f32, input: Input, i
     }
 }
 
-// daemon
+// DAEMON
 Daemon :: struct {
     is_active: bool,
     x, y: f32,
@@ -226,7 +234,7 @@ update_daemon :: proc(d: ^Daemon, pool: ^BulletPool, enemies: ^EnemyPool, px, py
     d.fire_cooldown -= dt
     } else {
         nearest_ex, nearest_ey, found := find_nearest_enemy(enemies, d.x, d.y)
-        d.fire_cooldown = DAEMON_FIRERATE
+        d.fire_cooldown = DAEMON_INTERVAL
         if found {
             aim_angle := math.atan2(nearest_ey - d.y, nearest_ex - d.x)
             spawn_bullet(pool, d.x, d.y, aim_angle, .BitPistol, DAEMON_DMG)
