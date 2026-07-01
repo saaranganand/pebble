@@ -2,6 +2,7 @@
 
 package main
 import sdl "vendor:sdl3"
+import "core:thread"
 import "core:math"
 import "core:math/rand"
 
@@ -127,7 +128,7 @@ spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32, type: Bul
     }
 }
 
-detect_bullet_collision :: proc(pool: ^EnemyPool, bullets: ^BulletPool, dt: f32) {
+detect_bullet_collision :: proc(enemies: ^EnemyPool, bullets: ^BulletPool, dt: f32) {
     
     for &b in bullets.bullets {
         if !b.alive {
@@ -138,7 +139,7 @@ detect_bullet_collision :: proc(pool: ^EnemyPool, bullets: ^BulletPool, dt: f32)
         bullet_top := b.y
         bullet_bottom := b.y + b.size
 
-        for &e in pool.enemies {
+        for &e in enemies.enemies {
             if !e.alive {
                 continue
             }
@@ -191,6 +192,37 @@ draw_bus :: proc(renderer: ^sdl.Renderer, bus: Bus, input: Input, x: f32, y: f32
             ox := perp_x * f32(i)
             oy := perp_y * f32(i)
             sdl.RenderLine(renderer, x + ox, y + oy, end_x + ox, end_y + oy)
+        }
+    }
+}
+
+detect_bus_damage :: proc(enemies: ^EnemyPool, bus: Bus, px, py, aim_angle: f32, input: Input, dt: f32) {
+    if !input.fire || bus.is_overheated {
+        return
+    }
+    for &e in enemies.enemies {
+        if !e.alive {
+            continue
+        }
+        size: f32
+        switch e.type {
+            case .Small:
+                size = SMALL_SIZE
+            case .Regular:
+                size = REGULAR_SIZE
+            case .Large:
+                size = LARGE_SIZE
+        }
+
+        perp_dist := abs((e.x - px) * math.sin(aim_angle) - (e.y - py) * math.cos(aim_angle))
+
+        dot := (e.x - px) * math.cos(aim_angle) + (e.y - py) * math.sin(aim_angle)
+        
+        if perp_dist < (size+5) && dot > 0 {
+            if e.hp <= 0 {
+                e.alive = false
+            }
+            e.hp -= BUS_DMG * dt
         }
     }
 }

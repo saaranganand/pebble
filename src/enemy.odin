@@ -69,6 +69,31 @@ draw_enemies :: proc(renderer: ^sdl.Renderer, pool: ^EnemyPool) {
     }
 }
 
+spawn_enemy :: proc(pool: ^EnemyPool, px, py: f32) {
+    for &e in pool.enemies {
+        if !e.alive {
+            angle := rand.float32() * math.TAU
+            e.alive = true
+            e.x = px + math.cos(angle) * ENEMY_SPAWN_DIST
+            e.y = py + math.sin(angle) * ENEMY_SPAWN_DIST
+            r := rand.float32()
+            if r < 0.6 {
+                e.type = .Regular
+                e.hp = REGULAR_HEALTH
+            }
+            else if r < 0.85 {
+                e.type = .Small
+                e.hp = SMALL_HEALTH
+            }
+            else {
+                e.type = .Large
+                e.hp = LARGE_HEALTH
+            }
+            return
+        }
+    }
+}
+
 update_enemies :: proc(pool: ^EnemyPool, px, py: f32, input: Input, dt: f32) {
     pool.spawn_timer -= dt
     if pool.spawn_timer <= 0 {
@@ -97,31 +122,6 @@ update_enemies :: proc(pool: ^EnemyPool, px, py: f32, input: Input, dt: f32) {
 
         e.x -= input.dx * CAM_SPEED * dt
         e.y -= input.dy * CAM_SPEED * dt
-    }
-}
-
-spawn_enemy :: proc(pool: ^EnemyPool, px, py: f32) {
-    for &e in pool.enemies {
-        if !e.alive {
-            angle := rand.float32() * math.TAU
-            e.alive = true
-            e.x = px + math.cos(angle) * ENEMY_SPAWN_DIST
-            e.y = py + math.sin(angle) * ENEMY_SPAWN_DIST
-            r := rand.float32()
-            if r < 0.6 {
-                e.type = .Regular
-                e.hp = REGULAR_HEALTH
-            }
-            else if r < 0.85 {
-                e.type = .Small
-                e.hp = SMALL_HEALTH
-            }
-            else {
-                e.type = .Large
-                e.hp = LARGE_HEALTH
-            }
-            return
-        }
     }
 }
 

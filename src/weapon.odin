@@ -9,6 +9,7 @@ SCOPE_MAX_CHARGE :: 0.75 // how many s for scope to max charge
 SCOPE_MAX_DMG :: 70
 
 BUS_MAX_HEAT :: 3.0 // how many s for bus to hit max heat
+BUS_DMG :: 100 // normalized using dt
 
 TRACE_COOLDOWN :: 1 // time b/w missiles
 TRACE_DMG :: 30

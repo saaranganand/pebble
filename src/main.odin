@@ -134,6 +134,7 @@ main :: proc() {
 
             detect_collision(&enemies, &player, dt)
             detect_bullet_collision(&enemies, &bullets, dt)
+            detect_bus_damage(&enemies, player.bus, player.x, player.y, player.aimAngle, input, dt)
 
             // drawing
             draw_camera(renderer, camera)
