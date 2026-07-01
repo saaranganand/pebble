@@ -18,6 +18,7 @@ PING_MAX_RADIUS :: 500 // how far a ping wave extends
 PING_EXPAND_SPEED :: 150 // how fast a ping wave extends
 PING_COOLDOWN :: f32(PING_MAX_RADIUS) / f32(PING_EXPAND_SPEED) / f32(MAX_PING_WAVES)
 PING_DURATION :: 15 // how many s ping runs for after activation
+PING_DMG :: 30
 
 DAEMON_ORBIT_RADIUS :: 80 // how far from the player daemon orbits
 DAEMON_ORBIT_SPEED :: 2 // how fast daemon orbits player

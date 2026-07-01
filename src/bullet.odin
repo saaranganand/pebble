@@ -268,6 +268,38 @@ spawn_wave :: proc(pool: ^PingWavePool, x, y: f32) {
     }
 }
 
+detect_ping_damage :: proc(enemies: ^EnemyPool, waves: ^PingWavePool, dt: f32) {
+    for &w in waves.waves {
+        if !w.alive {
+            continue
+        }
+        for &e in enemies.enemies {
+            if !e.alive {
+                continue
+            }
+            size: f32
+            switch e.type {
+                case .Small:
+                    size = SMALL_SIZE
+                case .Regular:
+                    size = REGULAR_SIZE
+                case .Large:
+                    size = LARGE_SIZE
+            }
+            dx := e.x - w.x
+            dy := e.y - w.y
+            dist := math.sqrt(dx*dx + dy*dy)
+
+            if dist < w.r + size {
+                if e.hp <= 0 {
+                    e.alive = false
+                }
+                e.hp -= PING_DMG * (1 - w.r / PING_MAX_RADIUS)*dt
+            }
+        }
+    }
+}
+
 // daemon
 
 draw_daemon :: proc(renderer: ^sdl.Renderer, d: Daemon, px, py: f32) {

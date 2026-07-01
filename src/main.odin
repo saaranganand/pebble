@@ -134,17 +134,18 @@ main :: proc() {
 
             detect_collision(&enemies, &player, dt)
             detect_bullet_collision(&enemies, &bullets, dt)
-            detect_bus_damage(&enemies, player.bus, player.x, player.y, player.aimAngle, input, dt)
-
+            
             // drawing
             draw_camera(renderer, camera)
             draw_player(renderer, player)
             draw_hud(renderer, font, player, input)
             draw_bullets(renderer, &bullets, trace_tex)
             if player.active_category == .Hold && player.weaponHold == .Bus {
+                detect_bus_damage(&enemies, player.bus, player.x, player.y, player.aimAngle, input, dt)
                 draw_bus(renderer, player.bus, input, player.x, player.y, player.aimAngle)
             }
             if player.ping.is_active {
+                detect_ping_damage(&enemies, &waves, dt)
                 draw_ping_waves(renderer, &waves)
             }
             if player.daemon.is_active{
