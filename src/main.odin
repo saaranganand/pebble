@@ -119,7 +119,7 @@ main :: proc() {
         if !game_over{
             // updates
             input := process_input()
-            
+
             apply_movement_penalty(player, &input)
 
             update_player(&player, &camera, &enemies, &bullets, &waves, centerX, centerY, input, dt)
@@ -134,7 +134,7 @@ main :: proc() {
 
             update_waves(&waves, dt)
             update_ping(&player.ping, &waves, player.x, player.y, input, is_ping_selected, dt)
-            update_daemon(&player.daemon, is_daemon_selected, input, dt)
+            update_daemon(&player.daemon, &bullets, &enemies, player.x, player.y, is_daemon_selected, input, dt)
 
             update_enemies(&enemies, player.x, player.y, input, dt)
 
@@ -156,7 +156,7 @@ main :: proc() {
                 detect_ping_damage(&enemies, &waves, dt)
             }
             if player.daemon.is_active{
-                draw_daemon(renderer, player.daemon, player.x, player.y)
+                draw_daemon(renderer, player.daemon)
             }
             draw_enemies(renderer, &enemies)
 

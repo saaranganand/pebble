@@ -84,22 +84,7 @@ update_bullets :: proc(pool: ^BulletPool, enemies: ^EnemyPool, dt: f32, input: I
 
         if b.type == .Trace {
             // find nearest alive enemy to home towards
-            nearest_dist := max(f32)
-            nearest_ex, nearest_ey: f32
-            found := false
-
-            for e in enemies.enemies {
-                if !e.alive { continue }
-                dx := e.x - b.x
-                dy := e.y - b.y
-                dist := math.sqrt(dx*dx + dy*dy)
-                if dist < nearest_dist {
-                    nearest_dist = dist
-                    nearest_ex = e.x
-                    nearest_ey = e.y
-                    found = true
-                }
-            }
+            nearest_ex, nearest_ey, found := find_nearest_enemy(enemies, b.x, b.y)
 
             if found {
                 target_angle := math.atan2(nearest_ey - b.y, nearest_ex - b.x)
@@ -203,15 +188,13 @@ spawn_wave :: proc(pool: ^PingWavePool, x, y, max_r, expand_speed: f32, color: s
 
 // daemon
 
-draw_daemon :: proc(renderer: ^sdl.Renderer, d: Daemon, px, py: f32) {
+draw_daemon :: proc(renderer: ^sdl.Renderer, d: Daemon) {
     if !d.is_active {
         return 
     }
-    dx := px + math.cos(d.orbit_angle) * DAEMON_ORBIT_RADIUS
-    dy := py + math.sin(d.orbit_angle) * DAEMON_ORBIT_RADIUS
     rect := sdl.FRect{
-        x = dx-8,
-        y = dy-8,
+        x = d.x-8,
+        y = d.y-8,
         w= 16,
         h = 16
     }

@@ -3,6 +3,7 @@
 package main
 
 import sdl "vendor:sdl3"
+import "core:math"
 
 BITPISTOL_COOLDOWN :: 0.15 // time b/w bullets
 BITPISTOL_DMG :: 10
@@ -25,6 +26,8 @@ PING_DMG :: 30
 DAEMON_ORBIT_RADIUS :: 80 // how far from the player daemon orbits
 DAEMON_ORBIT_SPEED :: 2 // how fast daemon orbits player
 DAEMON_DURATION :: 15 // how many s daemon runs for after activation
+DAEMON_FIRERATE :: 0.5
+DAEMON_DMG :: 10
 
 WeaponCategory :: enum {
     Manual,
@@ -195,14 +198,16 @@ update_ping :: proc(ping: ^Ping, pool: ^PingWavePool, x, y: f32, input: Input, i
     }
 }
 
-// daemin
+// daemon
 Daemon :: struct {
     is_active: bool,
+    x, y: f32,
     timer: f32,
-    orbit_angle: f32
+    orbit_angle: f32,
+    fire_cooldown: f32
 }
 
-update_daemon :: proc(d: ^Daemon, is_selected: bool, input: Input, dt: f32) {
+update_daemon :: proc(d: ^Daemon, pool: ^BulletPool, enemies: ^EnemyPool, px, py: f32, is_selected: bool, input: Input, dt: f32) {
     if is_selected && input.fire && !d.is_active {
         d.is_active = true
         d.timer = DAEMON_DURATION
@@ -217,6 +222,18 @@ update_daemon :: proc(d: ^Daemon, is_selected: bool, input: Input, dt: f32) {
         d.is_active = false
         return
     }
+    if d.fire_cooldown > 0 {
+    d.fire_cooldown -= dt
+    } else {
+        nearest_ex, nearest_ey, found := find_nearest_enemy(enemies, d.x, d.y)
+        d.fire_cooldown = DAEMON_FIRERATE
+        if found {
+            aim_angle := math.atan2(nearest_ey - d.y, nearest_ex - d.x)
+            spawn_bullet(pool, d.x, d.y, aim_angle, .BitPistol, DAEMON_DMG)
+        }
+    }
 
+    d.x = px + math.cos(d.orbit_angle) * DAEMON_ORBIT_RADIUS
+    d.y = py + math.sin(d.orbit_angle) * DAEMON_ORBIT_RADIUS
     d.orbit_angle += DAEMON_ORBIT_SPEED * dt
 }

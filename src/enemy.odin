@@ -11,17 +11,17 @@ ENEMY_SPAWN_DIST :: 750 // how far away enemies spawn in relation to player
 SMALL_HEALTH :: 30
 SMALL_SPEED :: 160
 SMALL_SIZE :: 10
-SMALL_DAMAGE :: 0.5
+SMALL_DAMAGE :: 5
 
 REGULAR_HEALTH :: 50
 REGULAR_SPEED :: 80
 REGULAR_SIZE :: 20
-REGULAR_DAMAGE :: 1
+REGULAR_DAMAGE :: 10
 
 LARGE_HEALTH :: 70
 LARGE_SPEED :: 30
 LARGE_SIZE :: 40
-LARGE_DAMAGE :: 2
+LARGE_DAMAGE :: 20
 
 EnemyType :: enum {
     Small,
@@ -64,6 +64,24 @@ enemy_damage :: proc(e: Enemy) -> f32 {
             return LARGE_DAMAGE
     }
     return 0
+}
+
+find_nearest_enemy :: proc(enemies: ^EnemyPool, x, y: f32) -> (ex, ey: f32, found: bool) {
+    nearest_dist := max(f32)
+
+    for e in enemies.enemies {
+        if !e.alive { continue }
+        dx := e.x - x
+        dy := e.y - y
+        dist := math.sqrt(dx*dx + dy*dy)
+        if dist < nearest_dist {
+            nearest_dist = dist
+            ex = e.x
+            ey = e.y
+            found = true
+        }
+    }
+    return
 }
 
 draw_enemies :: proc(renderer: ^sdl.Renderer, pool: ^EnemyPool) {
