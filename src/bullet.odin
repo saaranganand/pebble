@@ -2,9 +2,7 @@
 
 package main
 import sdl "vendor:sdl3"
-import "core:thread"
 import "core:math"
-import "core:math/rand"
 
 MAX_BULLETS :: 256
 BULLET_SPEED :: 600
@@ -128,56 +126,6 @@ spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32, type: Bul
     }
 }
 
-detect_bullet_collision :: proc(enemies: ^EnemyPool, bullets: ^BulletPool, dt: f32) {
-    
-    for &b in bullets.bullets {
-        if !b.alive {
-            continue
-        }
-        bullet_left := b.x
-        bullet_right := b.x + b.size
-        bullet_top := b.y
-        bullet_bottom := b.y + b.size
-
-        for &e in enemies.enemies {
-            if !e.alive {
-                continue
-            }
-            size: f32
-            switch e.type {
-                case .Small:
-                    size = SMALL_SIZE
-                case .Regular:
-                    size = REGULAR_SIZE
-                case .Large:
-                    size = LARGE_SIZE
-            }
-
-            enemy_left   := e.x - size
-            enemy_right  := e.x + size
-            enemy_top    := e.y - size
-            enemy_bottom := e.y + size
-
-            overlap := bullet_right > enemy_left &&
-                    bullet_left  < enemy_right &&
-                    bullet_bottom > enemy_top &&
-                    bullet_top   < enemy_bottom
-
-            if overlap {
-                dmg := b.damage
-                if b.type == .BitPistol && rand.float32() < 0.5 {
-                    dmg = 0
-                }
-                e.hp -= dmg
-                b.alive = false
-                if e.hp <= 0 {
-                    e.alive = false
-                }
-            }
-        }
-    }
-}
-
 // bus
 
 draw_bus :: proc(renderer: ^sdl.Renderer, bus: Bus, input: Input, x: f32, y: f32, aimAngle: f32) {
@@ -192,37 +140,6 @@ draw_bus :: proc(renderer: ^sdl.Renderer, bus: Bus, input: Input, x: f32, y: f32
             ox := perp_x * f32(i)
             oy := perp_y * f32(i)
             sdl.RenderLine(renderer, x + ox, y + oy, end_x + ox, end_y + oy)
-        }
-    }
-}
-
-detect_bus_damage :: proc(enemies: ^EnemyPool, bus: Bus, px, py, aim_angle: f32, input: Input, dt: f32) {
-    if !input.fire || bus.is_overheated {
-        return
-    }
-    for &e in enemies.enemies {
-        if !e.alive {
-            continue
-        }
-        size: f32
-        switch e.type {
-            case .Small:
-                size = SMALL_SIZE
-            case .Regular:
-                size = REGULAR_SIZE
-            case .Large:
-                size = LARGE_SIZE
-        }
-
-        perp_dist := abs((e.x - px) * math.sin(aim_angle) - (e.y - py) * math.cos(aim_angle))
-
-        dot := (e.x - px) * math.cos(aim_angle) + (e.y - py) * math.sin(aim_angle)
-        
-        if perp_dist < (size+5) && dot > 0 {
-            if e.hp <= 0 {
-                e.alive = false
-            }
-            e.hp -= BUS_DMG * dt
         }
     }
 }
@@ -264,38 +181,6 @@ spawn_wave :: proc(pool: ^PingWavePool, x, y: f32) {
             w.y = y
             w.r = 0
             return
-        }
-    }
-}
-
-detect_ping_damage :: proc(enemies: ^EnemyPool, waves: ^PingWavePool, dt: f32) {
-    for &w in waves.waves {
-        if !w.alive {
-            continue
-        }
-        for &e in enemies.enemies {
-            if !e.alive {
-                continue
-            }
-            size: f32
-            switch e.type {
-                case .Small:
-                    size = SMALL_SIZE
-                case .Regular:
-                    size = REGULAR_SIZE
-                case .Large:
-                    size = LARGE_SIZE
-            }
-            dx := e.x - w.x
-            dy := e.y - w.y
-            dist := math.sqrt(dx*dx + dy*dy)
-
-            if dist < w.r + size {
-                if e.hp <= 0 {
-                    e.alive = false
-                }
-                e.hp -= PING_DMG * (1 - w.r / PING_MAX_RADIUS)*dt
-            }
         }
     }
 }
