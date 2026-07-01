@@ -4,6 +4,7 @@ package main
 
 import sdl "vendor:sdl3"
 import "core:math"
+import "core:fmt"
 
 BITPISTOL_FIRERATE :: 1 // shots per s
 BITPISTOL_INTERVAL :: 1.0 / BITPISTOL_FIRERATE // time b/w bullets
@@ -25,9 +26,10 @@ PING_DURATION :: 15 // how many s ping runs for after activation
 PING_DMG :: 30
 
 DAEMON_ORBIT_RADIUS :: 80 // how far from the player daemon orbits
-DAEMON_ORBIT_SPEED :: 2 // how fast daemon orbits player
+DAEMON_CONE_ANGLE :: math.PI // 180deg cone
+DAEMON_ORBIT_SPEED :: 1.5 // how fast daemon orbits player
 DAEMON_DURATION :: 15 // how many s daemon runs for after activation
-DAEMON_FIRERATE :: 3 // shots per s
+DAEMON_FIRERATE :: 1 // shots per s
 DAEMON_INTERVAL :: 1.0 / DAEMON_FIRERATE // time b/w bullets
 DAEMON_DMG :: 10
 
@@ -231,15 +233,21 @@ update_daemon :: proc(d: ^Daemon, pool: ^BulletPool, enemies: ^EnemyPool, px, py
         return
     }
     if d.fire_cooldown > 0 {
-    d.fire_cooldown -= dt
+        d.fire_cooldown -= dt
     } else {
         nearest_ex, nearest_ey, found := find_nearest_enemy(enemies, d.x, d.y)
+        fmt.println(found)
         d.fire_cooldown = DAEMON_INTERVAL
         if found {
-            aim_angle := math.atan2(nearest_ey - d.y, nearest_ex - d.x)
-            spawn_bullet(pool, d.x, d.y, aim_angle, .BitPistol, DAEMON_DMG)
+            player_to_enemy := math.atan2(nearest_ey - py, nearest_ex - px)
+            diff2 := player_to_enemy - d.orbit_angle
+            same_side := abs(math.atan2(math.sin(diff2), math.cos(diff2))) < math.PI / 2
+            if same_side  {
+                spawn_bullet(pool, d.x, d.y, player_to_enemy, .BitPistol, DAEMON_DMG)
+            }
         }
     }
+
 
     d.x = px + math.cos(d.orbit_angle) * DAEMON_ORBIT_RADIUS
     d.y = py + math.sin(d.orbit_angle) * DAEMON_ORBIT_RADIUS
