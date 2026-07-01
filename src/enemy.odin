@@ -41,6 +41,31 @@ EnemyPool :: struct {
     spawn_timer: f32
 }
 
+
+enemy_size :: proc(e: Enemy) -> f32 {
+    switch e.type {
+        case .Small:
+            return SMALL_SIZE
+        case .Regular:
+            return REGULAR_SIZE
+        case .Large:
+            return LARGE_SIZE
+    }
+    return 0
+}
+
+enemy_damage :: proc(e: Enemy) -> f32 {
+    switch e.type {
+        case .Small:
+            return SMALL_DAMAGE
+        case .Regular:
+            return REGULAR_DAMAGE
+        case .Large:
+            return LARGE_DAMAGE
+    }
+    return 0
+}
+
 draw_enemies :: proc(renderer: ^sdl.Renderer, pool: ^EnemyPool) {
     for e in pool.enemies {
         if !e.alive {

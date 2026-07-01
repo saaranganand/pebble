@@ -18,7 +18,7 @@ TRACE_DMG :: 30
 
 PING_MAX_RADIUS :: 500 // how far a ping wave extends
 PING_EXPAND_SPEED :: 150 // how fast a ping wave extends
-PING_COOLDOWN :: f32(PING_MAX_RADIUS) / f32(PING_EXPAND_SPEED) / f32(MAX_PING_WAVES)
+PING_COOLDOWN :: f32(PING_MAX_RADIUS) / f32(PING_EXPAND_SPEED) / f32(MAX_PING_WAVES) // spawn interval=lifetime/wavecount, keeps waves evenly spaced
 PING_DURATION :: 15 // how many s ping runs for after activation
 PING_DMG :: 30
 
@@ -69,6 +69,8 @@ Scope :: struct {
     was_firing: bool
 }
 
+// slowdown when charging
+// must run before update_player and update_enemies or it fucks up cam :(
 apply_movement_penalty :: proc(player: Player, input: ^Input) {
     if player.active_category == .Manual && player.weaponManual == .Scope && player.scope.is_charging {
         input.dx *= 0.2
@@ -89,12 +91,12 @@ update_scope :: proc(sc: ^Scope, enemies: ^EnemyPool, waves: ^PingWavePool, pool
     // fire only when mouse let go / max charge reached
     should_fire:= (!input.fire && sc.is_charging) || sc.charge >= SCOPE_MAX_CHARGE
     if should_fire {
-        // spawn_bullet(pool,x,y,aimAngle, BulletType.Scope, sc.charge / SCOPE_MAX_CHARGE * SCOPE_MAX_DMG)
         scope_hitscan(enemies, waves, x, y, aimAngle, sc.charge)
         sc.is_charging = false
         sc.charge = 0
     }
 
+    // prevents retriggering if mouse still held after fire
     sc.was_firing = input.fire
 }
 

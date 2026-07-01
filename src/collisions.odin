@@ -16,19 +16,8 @@ detect_collision :: proc(pool: ^EnemyPool, player: ^Player, dt: f32) {
         if !e.alive {
             continue
         }
-        size: f32
-        damage: f32
-        switch e.type {
-            case .Small:
-                size = SMALL_SIZE
-                damage = SMALL_DAMAGE
-            case .Regular:
-                size = REGULAR_SIZE
-                damage = REGULAR_DAMAGE
-            case .Large:
-                size = LARGE_SIZE
-                damage = LARGE_DAMAGE
-        }
+        size:=enemy_size(e)
+        damage := enemy_damage(e)
 
         enemy_left   := e.x - size
         enemy_right  := e.x + size
@@ -62,15 +51,7 @@ detect_bullet_collision :: proc(enemies: ^EnemyPool, bullets: ^BulletPool, dt: f
             if !e.alive {
                 continue
             }
-            size: f32
-            switch e.type {
-                case .Small:
-                    size = SMALL_SIZE
-                case .Regular:
-                    size = REGULAR_SIZE
-                case .Large:
-                    size = LARGE_SIZE
-            }
+            size := enemy_size(e)
 
             enemy_left   := e.x - size
             enemy_right  := e.x + size
@@ -85,6 +66,7 @@ detect_bullet_collision :: proc(enemies: ^EnemyPool, bullets: ^BulletPool, dt: f
             if overlap {
                 dmg := b.damage
                 if b.type == .BitPistol && rand.float32() < 0.5 {
+                    // 50% chance of 0 dmg
                     dmg = 0
                 }
                 e.hp -= dmg
@@ -106,17 +88,13 @@ scope_hitscan :: proc(enemies: ^EnemyPool, waves: ^PingWavePool, px, py, aim_ang
         if !e.alive{
             continue
         }
-        size: f32
-        switch e.type {
-            case .Small:
-                size = SMALL_SIZE
-            case .Regular:
-                size = REGULAR_SIZE
-            case .Large:
-                size = LARGE_SIZE
-        }
+        size := enemy_size(e)
 
+        // perpendicular dist from enemy center to aim direction
+        // if < enemy size,  shot passes through enemy hitbox
         perp_dist := abs((e.x - px) * math.sin(aim_angle) - (e.y - py) * math.cos(aim_angle))
+        
+        // dist along aim direction (signed)
         dot := (e.x - px) * math.cos(aim_angle) + (e.y - py) * math.sin(aim_angle)
 
         if perp_dist < size && dot > 0 && dot < nearest_dot {
@@ -145,18 +123,13 @@ detect_bus_damage :: proc(enemies: ^EnemyPool, bus: Bus, px, py, aim_angle: f32,
         if !e.alive {
             continue
         }
-        size: f32
-        switch e.type {
-            case .Small:
-                size = SMALL_SIZE
-            case .Regular:
-                size = REGULAR_SIZE
-            case .Large:
-                size = LARGE_SIZE
-        }
+        size := enemy_size(e)
 
+        // perpendicular dist from enemy center to aim direction
+        // if < enemy size,  shot passes through enemy hitbox
         perp_dist := abs((e.x - px) * math.sin(aim_angle) - (e.y - py) * math.cos(aim_angle))
-
+        
+        // dist along aim direction (signed)
         dot := (e.x - px) * math.cos(aim_angle) + (e.y - py) * math.sin(aim_angle)
         
         if perp_dist < (size+5) && dot > 0 {
@@ -178,15 +151,7 @@ detect_ping_damage :: proc(enemies: ^EnemyPool, waves: ^PingWavePool, dt: f32) {
             if !e.alive {
                 continue
             }
-            size: f32
-            switch e.type {
-                case .Small:
-                    size = SMALL_SIZE
-                case .Regular:
-                    size = REGULAR_SIZE
-                case .Large:
-                    size = LARGE_SIZE
-            }
+            size := enemy_size(e)
             dx := e.x - w.x
             dy := e.y - w.y
             dist := math.sqrt(dx*dx + dy*dy)

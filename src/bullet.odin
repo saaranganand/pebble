@@ -72,6 +72,9 @@ update_bullets :: proc(pool: ^BulletPool, enemies: ^EnemyPool, dt: f32, input: I
 
         b.x += b.vx * dt
         b.y += b.vy * dt
+        
+        // bullets in world space, but cam shifts it each frame
+        // subtract cam movement so bullets move indpendantly
         b.x -= input.dx * CAM_SPEED * dt
         b.y -= input.dy * CAM_SPEED * dt
 
@@ -80,6 +83,7 @@ update_bullets :: proc(pool: ^BulletPool, enemies: ^EnemyPool, dt: f32, input: I
         }
 
         if b.type == .Trace {
+            // find nearest alive enemy to home towards
             nearest_dist := max(f32)
             nearest_ex, nearest_ey: f32
             found := false
@@ -100,8 +104,13 @@ update_bullets :: proc(pool: ^BulletPool, enemies: ^EnemyPool, dt: f32, input: I
             if found {
                 target_angle := math.atan2(nearest_ey - b.y, nearest_ex - b.x)
                 current_angle := math.atan2(b.vy, b.vx)
+                
+                // wrap to [-PI,PI] so bullet always turns short way
                 angle_diff := math.mod(target_angle - current_angle + math.PI, math.TAU) - math.PI
+                
+                // clamp turn amoutn per frame (smoother)
                 new_angle := current_angle + clamp(angle_diff, -TRACE_TURN_SPEED * dt, TRACE_TURN_SPEED * dt)
+                
                 b.vx = math.cos(new_angle) * BULLET_SPEED
                 b.vy = math.sin(new_angle) * BULLET_SPEED
             }
