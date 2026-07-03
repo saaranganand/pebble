@@ -59,9 +59,12 @@ BitPistol :: struct {
     cooldown: f32
 }
 
-update_bitpistol :: proc(bp: ^BitPistol, pool: ^BulletPool, x: f32, y: f32, input: Input, aimAngle: f32, dt: f32) {
+update_bitpistol :: proc(bp: ^BitPistol, x: f32, y: f32, aimAngle: f32) {
+    pool := &game.bullets
+    input := &game.input
+
     if bp.cooldown > 0 {
-        bp.cooldown -= dt
+        bp.cooldown -= game.dt
     }
     if input.fire && bp.cooldown <= 0 {
         spawn_bullet(pool, x, y, aimAngle, BulletType.BitPistol, BITPISTOL_DMG)
@@ -78,21 +81,29 @@ Scope :: struct {
 
 // slowdown when charging
 // must run before update_player and update_enemies or it fucks up cam :(
-apply_movement_penalty :: proc(player: Player, input: ^Input) {
+apply_movement_penalty :: proc() {
+    player := &game.player
+    input := &game.input
+
     if player.active_category == .Manual && player.weaponManual == .Scope && player.scope.is_charging {
         input.dx *= 0.2 // 80% slowdown
         input.dy *= 0.2
     }
 }
 
-update_scope :: proc(sc: ^Scope, enemies: ^EnemyPool, waves: ^PingWavePool, pool: ^BulletPool, x: f32, y: f32, input: Input, aimAngle: f32, dt: f32) {
+update_scope :: proc(sc: ^Scope, x: f32, y: f32, aimAngle: f32) {
+    pool := &game.bullets
+    input := &game.input
+    waves := &game.waves
+    enemies := &game.enemies
+
     // check if was firing already
     if input.fire && !sc.was_firing {
         sc.is_charging = true
     }
     // if firing, charge go up
     if sc.is_charging {
-        sc.charge += dt
+        sc.charge += game.dt
     }
 
     // fire only when mouse let go / max charge reached
@@ -117,22 +128,24 @@ Bus :: struct {
     is_overheated: bool
 }
 
-update_bus :: proc(bus: ^Bus, input: Input, dt: f32) {
+update_bus :: proc(bus: ^Bus) {
+    input := &game.input
+
     if bus.is_overheated {
-        bus.heat = max(bus.heat-dt, 0) // slow cooldown
+        bus.heat = max(bus.heat - game.dt, 0) // slow cooldown
         if bus.heat <= 0 { // not overheated anymore
             bus.is_overheated = false
         }
     }
     else {
         if input.fire { // firing
-            bus.heat += dt // build heat
+            bus.heat += game.dt // build heat
             if bus.heat >= BUS_MAX_HEAT { // max heat reached
                 bus.is_overheated = true
             }
         }
         else { // not firing
-            bus.heat = max(bus.heat - dt * 2, 0) // fast cooldown
+            bus.heat = max(bus.heat - game.dt * 2, 0) // fast cooldown
         }
     }
 }
@@ -142,9 +155,12 @@ Trace :: struct {
     cooldown: f32
 }
 
-update_trace :: proc(tr: ^Trace, pool: ^BulletPool, x: f32, y: f32, input: Input, aimAngle: f32, dt: f32) {
+update_trace :: proc(tr: ^Trace, x: f32, y: f32, aimAngle: f32) {
+    pool := &game.bullets
+    input := &game.input
+
     if tr.cooldown > 0 {
-        tr.cooldown -= dt
+        tr.cooldown -= game.dt
     }
     if input.fire && tr.cooldown <= 0 {
         spawn_bullet(pool, x, y, aimAngle, BulletType.Trace, TRACE_DMG)
@@ -163,13 +179,15 @@ Ping :: struct {
     timer: f32
 }
 
-update_waves :: proc(pool: ^PingWavePool, dt: f32) {
+update_waves :: proc() {
+    pool := &game.waves
+
     for &w in pool.waves {
         if !w.alive {
             continue
         }
         else {
-            w.r += w.expand_speed * dt
+            w.r += w.expand_speed * game.dt
             if w.r >= w.max_r {
                 w.alive = false
             }

@@ -6,7 +6,10 @@ import "core:math"
 import "core:math/rand"
 
 // player and enemy
-detect_collision :: proc(pool: ^EnemyPool, player: ^Player, dt: f32) {
+detect_collision :: proc() {
+    pool := &game.enemies
+    player := &game.player
+
     player_left   := player.x - PLAYER_SIZE/2
     player_right  := player.x + PLAYER_SIZE/2
     player_top    := player.y - PLAYER_SIZE/2
@@ -30,14 +33,16 @@ detect_collision :: proc(pool: ^EnemyPool, player: ^Player, dt: f32) {
                    player_top   < enemy_bottom
 
         if overlap {
-            player.hp -= damage * dt
+            player.hp -= damage * game.dt
         }
     }
 }
 
 // bullet and enemy
-detect_bullet_collision :: proc(enemies: ^EnemyPool, bullets: ^BulletPool, dt: f32) {
-    
+detect_bullet_collision :: proc() {
+    enemies := &game.enemies
+    bullets := &game.bullets
+
     for &b in bullets.bullets {
         if !b.alive {
             continue
@@ -142,7 +147,10 @@ detect_bus_damage :: proc(enemies: ^EnemyPool, bus: Bus, px, py, aim_angle: f32,
 }
 
 // ping wave and enemy
-detect_ping_damage :: proc(enemies: ^EnemyPool, waves: ^PingWavePool, dt: f32) {
+detect_ping_damage :: proc() {
+    enemies := &game.enemies
+    waves := &game.waves
+
     for &w in waves.waves {
         if !w.alive {
             continue
@@ -160,7 +168,7 @@ detect_ping_damage :: proc(enemies: ^EnemyPool, waves: ^PingWavePool, dt: f32) {
                 if e.hp <= 0 {
                     e.alive = false
                 }
-                e.hp -= PING_DMG * (1 - w.r / PING_MAX_RADIUS)*dt
+                e.hp -= PING_DMG * (1 - w.r / PING_MAX_RADIUS) * game.dt
             }
         }
     }

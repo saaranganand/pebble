@@ -84,7 +84,9 @@ find_nearest_enemy :: proc(enemies: ^EnemyPool, x, y: f32) -> (ex, ey: f32, foun
     return
 }
 
-draw_enemies :: proc(renderer: ^sdl.Renderer, pool: ^EnemyPool) {
+draw_enemies :: proc() {
+    pool := &game.enemies
+
     for e in pool.enemies {
         if !e.alive {
             continue
@@ -93,13 +95,13 @@ draw_enemies :: proc(renderer: ^sdl.Renderer, pool: ^EnemyPool) {
         switch e.type {
             case .Small:
                 size = SMALL_SIZE
-                sdl.SetRenderDrawColor(renderer, 0, 255, 255, 255) // cyan
+                sdl.SetRenderDrawColor(global_renderer, 0, 255, 255, 255) // cyan
             case .Regular:
                 size = REGULAR_SIZE
-                sdl.SetRenderDrawColor(renderer, 129, 128, 0, 255) // dark yellow
+                sdl.SetRenderDrawColor(global_renderer, 129, 128, 0, 255) // dark yellow
             case .Large:
                 size = LARGE_SIZE
-                sdl.SetRenderDrawColor(renderer, 139, 0, 0, 255) // dark red
+                sdl.SetRenderDrawColor(global_renderer, 139, 0, 0, 255) // dark red
         }
 
         rect:= sdl.FRect{
@@ -108,7 +110,7 @@ draw_enemies :: proc(renderer: ^sdl.Renderer, pool: ^EnemyPool) {
             w = size*2,
             h = size*2
         }
-        sdl.RenderFillRect(renderer, &rect)
+        sdl.RenderFillRect(global_renderer, &rect)
     }
 }
 
@@ -137,8 +139,12 @@ spawn_enemy :: proc(pool: ^EnemyPool, px, py: f32) {
     }
 }
 
-update_enemies :: proc(pool: ^EnemyPool, px, py: f32, input: Input, dt: f32) {
-    pool.spawn_timer -= dt
+update_enemies :: proc(px, py: f32) {
+    pool := &game.enemies
+    input := &game.input
+
+
+    pool.spawn_timer -= game.dt
     if pool.spawn_timer <= 0 {
         spawn_enemy(pool, px, py)
         pool.spawn_timer = ENEMY_SPAWN_RATE
@@ -160,10 +166,10 @@ update_enemies :: proc(pool: ^EnemyPool, px, py: f32, input: Input, dt: f32) {
             case .Large:
                 speed = LARGE_SPEED
         }
-        e.x += (dx/dist) * speed * dt
-        e.y += (dy/dist) * speed * dt
+        e.x += (dx/dist) * speed * game.dt
+        e.y += (dy/dist) * speed * game.dt
 
-        e.x -= input.dx * CAM_SPEED * dt
-        e.y -= input.dy * CAM_SPEED * dt
+        e.x -= input.dx * CAM_SPEED * game.dt
+        e.y -= input.dy * CAM_SPEED * game.dt
     }
 }

@@ -33,8 +33,11 @@ BulletPool :: struct {
     bullets : [MAX_BULLETS]Bullet
 }
 
-draw_bullets :: proc(renderer: ^sdl.Renderer, pool: ^BulletPool, trace_tex: ^sdl.Texture) {
-    sdl.SetRenderDrawColor(renderer, 255, 165, 0, 255)
+draw_bullets :: proc() {
+    trace_tex: ^sdl.Texture
+    pool := &game.bullets
+
+    sdl.SetRenderDrawColor(global_renderer, 255, 165, 0, 255)
     for b in pool.bullets {
         if !b.alive {
             continue
@@ -45,15 +48,15 @@ draw_bullets :: proc(renderer: ^sdl.Renderer, pool: ^BulletPool, trace_tex: ^sdl
                 x = b.x, 
                 y = b.y, 
                 w = b.size, h = b.size}
-                sdl.SetRenderDrawColor(renderer, 255, 165, 0, 255)
-                sdl.RenderFillRect(renderer, &bulletRect)
+                sdl.SetRenderDrawColor(global_renderer, 255, 165, 0, 255)
+                sdl.RenderFillRect(global_renderer, &bulletRect)
             // case .Scope:
             //     bulletRect:=sdl.FRect{
             //     x = b.x, 
             //     y = b.y, 
             //     w = b.size*4, h = b.size/2}
-            //     sdl.SetRenderDrawColor(renderer, 0, 255, 0, 255)
-            //     sdl.RenderFillRect(renderer, &bulletRect)
+            //     sdl.SetRenderDrawColor(global_renderer, 0, 255, 0, 255)
+            //     sdl.RenderFillRect(global_renderer, &bulletRect)
             case .Trace:
                 angle_deg := math.to_degrees(math.atan2(b.vy, b.vx))
                 dst:=sdl.FRect{
@@ -61,24 +64,28 @@ draw_bullets :: proc(renderer: ^sdl.Renderer, pool: ^BulletPool, trace_tex: ^sdl
                     y = b.y,
                     w = b.size*5, h = b.size*5
                 }
-                sdl.RenderTextureRotated(renderer, trace_tex, nil, &dst, f64(angle_deg), nil, .NONE)
+                //sdl.RenderTextureRotated(global_renderer, trace_tex, nil, &dst, f64(angle_deg), nil, .NONE)
         }
     }
 }
 
-update_bullets :: proc(pool: ^BulletPool, enemies: ^EnemyPool, dt: f32, input: Input) {
+update_bullets :: proc() {
+    pool := &game.bullets
+    enemies := &game.enemies
+    input := &game.input
+
     for &b in pool.bullets {
         if !b.alive { continue }
 
-        b.x += b.vx * dt
-        b.y += b.vy * dt
+        b.x += b.vx * game.dt
+        b.y += b.vy * game.dt
         
         // bullets in world space, but cam shifts it each frame
         // subtract cam movement so bullets move indpendantly
-        b.x -= input.dx * CAM_SPEED * dt
-        b.y -= input.dy * CAM_SPEED * dt
+        b.x -= input.dx * CAM_SPEED * game.dt
+        b.y -= input.dy * CAM_SPEED * game.dt
 
-        if b.x < 0 || b.x > WINDOW_W || b.y < 0 || b.y > WINDOW_H {
+        if b.x < 0 || b.x > f32(app.window_width) || b.y < 0 || b.y > f32(app.window_height) {
             b.alive = false
         }
 
@@ -94,7 +101,7 @@ update_bullets :: proc(pool: ^BulletPool, enemies: ^EnemyPool, dt: f32, input: I
                 angle_diff := math.mod(target_angle - current_angle + math.PI, math.TAU) - math.PI
                 
                 // clamp turn amoutn per frame (smoother)
-                new_angle := current_angle + clamp(angle_diff, -TRACE_TURN_SPEED * dt, TRACE_TURN_SPEED * dt)
+                new_angle := current_angle + clamp(angle_diff, -TRACE_TURN_SPEED * game.dt, TRACE_TURN_SPEED * game.dt)
                 
                 b.vx = math.cos(new_angle) * BULLET_SPEED
                 b.vy = math.sin(new_angle) * BULLET_SPEED
@@ -122,8 +129,8 @@ spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32, type: Bul
 
 // bus
 
-draw_bus :: proc(renderer: ^sdl.Renderer, bus: Bus, input: Input, x: f32, y: f32, aimAngle: f32) {
-    sdl.SetRenderDrawColor(renderer, 0, 200, 255, 255) // cyan
+draw_bus :: proc(bus: Bus, input: Input, x: f32, y: f32, aimAngle: f32) {
+    sdl.SetRenderDrawColor(global_renderer, 0, 200, 255, 255) // cyan
     
     if input.fire && !bus.is_overheated {
         end_x := x + math.cos(aimAngle) * 2000
@@ -135,7 +142,7 @@ draw_bus :: proc(renderer: ^sdl.Renderer, bus: Bus, input: Input, x: f32, y: f32
         for i in -2..=2 {
             ox := perp_x * f32(i)
             oy := perp_y * f32(i)
-            sdl.RenderLine(renderer, x + ox, y + oy, end_x + ox, end_y + oy)
+            sdl.RenderLine(global_renderer, x + ox, y + oy, end_x + ox, end_y + oy)
         }
     }
 }
@@ -155,8 +162,10 @@ PingWavePool :: struct {
     waves : [MAX_PING_WAVES]PingWave
 }
 
-draw_ping_waves :: proc(renderer: ^sdl.Renderer, pool: ^PingWavePool) {
-    sdl.SetRenderDrawBlendMode(renderer, sdl.BLENDMODE_BLEND)
+draw_ping_waves :: proc() {
+    pool := &game.waves
+
+    sdl.SetRenderDrawBlendMode(global_renderer, sdl.BLENDMODE_BLEND)
     for w in pool.waves {
         if !w.alive {
             continue
@@ -165,10 +174,10 @@ draw_ping_waves :: proc(renderer: ^sdl.Renderer, pool: ^PingWavePool) {
             thickness := f32(12) * (1 - w.r/w.max_r)
             alpha := u8(255 * (1 - w.r / w.max_r))
             color := sdl.Color{w.color.r, w.color.g, w.color.b, alpha}
-            draw_circle(renderer, w.x, w.y, w.r, color, thickness)
+            //draw_circle(w.x, w.y, w.r, color, thickness)
         }
     }
-    sdl.SetRenderDrawBlendMode(renderer, sdl.BLENDMODE_NONE)
+    sdl.SetRenderDrawBlendMode(global_renderer, sdl.BLENDMODE_NONE)
 }
 
 spawn_wave :: proc(pool: ^PingWavePool, x, y, max_r, expand_speed: f32, color: sdl.Color) {
@@ -188,7 +197,7 @@ spawn_wave :: proc(pool: ^PingWavePool, x, y, max_r, expand_speed: f32, color: s
 
 // daemon
 
-draw_daemon :: proc(renderer: ^sdl.Renderer, d: Daemon) {
+draw_daemon :: proc(d: Daemon) {
     if !d.is_active {
         return 
     }
@@ -198,6 +207,6 @@ draw_daemon :: proc(renderer: ^sdl.Renderer, d: Daemon) {
         w= 16,
         h = 16
     }
-    sdl.SetRenderDrawColor(renderer, 180, 0, 255, 255)
-    sdl.RenderFillRect(renderer, &rect)
+    sdl.SetRenderDrawColor(global_renderer, 180, 0, 255, 255)
+    sdl.RenderFillRect(global_renderer, &rect)
 }
