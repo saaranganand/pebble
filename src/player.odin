@@ -4,7 +4,7 @@ package main
 import sdl "vendor:sdl3"
 import "core:math"
 
-PLAYER_MAX_HP :: 100
+
 
 Player :: struct {
     x, y: f32,
@@ -23,7 +23,7 @@ Player :: struct {
 }
 
 player_init :: proc() -> Player {
-    return Player{ x = 0, y = 0, hp = PLAYER_MAX_HP }
+    return Player{x = 0, y = 0, hp = game_config.player.max_hp}
 }
 
 draw_player :: proc() {

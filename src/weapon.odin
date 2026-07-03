@@ -5,32 +5,6 @@ package main
 import sdl "vendor:sdl3"
 import "core:math"
 
-BITPISTOL_FIRERATE :: 1 // shots per s
-BITPISTOL_INTERVAL :: 1.0 / BITPISTOL_FIRERATE // time b/w bullets
-BITPISTOL_DMG :: 10
-
-SCOPE_MAX_CHARGE :: 0.75 // how many s for scope to max charge
-SCOPE_MAX_DMG :: 70
-
-BUS_MAX_HEAT :: 3.0 // how many s for bus to hit max heat
-BUS_DMG :: 100 // normalized using dt
-
-TRACE_COOLDOWN :: 1 // time b/w missiles
-TRACE_DMG :: 30
-
-PING_MAX_RADIUS :: 500 // how far a ping wave extends
-PING_EXPAND_SPEED :: 150 // how fast a ping wave extends
-PING_COOLDOWN :: f32(PING_MAX_RADIUS) / f32(PING_EXPAND_SPEED) / f32(MAX_PING_WAVES) // spawn interval=lifetime/wavecount, keeps waves evenly spaced
-PING_DURATION :: 15 // how many s ping runs for after activation
-PING_DMG :: 30
-
-DAEMON_ORBIT_RADIUS :: 80 // how far from the player daemon orbits
-DAEMON_ORBIT_SPEED :: 2 // how fast daemon orbits player
-DAEMON_DURATION :: 15 // how many s daemon runs for after activation
-DAEMON_FIRERATE :: 3 // shots per s
-DAEMON_INTERVAL :: 1.0 / DAEMON_FIRERATE // time b/w bullets
-DAEMON_DMG :: 10
-
 WeaponCategory :: enum {
     Manual,
     Hold,
@@ -62,13 +36,14 @@ BitPistol :: struct {
 update_bitpistol :: proc(bp: ^BitPistol, x: f32, y: f32, aimAngle: f32) {
     pool := &game.bullets
     input := &game.input
+    cfg := game_config.weapons.bitpistol
 
     if bp.cooldown > 0 {
         bp.cooldown -= game.dt
     }
     if input.fire && bp.cooldown <= 0 {
-        spawn_bullet(pool, x, y, aimAngle, BulletType.BitPistol, BITPISTOL_DMG)
-        bp.cooldown = BITPISTOL_INTERVAL
+        spawn_bullet(pool, x, y, aimAngle, BulletType.BitPistol, cfg.damage, cfg.bullet_speed, cfg.bullet_size)
+        bp.cooldown = 1.0 / cfg.fire_rate
     }
 }
 
@@ -96,6 +71,7 @@ update_scope :: proc(sc: ^Scope, x: f32, y: f32, aimAngle: f32) {
     input := &game.input
     waves := &game.waves
     enemies := &game.enemies
+    cfg := game_config.weapons.scope
 
     // check if was firing already
     if input.fire && !sc.was_firing {
@@ -107,7 +83,7 @@ update_scope :: proc(sc: ^Scope, x: f32, y: f32, aimAngle: f32) {
     }
 
     // fire only when mouse let go / max charge reached
-    should_fire:= (!input.fire && sc.is_charging) || sc.charge >= SCOPE_MAX_CHARGE
+    should_fire:= (!input.fire && sc.is_charging) || sc.charge >= cfg.max_charge
     if should_fire {
         scope_hitscan(enemies, waves, x, y, aimAngle, sc.charge)
         sc.is_charging = false
@@ -130,7 +106,7 @@ Bus :: struct {
 
 update_bus :: proc(bus: ^Bus) {
     input := &game.input
-
+    cfg := game_config.weapons.scope
     if bus.is_overheated {
         bus.heat = max(bus.heat - game.dt, 0) // slow cooldown
         if bus.heat <= 0 { // not overheated anymore
@@ -140,12 +116,30 @@ update_bus :: proc(bus: ^Bus) {
     else {
         if input.fire { // firing
             bus.heat += game.dt // build heat
-            if bus.heat >= BUS_MAX_HEAT { // max heat reached
+            if bus.heat >= cfg.max_heat { // max heat reached
                 bus.is_overheated = true
             }
         }
         else { // not firing
             bus.heat = max(bus.heat - game.dt * 2, 0) // fast cooldown
+        }
+    }
+}
+
+draw_bus :: proc(renderer: ^sdl.Renderer, bus: Bus, input: Input, x: f32, y: f32, aimAngle: f32) {
+    sdl.SetRenderDrawColor(renderer, 0, 200, 255, 255) // cyan
+
+    if input.fire && !bus.is_overheated {
+        end_x := x + math.cos(aimAngle) * 2000
+        end_y := y + math.sin(aimAngle) * 2000
+
+        perp_x := -math.sin(aimAngle)
+        perp_y :=  math.cos(aimAngle)
+
+        for i in -2..=2 {
+            ox := perp_x * f32(i)
+            oy := perp_y * f32(i)
+            sdl.RenderLine(renderer, x + ox, y + oy, end_x + ox, end_y + oy)
         }
     }
 }
@@ -158,13 +152,14 @@ Trace :: struct {
 update_trace :: proc(tr: ^Trace, x: f32, y: f32, aimAngle: f32) {
     pool := &game.bullets
     input := &game.input
+    cfg := game_config.weapons.trace
 
     if tr.cooldown > 0 {
         tr.cooldown -= game.dt
     }
     if input.fire && tr.cooldown <= 0 {
-        spawn_bullet(pool, x, y, aimAngle, BulletType.Trace, TRACE_DMG)
-        tr.cooldown = TRACE_COOLDOWN
+        spawn_bullet(pool, x, y, aimAngle, BulletType.Trace, cfg.damage, cfg.bullet_speed, cfg.bullet_size)
+        tr.cooldown = cfg.cooldown
     }
 }
 
@@ -196,9 +191,13 @@ update_waves :: proc() {
 }
 
 update_ping :: proc(ping: ^Ping, pool: ^PingWavePool, x, y: f32, input: Input, is_selected: bool, dt: f32) {
+    cfg := game_config.weapons.ping
+
+    wave_interval := cfg.max_radius / cfg.expand_speed / f32(MAX_PING_WAVES)
+
     if is_selected && input.fire && !ping.is_active {
         ping.is_active = true
-        ping.timer = PING_DURATION
+        ping.timer = cfg.duration
         ping.cooldown = 0
     }
 
@@ -214,13 +213,13 @@ update_ping :: proc(ping: ^Ping, pool: ^PingWavePool, x, y: f32, input: Input, i
         }
         return
     }
-    
+
     if ping.cooldown > 0 {
         ping.cooldown -= dt
     }
     else {
-        spawn_wave(pool, x, y, PING_MAX_RADIUS, PING_EXPAND_SPEED, sdl.Color{0, 255, 0, 255})
-        ping.cooldown = PING_COOLDOWN
+        spawn_wave(pool, x, y, cfg.max_radius, cfg.expand_speed, sdl.Color{0, 255, 0, 255})
+        ping.cooldown = wave_interval
     }
 }
 
@@ -233,10 +232,25 @@ Daemon :: struct {
     fire_cooldown: f32
 }
 
+draw_daemon :: proc(renderer: ^sdl.Renderer, d: Daemon) {
+    if !d.is_active {
+        return
+    }
+    rect := sdl.FRect{
+        x = d.x-8,
+        y = d.y-8,
+        w = 16,
+        h = 16
+    }
+    sdl.SetRenderDrawColor(renderer, 180, 0, 255, 255)
+    sdl.RenderFillRect(renderer, &rect)
+}
+
 update_daemon :: proc(d: ^Daemon, pool: ^BulletPool, enemies: ^EnemyPool, px, py: f32, is_selected: bool, input: Input, dt: f32) {
+    cfg := game_config.weapons.daemon
     if is_selected && input.fire && !d.is_active {
         d.is_active = true
-        d.timer = DAEMON_DURATION
+        d.timer = cfg.duration
     }
 
     if !d.is_active {
@@ -249,17 +263,21 @@ update_daemon :: proc(d: ^Daemon, pool: ^BulletPool, enemies: ^EnemyPool, px, py
         return
     }
     if d.fire_cooldown > 0 {
-    d.fire_cooldown -= dt
+        d.fire_cooldown -= dt
     } else {
         nearest_ex, nearest_ey, found := find_nearest_enemy(enemies, d.x, d.y)
-        d.fire_cooldown = DAEMON_INTERVAL
+        d.fire_cooldown = 1.0 / cfg.fire_rate
         if found {
-            aim_angle := math.atan2(nearest_ey - d.y, nearest_ex - d.x)
-            spawn_bullet(pool, d.x, d.y, aim_angle, .BitPistol, DAEMON_DMG)
+            player_to_enemy := math.atan2(nearest_ey - py, nearest_ex - px)
+            diff2 := player_to_enemy - d.orbit_angle
+            same_side := abs(math.atan2(math.sin(diff2), math.cos(diff2))) < cfg.cone_angle / 2
+            if same_side  {
+                spawn_bullet(pool, d.x, d.y, player_to_enemy, .BitPistol, cfg.damage, game_config.weapons.bitpistol.bullet_speed, game_config.weapons.bitpistol.bullet_size)
+            }
         }
     }
 
-    d.x = px + math.cos(d.orbit_angle) * DAEMON_ORBIT_RADIUS
-    d.y = py + math.sin(d.orbit_angle) * DAEMON_ORBIT_RADIUS
-    d.orbit_angle += DAEMON_ORBIT_SPEED * dt
+    d.x = px + math.cos(d.orbit_angle) * cfg.orbit_radius
+    d.y = py + math.sin(d.orbit_angle) * cfg.orbit_radius
+    d.orbit_angle += cfg.orbit_speed * dt
 }

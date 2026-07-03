@@ -1,14 +1,10 @@
-// projectile logic, drawing
+// bullets, waves, other projectiles - spawn, update, draw
 
 package main
 import sdl "vendor:sdl3"
 import "core:math"
 
 MAX_BULLETS :: 256
-BULLET_SPEED :: 600
-BULLET_SIZE :: 8.0
-
-TRACE_TURN_SPEED :: 3
 
 MAX_PING_WAVES :: 3 // simultaneous ping waves and spacing
 
@@ -17,6 +13,7 @@ MAX_PING_WAVES :: 3 // simultaneous ping waves and spacing
 Bullet :: struct {
     x, y: f32,
     vx, vy: f32,
+    speed: f32,
     size: f32,
     damage: f32,
     alive: bool,
@@ -101,48 +98,30 @@ update_bullets :: proc() {
                 angle_diff := math.mod(target_angle - current_angle + math.PI, math.TAU) - math.PI
                 
                 // clamp turn amoutn per frame (smoother)
-                new_angle := current_angle + clamp(angle_diff, -TRACE_TURN_SPEED * game.dt, TRACE_TURN_SPEED * game.dt)
+                turn_speed := game_config.weapons.trace.turn_speed
+                new_angle := current_angle + clamp(angle_diff, -turn_speed * game.dt, turn_speed * game.dt)
                 
-                b.vx = math.cos(new_angle) * BULLET_SPEED
-                b.vy = math.sin(new_angle) * BULLET_SPEED
+                b.vx = math.cos(new_angle) * b.speed
+                b.vy = math.sin(new_angle) * b.speed
             }
         }
     }
 }
 
 
-spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32, type: BulletType, damage: f32) {
+spawn_bullet :: proc(pool: ^BulletPool, x: f32, y: f32, aimAngle: f32, type: BulletType, damage: f32, speed: f32, size: f32) {
     for &b in pool.bullets {
         if !b.alive {
             b.alive = true
             b.x = x
             b.y = y
-            b.vx = math.cos(aimAngle) * BULLET_SPEED
-            b.vy = math.sin(aimAngle) *BULLET_SPEED
-            b.size = BULLET_SIZE
+            b.speed = speed
+            b.vx = math.cos(aimAngle) * speed
+            b.vy = math.sin(aimAngle) * speed
+            b.size = size
             b.type = type
             b.damage = damage
             return
-        }
-    }
-}
-
-// bus
-
-draw_bus :: proc(bus: Bus, input: Input, x: f32, y: f32, aimAngle: f32) {
-    sdl.SetRenderDrawColor(global_renderer, 0, 200, 255, 255) // cyan
-    
-    if input.fire && !bus.is_overheated {
-        end_x := x + math.cos(aimAngle) * 2000
-        end_y := y + math.sin(aimAngle) * 2000
-        
-        perp_x := -math.sin(aimAngle)
-        perp_y :=  math.cos(aimAngle)
-
-        for i in -2..=2 {
-            ox := perp_x * f32(i)
-            oy := perp_y * f32(i)
-            sdl.RenderLine(global_renderer, x + ox, y + oy, end_x + ox, end_y + oy)
         }
     }
 }
@@ -195,18 +174,3 @@ spawn_wave :: proc(pool: ^PingWavePool, x, y, max_r, expand_speed: f32, color: s
     }
 }
 
-// daemon
-
-draw_daemon :: proc(d: Daemon) {
-    if !d.is_active {
-        return 
-    }
-    rect := sdl.FRect{
-        x = d.x-8,
-        y = d.y-8,
-        w= 16,
-        h = 16
-    }
-    sdl.SetRenderDrawColor(global_renderer, 180, 0, 255, 255)
-    sdl.RenderFillRect(global_renderer, &rect)
-}

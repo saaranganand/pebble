@@ -1,3 +1,5 @@
+// enemy spawn, update, draw
+
 package main
 import sdl "vendor:sdl3"
 import "core:time"
@@ -5,28 +7,12 @@ import "core:math"
 import rand "core:math/rand"
 
 MAX_ENEMIES :: 64
-ENEMY_SPAWN_RATE :: 2
-ENEMY_SPAWN_DIST :: 750 // how far away enemies spawn in relation to player
-
-SMALL_HEALTH :: 30
-SMALL_SPEED :: 160
-SMALL_SIZE :: 10
-SMALL_DAMAGE :: 5
-
-REGULAR_HEALTH :: 50
-REGULAR_SPEED :: 80
-REGULAR_SIZE :: 20
-REGULAR_DAMAGE :: 10
-
-LARGE_HEALTH :: 70
-LARGE_SPEED :: 30
-LARGE_SIZE :: 40
-LARGE_DAMAGE :: 20
 
 EnemyType :: enum {
     Small,
     Regular,
-    Large
+    Large,
+    // add more enemy types here
 }
 
 Enemy :: struct {
@@ -41,29 +27,30 @@ EnemyPool :: struct {
     spawn_timer: f32
 }
 
+// returns config for EnemyType for when we dont have an Enemy instance
+enemy_cfg_for_type :: proc(t: EnemyType) -> EnemyTypeConfig {
+    switch t {
+    case .Small:
+        return game_config.enemies.small
+    case .Regular:
+        return game_config.enemies.regular
+    case .Large:
+        return game_config.enemies.large
+    // add more here
+    }
+    return {}
+}
+// wrapper for above
+enemy_cfg :: proc(e: Enemy) -> EnemyTypeConfig {
+    return enemy_cfg_for_type(e.type)
+}
 
 enemy_size :: proc(e: Enemy) -> f32 {
-    switch e.type {
-        case .Small:
-            return SMALL_SIZE
-        case .Regular:
-            return REGULAR_SIZE
-        case .Large:
-            return LARGE_SIZE
-    }
-    return 0
+    return enemy_cfg(e).size
 }
 
 enemy_damage :: proc(e: Enemy) -> f32 {
-    switch e.type {
-        case .Small:
-            return SMALL_DAMAGE
-        case .Regular:
-            return REGULAR_DAMAGE
-        case .Large:
-            return LARGE_DAMAGE
-    }
-    return 0
+    return enemy_cfg(e).damage
 }
 
 find_nearest_enemy :: proc(enemies: ^EnemyPool, x, y: f32) -> (ex, ey: f32, found: bool) {
@@ -91,17 +78,16 @@ draw_enemies :: proc() {
         if !e.alive {
             continue
         }
-        size : f32
+        size := enemy_cfg(e).size
         switch e.type {
+            // TODO: replace with sprites eventually
             case .Small:
-                size = SMALL_SIZE
                 sdl.SetRenderDrawColor(global_renderer, 0, 255, 255, 255) // cyan
             case .Regular:
-                size = REGULAR_SIZE
                 sdl.SetRenderDrawColor(global_renderer, 129, 128, 0, 255) // dark yellow
             case .Large:
-                size = LARGE_SIZE
                 sdl.SetRenderDrawColor(global_renderer, 139, 0, 0, 255) // dark red
+            // add more here
         }
 
         rect:= sdl.FRect{
@@ -119,20 +105,22 @@ spawn_enemy :: proc(pool: ^EnemyPool, px, py: f32) {
         if !e.alive {
             angle := rand.float32() * math.TAU
             e.alive = true
-            e.x = px + math.cos(angle) * ENEMY_SPAWN_DIST
-            e.y = py + math.sin(angle) * ENEMY_SPAWN_DIST
-            r := rand.float32()
-            if r < 0.6 {
-                e.type = .Regular
-                e.hp = REGULAR_HEALTH
-            }
-            else if r < 0.85 {
-                e.type = .Small
-                e.hp = SMALL_HEALTH
-            }
-            else {
-                e.type = .Large
-                e.hp = LARGE_HEALTH
+            e.x = px + math.cos(angle) * game_config.enemies.spawn_dist
+            e.y = py + math.sin(angle) * game_config.enemies.spawn_dist
+            
+            // weighted random type selection from config
+            total: f32
+            for t in EnemyType { total += enemy_cfg_for_type(t).spawn_weight }
+            r := rand.float32() * total
+
+            cumulative: f32
+            for t in EnemyType {
+                cumulative += enemy_cfg_for_type(t).spawn_weight
+                if r < cumulative {
+                    e.type = t
+                    e.hp = enemy_cfg_for_type(t).health
+                    break
+                }
             }
             return
         }
@@ -147,25 +135,18 @@ update_enemies :: proc(px, py: f32) {
     pool.spawn_timer -= game.dt
     if pool.spawn_timer <= 0 {
         spawn_enemy(pool, px, py)
-        pool.spawn_timer = ENEMY_SPAWN_RATE
+        pool.spawn_timer = game_config.enemies.spawn_rate
     }
     for &e in pool.enemies {
         if !e.alive {
             continue
         }
+        
         dx := px - e.x
         dy := py - e.y
         dist := math.sqrt(dx*dx + dy*dy)
 
-        speed: f32
-        switch e.type {
-            case .Small:
-                speed = SMALL_SPEED
-            case .Regular:
-                speed = REGULAR_SPEED
-            case .Large:
-                speed = LARGE_SPEED
-        }
+        speed := enemy_cfg(e).speed
         e.x += (dx/dist) * speed * game.dt
         e.y += (dy/dist) * speed * game.dt
 

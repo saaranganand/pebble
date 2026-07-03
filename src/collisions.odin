@@ -1,4 +1,4 @@
-// collision detection logic
+// collision detection
 
 package main
 import sdl "vendor:sdl3"
@@ -70,7 +70,7 @@ detect_bullet_collision :: proc() {
 
             if overlap {
                 dmg := b.damage
-                if b.type == .BitPistol && rand.float32() < 0.5 {
+                if b.type == .BitPistol && rand.float32() < game_config.weapons.bitpistol.miss_chance {
                     // 50% chance of 0 dmg
                     dmg = 0
                 }
@@ -84,7 +84,7 @@ detect_bullet_collision :: proc() {
     }
 }
 
-// scope
+// scope and enemy
 scope_hitscan :: proc(enemies: ^EnemyPool, waves: ^PingWavePool, px, py, aim_angle, charge: f32) {
     nearest_dot := max(f32)
     nearest_enemy: ^Enemy = nil
@@ -109,7 +109,9 @@ scope_hitscan :: proc(enemies: ^EnemyPool, waves: ^PingWavePool, px, py, aim_ang
     }
 
     if nearest_enemy != nil{
-        nearest_enemy.hp -= (charge/SCOPE_MAX_CHARGE)*SCOPE_MAX_DMG
+        cfg := game_config.weapons.scope
+        
+        nearest_enemy.hp -= (charge / cfg.max_charge) * cfg.damage
         
         spawn_wave(waves, nearest_enemy.x, nearest_enemy.y, 50.0, 300.0, sdl.Color{255, 0, 0, 255})
 
@@ -141,7 +143,7 @@ detect_bus_damage :: proc(enemies: ^EnemyPool, bus: Bus, px, py, aim_angle: f32,
             if e.hp <= 0 {
                 e.alive = false
             }
-            e.hp -= BUS_DMG * dt
+            e.hp -= game_config.weapons.bus.damage * dt
         }
     }
 }
@@ -168,7 +170,7 @@ detect_ping_damage :: proc() {
                 if e.hp <= 0 {
                     e.alive = false
                 }
-                e.hp -= PING_DMG * (1 - w.r / PING_MAX_RADIUS) * game.dt
+                e.hp -= game_config.weapons.ping.damage * (1 - w.r / w.max_r) * game.dt
             }
         }
     }
