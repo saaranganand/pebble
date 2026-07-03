@@ -7,7 +7,7 @@ import ttf "vendor:sdl3/ttf"
 
 draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player, input: Input) {
     // top left player health bar
-    hp_ratio := player.hp / PLAYER_MAX_HP
+    hp_ratio := player.hp / game_config.player.max_hp
     bgRect := sdl.FRect{x = 10, y = 10, w = 200, h = 12}
     fillRect := sdl.FRect{x = 10, y = 10, w = 200 * hp_ratio, h = 12}
     sdl.SetRenderDrawColor(renderer, 50, 50, 50, 255)
@@ -31,7 +31,7 @@ draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player, input
                             w = 60,
                             h = 6
                         }
-                        fill_ratio := min(player.scope.charge / SCOPE_MAX_CHARGE, 1.0)
+                        fill_ratio := min(player.scope.charge / game_config.weapons.scope.max_charge, 1.0)
                         fillRect :=sdl.FRect{
                             x = bgRect.x,
                             y = bgRect.y,
@@ -55,7 +55,7 @@ draw_hud :: proc(renderer: ^sdl.Renderer, font: ^ttf.Font, player: Player, input
                         w = 60,
                         h = 6
                     }
-                    fill_ratio := min(player.bus.heat / BUS_MAX_HEAT, 1.0)
+                    fill_ratio := min(player.bus.heat / game_config.weapons.bus.max_heat, 1.0)
                     fillRect :=sdl.FRect{
                         x = bgRect.x,
                         y = bgRect.y,

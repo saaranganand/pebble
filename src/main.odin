@@ -66,6 +66,11 @@ main :: proc() {
 
     sdl.SetRenderVSync(renderer, 1)
 
+    if !load_configs() {
+        fmt.eprintln("failed to load config files")
+        return
+    }
+
     // setup
     centerX: f32 = WINDOW_W / 2
     centerY: f32 = WINDOW_H / 2

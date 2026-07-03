@@ -1,4 +1,4 @@
-// auxillary drawing procs
+// shared drawing utility
 
 package main
 

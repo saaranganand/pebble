@@ -1,0 +1,25 @@
+# enemy base stats
+
+spawn_rate: 2 
+spawn_dist: 750
+
+small:
+  health: 30
+  speed: 160
+  size: 10
+  damage: 5
+  spawn_weight: 25
+
+regular:
+  health: 50
+  speed: 80
+  size: 20
+  damage: 10
+  spawn_weight: 60
+
+large:
+  health: 70
+  speed: 30
+  size: 40
+  damage: 20
+  spawn_weight: 15
