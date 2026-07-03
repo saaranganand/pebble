@@ -6,24 +6,31 @@ Camera :: struct {
     x, y: f32
 }
 
-draw_camera :: proc(renderer: ^sdl.Renderer, cam: Camera) {
-    //background
-    sdl.SetRenderDrawColor(renderer, 255, 255, 255, 255)
-    sdl.RenderClear(renderer)
+// draws background texutre: this needs to be refactored, moved, renamed and reconceptualized
+draw_camera :: proc() {
+    cam := &game.camera
+    space_width := f32(app.window_width)
+    space_height := f32(app.window_height)
 
     // bg texture
-    sdl.SetRenderDrawColor(renderer, 40, 40, 50, 255)
-    startX:= -math.mod(cam.x, f32(TILE_SIZE))
-    for x:=startX; x < WINDOW_W; x += TILE_SIZE {
-        sdl.RenderLine(renderer, x, 0, x, WINDOW_H)
+    sdl_set_color(Default_Palette_Colors.BLACK)
+
+    x := -math.mod(cam.x, f32(TILE_SIZE))
+    for x < space_width {
+        sdl.RenderLine(global_renderer, x, 0, x, space_height)
+        x += TILE_SIZE
     }
-    startY:= -math.mod(cam.y, f32(TILE_SIZE))
-    for y:=startY; y < WINDOW_H; y += TILE_SIZE {
-        sdl.RenderLine(renderer, 0, y, WINDOW_W, y)
+
+    y := -math.mod(cam.y, f32(TILE_SIZE))
+    for y < space_height {
+        sdl.RenderLine(global_renderer, 0, y, space_width, y)
+        y += TILE_SIZE
     }
 }
 
-update_camera :: proc(cam: ^Camera, dx, dy: f32, dt: f32) {
-    cam.x += dx * CAM_SPEED * dt
-    cam.y += dy * CAM_SPEED * dt
+update_camera :: proc(dx, dy: f32) {
+    cam := &game.camera
+
+    cam.x += dx * CAM_SPEED * game.dt
+    cam.y += dy * CAM_SPEED * game.dt
 }
