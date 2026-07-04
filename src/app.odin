@@ -52,6 +52,9 @@ app_init :: proc() {
     // font
     app.font = ttf.OpenFont("assets/font1.ttf", 24)
 
+    // configs
+    if !load_configs() do log.errorf("Failed to load game config")
+
     game_init()
 }
 

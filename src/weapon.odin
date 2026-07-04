@@ -106,7 +106,7 @@ Bus :: struct {
 
 update_bus :: proc(bus: ^Bus) {
     input := &game.input
-    cfg := game_config.weapons.scope
+    cfg := game_config.weapons.bus
     if bus.is_overheated {
         bus.heat = max(bus.heat - game.dt, 0) // slow cooldown
         if bus.heat <= 0 { // not overheated anymore

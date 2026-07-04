@@ -11,6 +11,7 @@ import runtime "base:runtime"
 ORIGINAL_ALLOCATOR: runtime.Allocator
 
 main :: proc() {
+
     util.allocate_file_logger(true)
     context.logger = util.GLOBAL_LOGGER
 
@@ -44,10 +45,7 @@ main_init :: proc() {
     crash = !ttf.Init()
     if crash do log.errorf("SDL ttf fail: %v", sdl.GetError())
     
-    if !load_configs() {
-        fmt.eprintln("failed to load config files")
-        return
-    }
+    
 
     // APP INIT
     app_init()
