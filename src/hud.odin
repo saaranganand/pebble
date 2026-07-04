@@ -84,7 +84,7 @@ draw_hud :: proc() {
               case .Trace:
                 weapon_name = "Trace"
             }
-            fill_ratio := min(player.bus.heat / BUS_MAX_HEAT, 1.0)
+            fill_ratio := min(player.bus.heat / game_config.weapons.bus.max_heat, 1.0)
             fillRect :=sdl.FRect{
                 x = bgRect.x,
                 y = bgRect.y,
@@ -105,17 +105,16 @@ draw_hud :: proc() {
             sdl.SetRenderDrawColor(global_renderer, r, g, 0, 255)
             sdl.RenderFillRect(global_renderer, &fillRect)
             
-        case .Trace:
-            weapon_name = "Trace"
+        //case .Trace:
+            //weapon_name = "Trace"
+        case .Auto:
+            switch player.weaponAuto {
+            case .Ping: 
+                weapon_name = "Ping"
+            case .Daemon: 
+                weapon_name = "Daemon"
+            }
         }
-    case .Auto:
-        switch player.weaponAuto {
-        case .Ping: 
-            weapon_name = "Ping"
-        case .Daemon: 
-            weapon_name = "Daemon"
-        }
-    }
 
     if any_auto_expiring(player) {
         draw_expiry_exclamation(app.font)

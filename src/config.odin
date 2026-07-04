@@ -3,7 +3,9 @@
 package main
 
 import yaml "../libs/odin-yaml"
-import "core:fmt"
+import fmt "core:fmt"
+import mem "core:mem"
+
 
 // Weapon
 
@@ -150,9 +152,18 @@ parse_effect :: proc(s: string) -> (ProgramEffect, bool) {
 
 // call before game loop
 load_configs :: proc() -> bool {
-    if !load_player() || !load_weapons() || !load_enemies() || !load_programs() || !load_levels() {
+    // trying out arena allocation for config
+    arena_memory := make([]byte, 1*mem.Megabyte)
+    defer delete(arena_memory)
+
+    config_arena: mem.Arena
+    mem.arena_init(&config_arena, arena_memory)
+    arena_alloc := mem.arena_allocator(&config_arena)
+
+    if !load_player(arena_alloc) || !load_weapons(arena_alloc) || !load_enemies(arena_alloc) || !load_programs(arena_alloc) || !load_levels(arena_alloc) {
         return false
     }
+    
     // build active_effects as union of all loaded programs
     for p in game_config.programs {
         game_config.active_effects |= p.effects
@@ -165,8 +176,8 @@ load_configs :: proc() -> bool {
 // LOAD PROCS
 
 @(private)
-load_player :: proc() -> bool {
-    doc, err := yaml.decode_from_file("data/player.yaml")
+load_player :: proc(allocator: mem.Allocator) -> bool {
+    doc, err := yaml.decode_from_file("data/player.yaml", allocator)
     if err != nil {
         fmt.eprintln("config: failed to load data/player.yaml")
         return false
@@ -176,12 +187,15 @@ load_player :: proc() -> bool {
     game_config.player = {
         max_hp = yf(m, "max_hp"),
     }
+
+    
+
     return true
 }
 
 @(private)
-load_weapons :: proc() -> bool {
-    doc, err := yaml.decode_from_file("data/weapons.yaml")
+load_weapons :: proc(allocator: mem.Allocator) -> bool {
+    doc, err := yaml.decode_from_file("data/weapons.yaml", allocator)
     
     if err != nil {
         fmt.eprintln("config: failed to load data/weapons.yaml")
@@ -240,6 +254,7 @@ load_weapons :: proc() -> bool {
         cone_angle = yf(dm, "cone_angle"),
     }
 
+
     return true
 }
 
@@ -257,8 +272,8 @@ load_enemy_type :: proc(m: yaml.Mapping, key: string) -> EnemyTypeConfig {
 }
 
 @(private)
-load_enemies :: proc() -> bool {
-    doc, err := yaml.decode_from_file("data/enemies.yaml")
+load_enemies :: proc(allocator: mem.Allocator) -> bool {
+    doc, err := yaml.decode_from_file("data/enemies.yaml", allocator)
     if err != nil {
         fmt.eprintln("config: failed to load data/enemies.yaml")
         return false
@@ -274,12 +289,15 @@ load_enemies :: proc() -> bool {
         large = load_enemy_type(m, "large"),
         // add more here
     }
+
+    
+
     return true
 }
 
 @(private)
-load_programs :: proc() -> bool {
-    doc, err := yaml.decode_from_file("data/programs.yaml")
+load_programs :: proc(allocator: mem.Allocator) -> bool {
+    doc, err := yaml.decode_from_file("data/programs.yaml", allocator)
     
     if err != nil {
         fmt.eprintln("config: failed to load data/programs.yaml")
@@ -311,12 +329,13 @@ load_programs :: proc() -> bool {
         }
         append(&game_config.programs, def)
     }
+    
     return true
 }
 
 @(private)
-load_levels :: proc() -> bool {
-    doc, err := yaml.decode_from_file("data/levels.yaml")
+load_levels :: proc(allocator: mem.Allocator) -> bool {
+    doc, err := yaml.decode_from_file("data/levels.yaml", allocator)
 
     if err != nil {
         fmt.eprintln("config: failed to load data/levels.yaml")
@@ -332,5 +351,7 @@ load_levels :: proc() -> bool {
         hp_per_level = yf(m, "hp_per_level"),
         slots_per_level = int(yf(m, "slots_per_level")),
     }
+    
+
     return true
 }
