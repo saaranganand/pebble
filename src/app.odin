@@ -4,46 +4,76 @@ import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 import log "core:log"
 
+read_window_size :: proc() {
+    log.infof("Window pixel size being read, window was resized")
+
+    success := sdl.GetWindowSizeInPixels(global_window, &app.window_width, &app.window_height)
+    if !success do log.fatalf("Unable to get window size")
+}
+
+read_screen_size :: proc() {
+    log.infof("Screen pixel size being read, display was set or changed")
+
+    app.display_id = sdl.GetDisplayForWindow(global_window)
+    bounds: sdl.Rect
+    success := sdl.GetDisplayBounds(app.display_id, &bounds)
+    if !success do log.fatalf("Unable to get screen bounds")
+
+    // display size is in screen coordinates, not pixels.
+    // need to do this for HiDPI monitors and other nonsense.
+    scale := sdl.GetDisplayContentScale(app.display_id)
+    app.screen_width  = i32(f32(bounds.w) * scale)
+    app.screen_height = i32(f32(bounds.h) * scale)
+}
+
 app := struct {
     font: ^ttf.Font,
-    screen_choice: int,
+
+    display_id: sdl.DisplayID,
     screen_width, screen_height: i32,
     window_width, window_height: i32,
-    should_close: bool,
+    fullscreen: bool,
+
+    prepare_shutdown: bool,
+    shutdown_ready: bool,
 }{
     window_width = 800,
     window_height = 800,
 }
 
-app_input :: proc() {
-    event: sdl.Event
-    for sdl.PollEvent(&event) {
-        #partial switch event.type {
-        case .QUIT:
-            app.should_close = true
-        case .KEY_DOWN:
-            switch event.key.key {
-            case sdl.K_ESCAPE:
-                app.should_close = true
-            }
-        }
-    }
+// this proc will just handle things like auto saving progress
+handle_app_shutdown :: proc() {
+    app.shutdown_ready = true
 }
 
+// returns true if shutting down
 app_loop :: proc() -> bool {
-    app_input()
+    if app.prepare_shutdown {
+        handle_app_shutdown()
+        return app.shutdown_ready
+    }
+
+    handle_app_input(poll_app_input())
+
     //update_cursor(player, crosshair_cursor)
 
     game_loop()
 
     sdl.RenderPresent(global_renderer)
 
-    return app.should_close
+    return false
 }
 
 app_init :: proc() {
     global_window = sdl.CreateWindow("Pebble", app.window_width, app.window_height, {})
     if global_window == nil do log.errorf("SDL window creation fail: %v", sdl.GetError())
+    // We call this immediately because of window display scale
+    // for example a HiDPI display could use the same window positioning, but have twice as many pixels.
+    // On such a display, when we set our window to a size, it will actually have a pixel size of 2x.
+    // Since we will be using our window size for rendering, this is important, and as such,
+    // we need to immediately read the window's pixel size using this procedure.
+    read_window_size()
+    read_screen_size()
 
     global_renderer = sdl.CreateRenderer(global_window, nil)
     if global_renderer == nil do log.errorf("SDL renderer creation fail: %v", sdl.GetError())
