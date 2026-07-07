@@ -3,6 +3,10 @@ package main
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
+import primatives "global_primatives"
+import color "color"
+import horde "enemy/horde"
+
 PLAYER_SIZE :: 100
 AIM_DIST :: 80 // distance of indicator from player
 AIM_SIZE :: 16
@@ -14,24 +18,19 @@ NUDGE_SPEED :: 0.15 // how fast they lean
 TILE_SIZE :: 64
 
 game := struct {
-    dt: f32,
-    last_time: u64,
     camera: Camera,
     player: Player,
     bullets: BulletPool,
     waves: PingWavePool,
-    enemies: EnemyPool,
+    //enemies: EnemyPool,
     game_over: bool,
     input: Input,
-}{
-    dt = 0.16,
-}
+    horde: horde.Horde,
+}{}
 
 game_loop :: proc() {
     // deltatime
-    current_time := sdl.GetTicks()
-    game.dt = f32(current_time - game.last_time) / 1000.0
-    game.last_time = current_time
+    primatives.global_timer_update()
 
     game_input()
     game_update()
@@ -50,7 +49,7 @@ main :: proc() {
     defer sdl.DestroyCursor(crosshair_cursor)
 
     // trace missile
-    trace_tex := img.LoadTexture(global_renderer, "assets/trace.png")
+    trace_tex := img.LoadTexture(primatives.global_renderer, "assets/trace.png")
     defer sdl.DestroyTexture(trace_tex)
 
     
@@ -59,13 +58,19 @@ main :: proc() {
 }
     */
 game_init :: proc() {
-    game.last_time = sdl.GetTicks()
+    primatives.global_timer_init()
 
     game.player = player_init()
+
+    game.horde = horde.create(&game.player.position)
+    horde.leader_spawn(&game.horde, {200, 200})
 }
 
 game_close :: proc() {
+    horde.debug_log(&game.horde)
+    horde.destroy(&game.horde)
 
+    player_destroy(&game.player)
 }
 
 game_input :: proc() {
@@ -108,30 +113,36 @@ game_update :: proc() {
     //update_ping(&player.ping, &waves, player.x, player.y, input, is_ping_selected, dt)
     //update_daemon(&player.daemon, &bullets, &enemies, player.x, player.y, is_daemon_selected, input, dt)
 
-    update_enemies(game.player.x, game.player.y)
+    //update_enemies(game.player.x, game.player.y)
 
-    detect_collision()
-    detect_bullet_collision()
+    //detect_collision()
+    //detect_bullet_collision()
 
     if game.player.ping.is_active {
-        detect_ping_damage()
+        //detect_ping_damage()
     }
     
     if game.player.hp <=0 {
         game.game_over = true
     }
+
+    horde.update(&game.horde, &game.player.allied_damage_areas)
 }
 
 game_draw :: proc() {
-    sdl_set_color(Default_Palette_Colors.WHITE)
-    sdl.RenderClear(global_renderer)
+    color.sdl_set_color(color.Default_Palette_Colors.WHITE)
+    sdl.RenderClear(primatives.global_renderer)
 
     // drawing
     draw_camera()
     draw_player()
+
+    horde.draw(&game.horde)
+
     draw_hud()
     draw_bullets()
     draw_ping_waves()
+    
     
     /*
     if player.active_category == .Hold && player.weaponHold == .Bus {
@@ -142,5 +153,5 @@ game_draw :: proc() {
         draw_daemon(player.daemon)
     }*/
 
-    draw_enemies()
+    //draw_enemies()
 }

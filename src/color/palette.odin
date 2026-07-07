@@ -1,6 +1,8 @@
-package main
+package color
 
 import sdl "vendor:sdl3"
+
+import primatives "../global_primatives"
 
 generate_color :: proc(hex: int, alpha: u8 = 0xff) -> sdl.Color{
     return {
@@ -44,14 +46,14 @@ default_color_palette := [Default_Palette_Colors]sdl.Color {
 
 sdl_set_default_color_palette :: proc(pcolor: Default_Palette_Colors) {
     color := default_color_palette[pcolor]
-    sdl.SetRenderDrawColor(global_renderer, color.r, color.g, color.b, color.a)
+    sdl.SetRenderDrawColor(primatives.global_renderer, color.r, color.g, color.b, color.a)
 }
 
 sdl_set_non_color_palette :: proc(color: sdl.Color) {
-    sdl.SetRenderDrawColor(global_renderer, color.r, color.g, color.b, color.a)
+    sdl.SetRenderDrawColor(primatives.global_renderer, color.r, color.g, color.b, color.a)
 }
 sdl_set_rgba_color :: proc(r,g,b,a : u8) {
-    sdl.SetRenderDrawColor(global_renderer, r, g, b, a)
+    sdl.SetRenderDrawColor(primatives.global_renderer, r, g, b, a)
 }
 
 sdl_set_color :: proc{

@@ -1,11 +1,11 @@
 // enemy spawn, update, draw
 
-package main
+package depreciated
 import sdl "vendor:sdl3"
 import "core:time"
 import "core:math"
 import rand "core:math/rand"
-
+/*
 MAX_ENEMIES :: 64
 
 EnemyType :: enum {
@@ -154,3 +154,4 @@ update_enemies :: proc(px, py: f32) {
         e.y -= input.dy * CAM_SPEED * game.dt
     }
 }
+*/

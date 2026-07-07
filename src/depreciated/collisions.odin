@@ -1,10 +1,10 @@
 // collision detection
 
-package main
+package depreciated
 import sdl "vendor:sdl3"
 import "core:math"
 import "core:math/rand"
-
+/*
 // player and enemy
 detect_collision :: proc() {
     pool := &game.enemies
@@ -175,3 +175,4 @@ detect_ping_damage :: proc() {
         }
     }
 }
+    */

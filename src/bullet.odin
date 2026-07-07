@@ -4,6 +4,8 @@ package main
 import sdl "vendor:sdl3"
 import "core:math"
 
+import primatives "global_primatives"
+
 MAX_BULLETS :: 256
 
 MAX_PING_WAVES :: 3 // simultaneous ping waves and spacing
@@ -34,7 +36,7 @@ draw_bullets :: proc() {
     trace_tex: ^sdl.Texture
     pool := &game.bullets
 
-    sdl.SetRenderDrawColor(global_renderer, 255, 165, 0, 255)
+    sdl.SetRenderDrawColor(primatives.global_renderer, 255, 165, 0, 255)
     for b in pool.bullets {
         if !b.alive {
             continue
@@ -45,15 +47,15 @@ draw_bullets :: proc() {
                 x = b.x, 
                 y = b.y, 
                 w = b.size, h = b.size}
-                sdl.SetRenderDrawColor(global_renderer, 255, 165, 0, 255)
-                sdl.RenderFillRect(global_renderer, &bulletRect)
+                sdl.SetRenderDrawColor(primatives.global_renderer, 255, 165, 0, 255)
+                sdl.RenderFillRect(primatives.global_renderer, &bulletRect)
             // case .Scope:
             //     bulletRect:=sdl.FRect{
             //     x = b.x, 
             //     y = b.y, 
             //     w = b.size*4, h = b.size/2}
-            //     sdl.SetRenderDrawColor(global_renderer, 0, 255, 0, 255)
-            //     sdl.RenderFillRect(global_renderer, &bulletRect)
+            //     sdl.SetRenderDrawColor(primatives.global_renderer, 0, 255, 0, 255)
+            //     sdl.RenderFillRect(primatives.global_renderer, &bulletRect)
             case .Trace:
                 angle_deg := math.to_degrees(math.atan2(b.vy, b.vx))
                 dst:=sdl.FRect{
@@ -61,26 +63,26 @@ draw_bullets :: proc() {
                     y = b.y,
                     w = b.size*5, h = b.size*5
                 }
-                //sdl.RenderTextureRotated(global_renderer, trace_tex, nil, &dst, f64(angle_deg), nil, .NONE)
+                //sdl.RenderTextureRotated(primatives.global_renderer, trace_tex, nil, &dst, f64(angle_deg), nil, .NONE)
         }
     }
 }
 
 update_bullets :: proc() {
     pool := &game.bullets
-    enemies := &game.enemies
+    //enemies := &game.enemies
     input := &game.input
 
     for &b in pool.bullets {
         if !b.alive { continue }
 
-        b.x += b.vx * game.dt
-        b.y += b.vy * game.dt
+        b.x += b.vx * primatives.dt
+        b.y += b.vy * primatives.dt
         
         // bullets in world space, but cam shifts it each frame
         // subtract cam movement so bullets move indpendantly
-        b.x -= input.dx * CAM_SPEED * game.dt
-        b.y -= input.dy * CAM_SPEED * game.dt
+        b.x -= input.dx * CAM_SPEED * primatives.dt
+        b.y -= input.dy * CAM_SPEED * primatives.dt
 
         if b.x < 0 || b.x > f32(app.window_width) || b.y < 0 || b.y > f32(app.window_height) {
             b.alive = false
@@ -88,7 +90,7 @@ update_bullets :: proc() {
 
         if b.type == .Trace {
             // find nearest alive enemy to home towards
-            nearest_ex, nearest_ey, found := find_nearest_enemy(enemies, b.x, b.y)
+            /*nearest_ex, nearest_ey, found := find_nearest_enemy(enemies, b.x, b.y)
 
             if found {
                 target_angle := math.atan2(nearest_ey - b.y, nearest_ex - b.x)
@@ -99,11 +101,11 @@ update_bullets :: proc() {
                 
                 // clamp turn amoutn per frame (smoother)
                 turn_speed := game_config.weapons.trace.turn_speed
-                new_angle := current_angle + clamp(angle_diff, -turn_speed * game.dt, turn_speed * game.dt)
+                new_angle := current_angle + clamp(angle_diff, -turn_speed * primatives.dt, turn_speed * primatives.dt)
                 
                 b.vx = math.cos(new_angle) * b.speed
                 b.vy = math.sin(new_angle) * b.speed
-            }
+            }*/
         }
     }
 }
@@ -144,7 +146,7 @@ PingWavePool :: struct {
 draw_ping_waves :: proc() {
     pool := &game.waves
 
-    sdl.SetRenderDrawBlendMode(global_renderer, sdl.BLENDMODE_BLEND)
+    sdl.SetRenderDrawBlendMode(primatives.global_renderer, sdl.BLENDMODE_BLEND)
     for w in pool.waves {
         if !w.alive {
             continue
@@ -156,7 +158,7 @@ draw_ping_waves :: proc() {
             //draw_circle(w.x, w.y, w.r, color, thickness)
         }
     }
-    sdl.SetRenderDrawBlendMode(global_renderer, sdl.BLENDMODE_NONE)
+    sdl.SetRenderDrawBlendMode(primatives.global_renderer, sdl.BLENDMODE_NONE)
 }
 
 spawn_wave :: proc(pool: ^PingWavePool, x, y, max_r, expand_speed: f32, color: sdl.Color) {

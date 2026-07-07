@@ -34,9 +34,6 @@ main_loop :: proc() -> (close: bool) {
     return 
 }
 
-global_renderer: ^sdl.Renderer
-global_window: ^sdl.Window
-
 main_init :: proc() {
     // INITIALIZATION
     crash := !sdl.Init({.VIDEO})

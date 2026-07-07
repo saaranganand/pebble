@@ -4,17 +4,19 @@ import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 import log "core:log"
 
+import primatives "global_primatives"
+
 read_window_size :: proc() {
     log.infof("Window pixel size being read, window was resized")
 
-    success := sdl.GetWindowSizeInPixels(global_window, &app.window_width, &app.window_height)
+    success := sdl.GetWindowSizeInPixels(primatives.global_window, &app.window_width, &app.window_height)
     if !success do log.fatalf("Unable to get window size")
 }
 
 read_screen_size :: proc() {
     log.infof("Screen pixel size being read, display was set or changed")
 
-    app.display_id = sdl.GetDisplayForWindow(global_window)
+    app.display_id = sdl.GetDisplayForWindow(primatives.global_window)
     bounds: sdl.Rect
     success := sdl.GetDisplayBounds(app.display_id, &bounds)
     if !success do log.fatalf("Unable to get screen bounds")
@@ -59,14 +61,13 @@ app_loop :: proc() -> bool {
 
     game_loop()
 
-    sdl.RenderPresent(global_renderer)
+    sdl.RenderPresent(primatives.global_renderer)
 
     return false
 }
 
 app_init :: proc() {
-    global_window = sdl.CreateWindow("Pebble", app.window_width, app.window_height, {})
-    if global_window == nil do log.errorf("SDL window creation fail: %v", sdl.GetError())
+    primatives.create_global_window(app.window_width, app.window_height)
     // We call this immediately because of window display scale
     // for example a HiDPI display could use the same window positioning, but have twice as many pixels.
     // On such a display, when we set our window to a size, it will actually have a pixel size of 2x.
@@ -75,9 +76,7 @@ app_init :: proc() {
     read_window_size()
     read_screen_size()
 
-    global_renderer = sdl.CreateRenderer(global_window, nil)
-    if global_renderer == nil do log.errorf("SDL renderer creation fail: %v", sdl.GetError())
-    sdl.SetRenderVSync(global_renderer, 1)
+    primatives.create_global_renderer()
     
     // font
     app.font = ttf.OpenFont("assets/font1.ttf", 24)
@@ -91,8 +90,8 @@ app_init :: proc() {
 app_close :: proc() {
     ttf.CloseFont(app.font)
 
-    sdl.DestroyRenderer(global_renderer)
-    sdl.DestroyWindow(global_window)
+    primatives.destroy_global_renderer()
+    primatives.destroy_global_window()
 
     game_close()
 }

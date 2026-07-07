@@ -5,6 +5,9 @@ package main
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
+import primatives "global_primatives"
+import color "color"
+
 draw_hud :: proc() {
     player := game.player
     input := game.input
@@ -14,11 +17,11 @@ draw_hud :: proc() {
     bgRect := sdl.FRect{x = 10, y = 10, w = 200, h = 12}
     fillRect := sdl.FRect{x = 10, y = 10, w = 200 * hp_ratio, h = 12}
 
-    sdl_set_color(Default_Palette_Colors.DARK_GRAY)
-    sdl.RenderFillRect(global_renderer, &bgRect)
+    color.sdl_set_color(color.Default_Palette_Colors.DARK_GRAY)
+    sdl.RenderFillRect(primatives.global_renderer, &bgRect)
 
-    sdl_set_color(Default_Palette_Colors.GRASS_GREEN)
-    sdl.RenderFillRect(global_renderer, &fillRect)
+    color.sdl_set_color(color.Default_Palette_Colors.GRASS_GREEN)
+    sdl.RenderFillRect(primatives.global_renderer, &fillRect)
     
     weapon_name : cstring
     switch player.active_category {
@@ -31,8 +34,8 @@ draw_hud :: proc() {
                   // scope charge meter - attached to player
                   if player.scope.is_charging {
                       bgRect := sdl.FRect{
-                          x = player.x - 30,
-                          y = player.y + PLAYER_SIZE / 2 + 10,
+                          x = player.position.x - 30,
+                          y = player.position.y + PLAYER_SIZE / 2 + 10,
                           w = 60,
                           h = 6
                       }
@@ -43,10 +46,10 @@ draw_hud :: proc() {
                           w = 60*(fill_ratio),
                           h= 6
                       }
-                      sdl.SetRenderDrawColor(global_renderer, 50,50,50,255)
-                      sdl.RenderFillRect(global_renderer, &bgRect)
-                      sdl.SetRenderDrawColor(global_renderer, 255,200,0,255)
-                      sdl.RenderFillRect(global_renderer, &fillRect)
+                      sdl.SetRenderDrawColor(primatives.global_renderer, 50,50,50,255)
+                      sdl.RenderFillRect(primatives.global_renderer, &bgRect)
+                      sdl.SetRenderDrawColor(primatives.global_renderer, 255,200,0,255)
+                      sdl.RenderFillRect(primatives.global_renderer, &fillRect)
                   }
             }
         case .Hold:
@@ -67,8 +70,8 @@ draw_hud :: proc() {
                       w = 60*(fill_ratio),
                       h= 6
                   }
-                  sdl.SetRenderDrawColor(global_renderer, 50,50,50,255)
-                  sdl.RenderFillRect(global_renderer, &bgRect)
+                  sdl.SetRenderDrawColor(primatives.global_renderer, 50,50,50,255)
+                  sdl.RenderFillRect(primatives.global_renderer, &bgRect)
 
                   r, g : u8
                   if fill_ratio < 0.5 {
@@ -78,8 +81,8 @@ draw_hud :: proc() {
                       r = 255
                       g = u8((1 - fill_ratio) * 2 * 255)
                   }
-                  sdl.SetRenderDrawColor(global_renderer, r, g, 0, 255)
-                  sdl.RenderFillRect(global_renderer, &fillRect)
+                  sdl.SetRenderDrawColor(primatives.global_renderer, r, g, 0, 255)
+                  sdl.RenderFillRect(primatives.global_renderer, &fillRect)
 
               case .Trace:
                 weapon_name = "Trace"
@@ -91,8 +94,8 @@ draw_hud :: proc() {
                 w = 60*(fill_ratio),
                 h= 6
             }
-            sdl.SetRenderDrawColor(global_renderer, 50,50,50,255)
-            sdl.RenderFillRect(global_renderer, &bgRect)
+            sdl.SetRenderDrawColor(primatives.global_renderer, 50,50,50,255)
+            sdl.RenderFillRect(primatives.global_renderer, &bgRect)
 
             r, g : u8
             if fill_ratio < 0.5 {
@@ -102,8 +105,8 @@ draw_hud :: proc() {
                 r = 255
                 g = u8((1 - fill_ratio) * 2 * 255)
             }
-            sdl.SetRenderDrawColor(global_renderer, r, g, 0, 255)
-            sdl.RenderFillRect(global_renderer, &fillRect)
+            sdl.SetRenderDrawColor(primatives.global_renderer, r, g, 0, 255)
+            sdl.RenderFillRect(primatives.global_renderer, &fillRect)
             
         //case .Trace:
             //weapon_name = "Trace"
@@ -122,14 +125,14 @@ draw_hud :: proc() {
 
     // weapon name on bottom left
     surf := ttf.RenderText_Blended(app.font, weapon_name, 0, sdl.Color{0, 0, 0, 255})
-    texture := sdl.CreateTextureFromSurface(global_renderer, surf)
+    texture := sdl.CreateTextureFromSurface(primatives.global_renderer, surf)
     sdl.DestroySurface(surf)
 
     w, h : f32
     sdl.GetTextureSize(texture, &w, &h)
 
     dst := sdl.FRect{x = 10, y = f32(app.window_height) - h - 10, w = w, h = h}
-    sdl.RenderTexture(global_renderer, texture, nil, &dst)
+    sdl.RenderTexture(primatives.global_renderer, texture, nil, &dst)
     sdl.DestroyTexture(texture)
 }
 
@@ -149,7 +152,7 @@ update_cursor :: proc(player: Player, crosshair: ^sdl.Cursor) {
 draw_expiry_exclamation :: proc(font: ^ttf.Font) {
     // display exclamation when ping about to end
     surf := ttf.RenderText_Blended(font, "!", 0, sdl.Color{0, 0, 0, 255})
-    texture := sdl.CreateTextureFromSurface(global_renderer, surf)
+    texture := sdl.CreateTextureFromSurface(primatives.global_renderer, surf)
     sdl.DestroySurface(surf)
 
     w, h: f32
@@ -160,6 +163,6 @@ draw_expiry_exclamation :: proc(font: ^ttf.Font) {
         w = w,
         h = h
     }
-    sdl.RenderTexture(global_renderer, texture, nil, &dst)
+    sdl.RenderTexture(primatives.global_renderer, texture, nil, &dst)
     sdl.DestroyTexture(texture)
 }
