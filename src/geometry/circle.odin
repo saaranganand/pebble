@@ -2,7 +2,9 @@ package geometry
 
 import sdl "vendor:sdl3"
 
-import primatives "../global_primatives"
+import math "core:math"
+
+import primatives "../sdl_primatives"
 
 Circle :: struct {
     position: sdl.FPoint,
@@ -10,7 +12,7 @@ Circle :: struct {
 }
 
 are_circles_colliding :: proc(a, b: Circle) -> bool {
-    return a.radius + b.radius >= get_point_distance(a.position, b.position)
+    return math.pow(a.radius + b.radius, 2) >= get_point_distance_squared(a.position, b.position)
 }
 
 // midpoint algorithm
