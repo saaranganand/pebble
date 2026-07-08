@@ -39,33 +39,20 @@ Horde :: struct {
     follower_registry: Follower_Registry,
 
     target: ^sdl.FPoint,
-
-    // This is an array meant to be exported.
-    // Every frame it is updated with the latest positions of the horde enemies.
-    // TODO: re-evaluate this damage area setup
-    // every frame we are clearing and then repopulating the array with every hitbox in the horde
-    // this is definitely inefficient
-    // Theres a few better ways to do this
-    // Instead of recompiling this every frame, why not just have this array own all the actual data.
-    // We could use one for leaders and one for followers,
-    // and have it be one-one for leaders and their hitboxes.
-    // On update, horde members update the actual circle in this array.
-    // If we want to add bullets, we just create another array,
-    // and then send all back discretely rather than together.
-    damage_areas: [dynamic]geo.Circle,
 }
 
 debug_log :: proc(horde: ^Horde) {
     log.infof("------------------------ HORDE INFO ------------------------")
-    log.infof("Num. damage areas: %v", len(horde.damage_areas))
     log.infof("target: %v", horde.target^)
 
-    leader_registry_debug_log(&horde.leader_registry)
-    follower_registry_debug_log(&horde.follower_registry)
+    total_num := 0
+    total_num += leader_registry_debug_log(&horde.leader_registry)
+    total_num += follower_registry_debug_log(&horde.follower_registry)
+
+    log.infof("Total num. enemies: %v", total_num)
 }
 
 create :: proc(horde_target: ^sdl.FPoint) -> (horde: Horde) {
-    horde.damage_areas = make([dynamic]geo.Circle)
     horde.target = horde_target
 
     horde.leader_registry = leader_registry_create()
@@ -81,8 +68,6 @@ destroy :: proc(horde: ^Horde) {
     follower_registry_destroy(&horde.follower_registry)
 
     log.infof("Destroyed Horde")
-
-    delete(horde.damage_areas)
 }
 
 resolve_handle :: proc {
@@ -91,29 +76,32 @@ resolve_handle :: proc {
 }
 
 draw :: proc(horde: ^Horde) {
+    // Leader color
     color.sdl_set_color(color.Default_Palette_Colors.RED)
-    for circle in horde.damage_areas do geo.fill_circle(circle)
+    leader_registry_draw(&horde.leader_registry)
+    
+    // Follower color
+    color.sdl_set_color(color.Default_Palette_Colors.PINK)
+    follower_registry_draw(&horde.follower_registry)
 }
 
-update :: proc(horde: ^Horde, ally_damage_areas: ^[dynamic]geo.Circle) {
-    clear(&horde.damage_areas)
-    
+update :: proc(horde: ^Horde, ally_damage_areas: ^[dynamic]geo.Circle) {    
     leaders := &horde.leader_registry.tickets
     leader_index := 0
     for &leader in leaders {
         defer leader_index += 1
         if !leader.alive do continue
 
-        leader_died := leader_handle_collision(&leader.data, ally_damage_areas)
+        leader_collider := &horde.leader_registry.colliders[leader_index]
+
+        leader_died := entity_handle_collision(&leader.data, leader_collider^, ally_damage_areas)
         if leader_died {
             leader_followers := &horde.leader_registry.followers_of[leader_index]
             leader_register_death(horde, &leader, leader_followers, &horde.leader_registry.free_list, leader_index)
         }
 
-        move_direction := leader_pathfind(&leader.data, horde.target^)
-        leader_move(&leader.data, move_direction)
-
-        leader_append_horde_damage_area(&leader.data, &horde.damage_areas)
+        move_direction := leader_pathfind(&leader.data, horde.target^, leader_collider^)
+        entity_move(&leader.data, leader_collider, move_direction)
     }
 
     followers := &horde.follower_registry.tickets
@@ -122,12 +110,12 @@ update :: proc(horde: ^Horde, ally_damage_areas: ^[dynamic]geo.Circle) {
         defer follower_index += 1
         if !follower.alive do continue
 
-        follower_died := follower_handle_collision(&follower.data, ally_damage_areas)
+        follower_collider := &horde.follower_registry.colliders[follower_index]
+
+        follower_died := entity_handle_collision(&follower.data, follower_collider^, ally_damage_areas)
         if follower_died do follower_register_death(&follower, &horde.follower_registry.free_list, follower_index)
 
-        move_direction := follower_pathfind(horde, &follower.data)
-        follower_move(&follower.data, move_direction)
-
-        follower_append_horde_damage_area(&follower.data, &horde.damage_areas)
+        move_direction := follower_pathfind(horde, &follower, follower_collider^, &horde.leader_registry.colliders)
+        entity_move(&follower.data, follower_collider, move_direction)
     }
 }
