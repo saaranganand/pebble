@@ -5,7 +5,7 @@ package main
 import sdl "vendor:sdl3"
 import "core:math"
 
-import primatives "global_primatives"
+import primatives "sdl_primatives"
 
 WeaponCategory :: enum {
     Manual,

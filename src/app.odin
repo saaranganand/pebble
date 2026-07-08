@@ -4,7 +4,7 @@ import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 import log "core:log"
 
-import primatives "global_primatives"
+import primatives "sdl_primatives"
 
 read_window_size :: proc() {
     log.infof("Window pixel size being read, window was resized")

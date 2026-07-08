@@ -5,7 +5,7 @@ package main
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
-import primatives "global_primatives"
+import primatives "sdl_primatives"
 import color "color"
 
 draw_hud :: proc() {

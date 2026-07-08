@@ -2,7 +2,7 @@ package color
 
 import sdl "vendor:sdl3"
 
-import primatives "../global_primatives"
+import primatives "../sdl_primatives"
 
 generate_color :: proc(hex: int, alpha: u8 = 0xff) -> sdl.Color{
     return {

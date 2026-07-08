@@ -2,10 +2,10 @@
 
 bitpistol:
   damage: 10
-  fire_rate: 1
+  fire_rate: 4
   miss_chance: 0.5
   bullet_speed: 600
-  bullet_size: 8
+  bullet_size: 4
 
 scope:
   damage: 70
