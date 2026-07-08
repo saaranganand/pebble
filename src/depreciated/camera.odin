@@ -1,14 +1,14 @@
-package main
+package depreciated
 import sdl "vendor:sdl3"
 import "core:math"
 
-import primatives "global_primatives"
-import color "color"
+import primatives "../sdl_primatives"
+import color "../color"
 
 Camera :: struct {
     x, y: f32
 }
-
+/*
 // draws background texutre: this needs to be refactored, moved, renamed and reconceptualized
 draw_camera :: proc() {
     cam := &game.camera
@@ -37,3 +37,4 @@ update_camera :: proc(dx, dy: f32) {
     cam.x += dx * CAM_SPEED * primatives.dt
     cam.y += dy * CAM_SPEED * primatives.dt
 }
+*/

@@ -2,10 +2,13 @@
 
 package main
 import sdl "vendor:sdl3"
-import "core:math"
 
-import primatives "global_primatives"
+import math "core:math"
+import log "core:log"
+
+import primatives "sdl_primatives"
 import geo "geometry"
+import camera "camera"
 import color "color"
 
 Player :: struct {
@@ -41,37 +44,19 @@ player_destroy :: proc(player: ^Player) {
 draw_player :: proc() {
     player := &game.player
 
-    // player rectangle
-    playerRect := sdl.FRect{
-        x = player.position.x - PLAYER_SIZE / 2,
-        y = player.position.y - PLAYER_SIZE / 2,
-        w = PLAYER_SIZE,
-        h = PLAYER_SIZE
-    }
-    sdl.SetRenderDrawColor(primatives.global_renderer, 255, 0, 0, 255)
-    sdl.RenderFillRect(primatives.global_renderer, &playerRect)
+    // aim reticle
+    aim_circle := geo.Circle{ player.position + { math.cos(player.aimAngle), math.sin(player.aimAngle) } * AIM_DIST, AIM_SIZE }
 
-    // player aim cube
-    aimX := player.position.x + math.cos(player.aimAngle) * AIM_DIST
-    aimY := player.position.y + math.sin(player.aimAngle) * AIM_DIST
-    aimRect:=sdl.FRect{
-        x = aimX - AIM_SIZE / 2,
-        y = aimY - AIM_SIZE / 2,
-        w = AIM_SIZE,
-        h = AIM_SIZE
-    }
-    sdl.SetRenderDrawColor(primatives.global_renderer, 100, 255, 100, 255)
-    sdl.RenderFillRect(primatives.global_renderer, &aimRect)
+    color.sdl_set_color(color.Default_Palette_Colors.SKY_BLUE)
+    camera.camera_fill_circle(aim_circle)
 
-    color.sdl_set_color(color.Default_Palette_Colors.WHITE)
-    geo.fill_circle({{player.position.x, player.position.y}, 20})
+    color.sdl_set_color(color.Default_Palette_Colors.BABY_BLUE)
+    camera.camera_fill_circle({{player.position.x, player.position.y}, 20})
 }
 
 update_player :: proc() {
     
     player := &game.player
-    camera := &game.camera
-    //enemies := &game.enemies
     bullets := &game.bullets
     waves := &game.waves
     input := &game.input
@@ -103,14 +88,8 @@ update_player :: proc() {
     }
     
     // always centers player
-    update_camera(input.dx, input.dy)
+    player.position += sdl.FPoint{ input.dx, input.dy } * PLAYER_SPEED * primatives.dt
 
-    centerX := f32(app.window_width) / 2
-    centerY := f32(app.window_height) / 2
-
-    targetX := centerX + input.dx * NUDGE_RADIUS
-    targetY := centerY + input.dy * NUDGE_RADIUS
-    player.position.x += (targetX - player.position.x) * NUDGE_SPEED
-    player.position.y += (targetY - player.position.y) * NUDGE_SPEED
-    player.aimAngle = math.atan2(input.mouseY - player.position.y, input.mouseX - player.position.x)
+    player_view_position := camera.world_position_to_view(player.position)
+    player.aimAngle = math.atan2(input.mouseY - player_view_position.y, input.mouseX - player_view_position.x)
 }

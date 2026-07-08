@@ -3,22 +3,19 @@ package main
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
-import primatives "global_primatives"
+import primatives "sdl_primatives"
 import color "color"
 import horde "enemy/horde"
+import camera "camera"
 
 PLAYER_SIZE :: 100
-AIM_DIST :: 80 // distance of indicator from player
-AIM_SIZE :: 16
-
-CAM_SPEED :: 250.0 // how far world moves under player
-NUDGE_RADIUS :: 30.0 // how far player leans from center when moving
-NUDGE_SPEED :: 0.15 // how fast they lean
+AIM_DIST :: 30
+AIM_SIZE :: 8
+PLAYER_SPEED :: 200
 
 TILE_SIZE :: 64
 
 game := struct {
-    camera: Camera,
     player: Player,
     bullets: BulletPool,
     waves: PingWavePool,
@@ -64,10 +61,12 @@ game_init :: proc() {
 
     game.horde = horde.create(&game.player.position)
     horde.leader_spawn(&game.horde, {200, 200})
+
+    camera.global_camera_create(f32(app.window_width), f32(app.window_height))
+    camera.camera_set_follow(&game.player.position, 0.5)
 }
 
 game_close :: proc() {
-    horde.debug_log(&game.horde)
     horde.destroy(&game.horde)
 
     player_destroy(&game.player)
@@ -95,6 +94,8 @@ game_input :: proc() {
 
 game_update :: proc() {
     apply_movement_penalty()
+
+    camera.camera_update()
 
     update_player()
     update_bullets()
@@ -129,12 +130,34 @@ game_update :: proc() {
     horde.update(&game.horde, &game.player.allied_damage_areas)
 }
 
+draw_background :: proc() {
+    space_width := f32(app.window_width)
+    space_height := f32(app.window_height)
+
+    /*
+    // bg texture
+    color.sdl_set_color(color.Default_Palette_Colors.BLACK)
+
+    x := -math.mod(cam.x, f32(TILE_SIZE))
+    for x < space_width {
+        sdl.RenderLine(primatives.global_renderer, x, 0, x, space_height)
+        x += TILE_SIZE
+    }
+
+    y := -math.mod(cam.y, f32(TILE_SIZE))
+    for y < space_height {
+        sdl.RenderLine(primatives.global_renderer, 0, y, space_width, y)
+        y += TILE_SIZE
+    }*/
+}
+
 game_draw :: proc() {
     color.sdl_set_color(color.Default_Palette_Colors.WHITE)
     sdl.RenderClear(primatives.global_renderer)
 
     // drawing
-    draw_camera()
+    draw_background()
+
     draw_player()
 
     horde.draw(&game.horde)

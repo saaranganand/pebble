@@ -4,7 +4,9 @@ package main
 import sdl "vendor:sdl3"
 import "core:math"
 
-import primatives "global_primatives"
+import primatives "sdl_primatives"
+import camera "camera"
+import color "color"
 
 MAX_BULLETS :: 256
 
@@ -43,12 +45,8 @@ draw_bullets :: proc() {
         }
         switch b.type {
             case .BitPistol:
-                bulletRect:=sdl.FRect{
-                x = b.x, 
-                y = b.y, 
-                w = b.size, h = b.size}
-                sdl.SetRenderDrawColor(primatives.global_renderer, 255, 165, 0, 255)
-                sdl.RenderFillRect(primatives.global_renderer, &bulletRect)
+                color.sdl_set_color(color.Default_Palette_Colors.YELLOW)
+                camera.camera_fill_circle({{b.x, b.y}, b.size})
             // case .Scope:
             //     bulletRect:=sdl.FRect{
             //     x = b.x, 
@@ -78,13 +76,8 @@ update_bullets :: proc() {
 
         b.x += b.vx * primatives.dt
         b.y += b.vy * primatives.dt
-        
-        // bullets in world space, but cam shifts it each frame
-        // subtract cam movement so bullets move indpendantly
-        b.x -= input.dx * CAM_SPEED * primatives.dt
-        b.y -= input.dy * CAM_SPEED * primatives.dt
 
-        if b.x < 0 || b.x > f32(app.window_width) || b.y < 0 || b.y > f32(app.window_height) {
+        if !camera.camera_check_circle_visible({{b.x, b.y}, b.size}) {
             b.alive = false
         }
 
