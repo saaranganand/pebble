@@ -36,19 +36,29 @@ Camera :: struct {
 // Then, when deciding which camera is active, set global camera to the data of the stored camera.
 // This works for all cases assuming there is only one camera being using for rendering.
 // I dont know why there would be more, but in such a case, things would have to be reworked to avoid tedious switching back and forth.
-global_camera: Camera
+global_camera: ^Camera
 
 global_camera_create :: proc(width, height: f32) {
     global_camera = camera_create(width, height)
 }
 
-camera_create :: proc(width, height: f32) -> (camera: Camera) {
+global_camera_destroy :: proc() {
+    camera_destroy(global_camera)
+}
+
+camera_create :: proc(width, height: f32) -> (camera: ^Camera) {
+    camera = new(Camera)
+
     camera.position = {0,0}
     camera.width = width
     camera.height = height
     camera.mode = .STATIONARY
 
 	return
+}
+
+camera_destroy :: proc(camera: ^Camera) {
+    free(camera)
 }
 
 camera_set_follow :: proc(target: ^sdl.FPoint, lerp_speed: f32) {

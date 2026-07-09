@@ -1,1 +1,1 @@
-odin run src -out:bin/pebble.bin -debug
+odin run src -debug

@@ -2,15 +2,6 @@ package util
 
 import strings "core:strings"
 
-// Calls concatenate, which does memory allocation for the returned string
-allocate_filepath :: proc(args: ..string) -> string {
-    return strings.concatenate(args)
-}
-
-deallocate_filepath :: proc(filepath: string) {
-    delete(filepath)
-}
-
 // strings that have null bytes before the end cause problems
 // so we use this to shorten them
 // we take raw char data as an input,

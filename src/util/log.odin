@@ -2,6 +2,7 @@ package util
 
 import os "core:os"
 import log "core:log"
+import fmt "core:fmt"
 import time "core:time"
 import datetime "core:time/datetime"
 
@@ -16,8 +17,9 @@ allocate_file_logger :: proc(use_file: bool) {
     time_str, ok := time.time_to_rfc3339(time.now(), 0, false)
     if !ok do time_str = ""
     
-    log_path := allocate_filepath(LOGGER_PATH, time_str, LOGGER_EXT)
-    defer deallocate_filepath(log_path)
+    log_path := fmt.aprint(LOGGER_PATH, time_str, LOGGER_EXT, sep = "")
+    defer delete(log_path)
+
     defer if ok do delete(time_str)
 
     USING_GLOBAL_LOGGER = false

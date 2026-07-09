@@ -3,6 +3,8 @@ package main
 import sdl "vendor:sdl3"
 import log "core:log"
 
+import data "data"
+
 APP_SHUTDOWN_KEY :: sdl.K_ESCAPE
 
 // Generated every frame, and handled that frame

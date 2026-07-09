@@ -7,6 +7,7 @@ import primatives "sdl_primatives"
 import color "color"
 import horde "enemy/horde"
 import camera "camera"
+import data "data"
 
 PLAYER_SIZE :: 100
 AIM_DIST :: 50
@@ -57,6 +58,11 @@ main :: proc() {
 game_init :: proc() {
     primatives.global_timer_init()
 
+    data.global_manager_create()
+    data.audio_entry_load("sounds/pirate_bell.wav")
+    data.audio_entry_load("music/shanty.ogg")
+    data.music_play("music/shanty.ogg")
+
     game.player = player_init()
 
     game.horde = horde.create(&game.player.position)
@@ -67,9 +73,13 @@ game_init :: proc() {
 }
 
 game_close :: proc() {
+    data.global_manager_destroy()
+
     horde.destroy(&game.horde)
 
     player_destroy(&game.player)
+
+    camera.global_camera_destroy()
 }
 
 game_input :: proc() {

@@ -29,6 +29,7 @@ process_input :: proc() -> Input {
         if keyboard[sdl.Scancode.D] {
             inp.dx += 1
         }
+        
         // normalize diaognal
         if inp.dx != 0 && inp.dy != 0 {
             inp.dx *= 0.7
