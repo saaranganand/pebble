@@ -51,7 +51,7 @@ draw_player :: proc() {
     camera.camera_fill_circle(aim_circle)
 
     color.sdl_set_color(color.Default_Palette_Colors.BABY_BLUE)
-    camera.camera_fill_circle({{player.position.x, player.position.y}, 20})
+    camera.camera_fill_circle({{player.position.x, player.position.y}, 40})
 }
 
 update_player :: proc() {

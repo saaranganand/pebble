@@ -1,11 +1,15 @@
 package camera
 
 import sdl "vendor:sdl3"
+import ttf "vendor:sdl3/ttf"
 
 import math "core:math"
 import log "core:log"
+import fmt "core:fmt"
 
 import geo "../geometry"
+import primatives "../sdl_primatives"
+import color "../color"
 
 Camera_Mode :: enum { STATIONARY, FOLLOW }
 
@@ -110,4 +114,82 @@ camera_fill_circle :: proc(circle: geo.Circle) {
     view_adjusted_circle := geo.Circle{ world_position_to_view(circle.position), circle.radius }
 
     geo.fill_circle(view_adjusted_circle)
+}
+
+camera_draw_center_lines :: proc() {
+    color.sdl_set_color(color.Default_Palette_Colors.GRASS_GREEN)
+
+    sdl.RenderLine(primatives.global_renderer, 0, global_camera.height / 2, global_camera.width, global_camera.height / 2)
+    sdl.RenderLine(primatives.global_renderer, global_camera.width / 2, 0, global_camera.width / 2, global_camera.height)
+}
+
+camera_draw_grid :: proc(font: ^ttf.Font) {
+    color.sdl_set_color(color.Default_Palette_Colors.BLACK)
+
+    // Calculate camera world bounds
+    half_width := global_camera.width / 2.0
+    half_height := global_camera.height / 2.0
+    
+    min_world_position := global_camera.position - sdl.FPoint{ half_width, half_height }
+    max_world_position := global_camera.position + sdl.FPoint{ half_width, half_height }
+    GRID_SIZE :: 500.0
+    
+    // Draw vertical lines
+    start_grid_x := math.floor(min_world_position.x / GRID_SIZE) * GRID_SIZE
+    for grid_x := start_grid_x; grid_x <= max_world_position.x; grid_x += GRID_SIZE {
+        view_x := world_position_to_view(sdl.FPoint{grid_x, 0}).x
+        
+        p1 := sdl.FPoint{view_x, 0}
+        p2 := sdl.FPoint{view_x, global_camera.height}
+        sdl.RenderLine(primatives.global_renderer, p1.x, p1.y, p2.x, p2.y)
+    }
+    
+    // Draw horizontal lines
+    start_grid_y := math.floor(min_world_position.y / GRID_SIZE) * GRID_SIZE
+
+    for grid_y := start_grid_y; grid_y <= max_world_position.y; grid_y += GRID_SIZE {
+        view_y := world_position_to_view(sdl.FPoint{0, grid_y}).y
+        
+        p1 := sdl.FPoint{0, view_y}
+        p2 := sdl.FPoint{global_camera.width, view_y}
+        sdl.RenderLine(primatives.global_renderer, p1.x, p1.y, p2.x, p2.y)
+    }
+
+    LABEL_MARGIN :: 100.0
+    
+    // Draw grid labels at intersections
+    grid_x := start_grid_x
+    for grid_x <= max_world_position.x {
+        grid_y := start_grid_y
+        for grid_y <= max_world_position.y {
+            world_pos := sdl.FPoint{grid_x, grid_y}
+            view_pos := world_position_to_view(world_pos)
+            
+            // Draw if visible with margin
+            if view_pos.x >= -LABEL_MARGIN && view_pos.x < global_camera.width + LABEL_MARGIN &&
+               view_pos.y >= -LABEL_MARGIN && view_pos.y < global_camera.height + LABEL_MARGIN {
+                draw_grid_label(font, int(grid_x), int(grid_y), view_pos)
+            }
+            
+            grid_y += GRID_SIZE
+        }
+        grid_x += GRID_SIZE
+    }
+}
+
+draw_grid_label :: proc(font: ^ttf.Font, world_x, world_y: int, view_pos: sdl.FPoint) {
+    label := fmt.caprintf("{},{}", world_x, world_y)
+    defer delete(label)
+    
+    surf := ttf.RenderText_Blended(font, label, 0, color.default_color_palette[color.Default_Palette_Colors.GRAY])
+    defer sdl.DestroySurface(surf)
+    
+    texture := sdl.CreateTextureFromSurface(primatives.global_renderer, surf)
+    defer sdl.DestroyTexture(texture)
+    
+    w, h : f32
+    sdl.GetTextureSize(texture, &w, &h)
+    
+    dst := sdl.FRect{x = view_pos.x + 5, y = view_pos.y + 5, w = w, h = h}
+    sdl.RenderTexture(primatives.global_renderer, texture, nil, &dst)
 }

@@ -8,7 +8,7 @@ import primatives "../../sdl_primatives"
 import geo "../../geometry"
 
 FOLLOWER_SIZE :: 16
-FOLLOWER_SPEED :: 10
+FOLLOWER_SPEED :: 30
 
 FOLLOWER_STARTING_HEALTH :: 3
 

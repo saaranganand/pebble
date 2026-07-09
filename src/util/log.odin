@@ -29,23 +29,28 @@ allocate_file_logger :: proc(use_file: bool) {
     lowest_level := log.Level.Debug
     when !ODIN_DEBUG do lowest_level = log.Level.Info
 
-    when ODIN_OS == .Linux || ODIN_OS == .Darwin do file, err := os.open(log_path, os_open_flags, os_mode)
-    // Windows does not allow for the mode option
-    else when ODIN_OS == .Windows do file, err := os.open(log_path, os_open_flags)
-    else {
-        GLOBAL_LOGGER = log.create_console_logger(lowest_level)
-        USING_GLOBAL_LOGGER = true
-        return
-    }
+    when !ODIN_DEBUG {
+        when ODIN_OS == .Linux || ODIN_OS == .Darwin do file, err := os.open(log_path, os_open_flags, os_mode)
+        // Windows does not allow for the mode option
+        else when ODIN_OS == .Windows do file, err := os.open(log_path, os_open_flags)
+        else {
+            GLOBAL_LOGGER = log.create_console_logger(lowest_level)
+            USING_GLOBAL_LOGGER = true
+            return
+        }
 
-    if (err != os.ERROR_NONE && use_file) || ODIN_DEBUG {
-        os.close(file)
+        if err != os.ERROR_NONE && use_file{
+            os.close(file)
+            GLOBAL_LOGGER = log.create_console_logger(lowest_level)
+            USING_GLOBAL_LOGGER = true
+        } else {
+            GLOBAL_LOGGER = log.create_file_logger(file, lowest_level)
+            USING_GLOBAL_LOGGER = true
+            USING_GLOBAL_FILE_LOGGER = true
+        }
+    } else {
         GLOBAL_LOGGER = log.create_console_logger(lowest_level)
         USING_GLOBAL_LOGGER = true
-    } else {
-        GLOBAL_LOGGER = log.create_file_logger(file, lowest_level)
-        USING_GLOBAL_LOGGER = true
-        USING_GLOBAL_FILE_LOGGER = true
     }
 }
 

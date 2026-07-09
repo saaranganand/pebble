@@ -9,9 +9,9 @@ import horde "enemy/horde"
 import camera "camera"
 
 PLAYER_SIZE :: 100
-AIM_DIST :: 30
+AIM_DIST :: 50
 AIM_SIZE :: 8
-PLAYER_SPEED :: 200
+PLAYER_SPEED :: 300
 
 TILE_SIZE :: 64
 
@@ -63,7 +63,7 @@ game_init :: proc() {
     horde.leader_spawn(&game.horde, {200, 200})
 
     camera.global_camera_create(f32(app.window_width), f32(app.window_height))
-    camera.camera_set_follow(&game.player.position, 0.5)
+    camera.camera_set_follow(&game.player.position, 0.05)
 }
 
 game_close :: proc() {
@@ -156,6 +156,7 @@ game_draw :: proc() {
     sdl.RenderClear(primatives.global_renderer)
 
     // drawing
+    camera.camera_draw_grid(app.font)
     draw_background()
 
     draw_player()
@@ -165,6 +166,8 @@ game_draw :: proc() {
     draw_hud()
     draw_bullets()
     draw_ping_waves()
+
+    camera.camera_draw_center_lines()
     
     
     /*

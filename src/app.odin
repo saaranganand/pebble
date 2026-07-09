@@ -79,7 +79,9 @@ app_init :: proc() {
     primatives.create_global_renderer()
     
     // font
-    app.font = ttf.OpenFont("assets/font1.ttf", 24)
+    //app.font = ttf.OpenFont("assets/fonts/Geo/Geo-Regular.ttf", 24)
+    //app.font = ttf.OpenFont("assets/fonts/Open_Sans/static/OpenSans-Regular.ttf", 24)
+    app.font = ttf.OpenFont("assets/fonts/Ubuntu/Ubuntu-Regular.ttf", 24)
 
     // configs
     if !load_configs() do log.errorf("Failed to load game config")
