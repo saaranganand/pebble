@@ -18,14 +18,12 @@ import fmt "core:fmt"
 // Thus, no space is being wasted here. The pointers all start empty, but then the program eventually loads in the file using the tag.
 //
 
-Data_Tag :: distinct string
-
 global_manager: ^Data_Manager
 
 Data_Manager :: struct {
     audio_master: Audio_Master,
 
-    img_master: map[Data_Tag]^sdl.Texture,
+    img_master: map[string]^sdl.Texture,
 }
 
 global_manager_create :: proc() {

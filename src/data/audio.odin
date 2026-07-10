@@ -9,7 +9,7 @@ import fmt "core:fmt"
 
 Audio_Master :: struct {
     audio_engine: ma.engine,
-    data_map: map[Data_Tag]^Audio_Entry,
+    data_map: map[string]^Audio_Entry,
 }
 
 @(private)
@@ -23,7 +23,7 @@ audio_create :: proc(master: ^Audio_Master) {
         log.panicf("Miniaudio error: %v", ma.result_description(result))
     }
 
-    master.data_map = make(map[Data_Tag]^Audio_Entry)
+    master.data_map = make(map[string]^Audio_Entry)
 }
 
 @(private)
@@ -78,7 +78,7 @@ audio_scrape_audio_entries :: proc() {
     // Clone the tags and create audio entries from them
     for tag in tags {
         clone_tag := strings.clone(tag)
-        audio_entry_create(cast(Data_Tag) clone_tag, DEFAULT_ASSET_FOLDER, .MUSIC)
+        audio_entry_create(cast(string) clone_tag, DEFAULT_ASSET_FOLDER, .MUSIC)
         delete(tag)
     }
 
@@ -98,7 +98,7 @@ audio_scrape_audio_entries :: proc() {
     // Clone the tags and create audio entries from them
     for tag in tags {
         copied_tag := strings.clone(tag)
-        audio_entry_create(cast(Data_Tag) copied_tag, DEFAULT_ASSET_FOLDER, .SOUND)
+        audio_entry_create(cast(string) copied_tag, DEFAULT_ASSET_FOLDER, .SOUND)
         delete(tag)
     }
 

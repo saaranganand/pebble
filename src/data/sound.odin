@@ -13,7 +13,7 @@ sound_get_miniaudio_flags :: proc() -> (flags: ma.sound_flags) {
 }
 
 @(private)
-sound_get_entry :: proc(tag: Data_Tag) -> (^Audio_Entry, bool) {
+sound_get_entry :: proc(tag: string) -> (^Audio_Entry, bool) {
     entry, ok := audio_entry_get(tag)
 
     if entry.type != .SOUND {
@@ -48,7 +48,7 @@ sound_play_from_audio_entry :: proc(entry: ^Audio_Entry) {
 }
 
 
-sound_play :: proc(tag: Data_Tag) {
+sound_play :: proc(tag: string) {
     entry, success := sound_get_entry(tag)
     if !success do return
 
