@@ -20,7 +20,7 @@ Audio_Entry :: struct {
     source_audio: ^ma.sound,
     type: Audio_Type,
     state: Audio_Load_State,
-    tag: string,
+    tag: Data_Tag,
     path_prefix: string,
     // Only SFX uses the pool
     // The pool contains instances via ma.sound_init_copy.
@@ -32,7 +32,7 @@ Audio_Entry :: struct {
 // Create the audio entry for the tag.
 // Note that this does NOT load the sound in.
 @(private)
-audio_entry_create :: proc(tag: string, path_prefix: string, type: Audio_Type = .SOUND) {
+audio_entry_create :: proc(tag: Data_Tag, path_prefix: string, type: Audio_Type = .SOUND) {
     log.infof("Creating audio entry for tag %v", tag)
 
     entry := new(Audio_Entry)
@@ -67,7 +67,7 @@ audio_entry_destroy :: proc(entry: ^Audio_Entry) {
 }
 
 @(private)
-audio_entry_get :: proc(tag: string) -> (^Audio_Entry, bool) {
+audio_entry_get :: proc(tag: Data_Tag) -> (^Audio_Entry, bool) {
     entry, ok := global_manager.audio_master.data_map[tag]
 
     if !ok {
@@ -83,7 +83,7 @@ audio_entry_get :: proc(tag: string) -> (^Audio_Entry, bool) {
     return entry, true
 }
 
-audio_entry_load :: proc(tag: string) {
+audio_entry_load :: proc(tag: Data_Tag) {
     log.infof("Loading audio entry for tag %v", tag)
 
     entry, ok := global_manager.audio_master.data_map[tag]
@@ -118,7 +118,7 @@ audio_entry_load :: proc(tag: string) {
     entry.state = .LOADED
 }
 
-audio_entry_unload :: proc(tag: string) {
+audio_entry_unload :: proc(tag: Data_Tag) {
     entry, ok := audio_entry_get(tag)
 
     log.infof("Unloading audio entry for tag %v", entry.tag)

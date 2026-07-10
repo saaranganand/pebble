@@ -45,7 +45,7 @@ update_bitpistol :: proc(bp: ^BitPistol, x: f32, y: f32, aimAngle: f32) {
         bp.cooldown -= primatives.dt
     }
     if input.fire && bp.cooldown <= 0 {
-        data.sound_play("sounds/pirate_bell.wav")
+        data.sound_play("sounds/silly/pirate_bell.wav")
         spawn_bullet(pool, x, y, aimAngle, BulletType.BitPistol, cfg.damage, cfg.bullet_speed, cfg.bullet_size)
         bp.cooldown = 1.0 / cfg.fire_rate
     }

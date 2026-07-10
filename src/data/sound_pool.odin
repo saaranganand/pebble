@@ -9,20 +9,20 @@ Sound_Pool :: distinct [dynamic]^ma.sound
 
 @(private)
 audio_entry_create_pool :: proc(entry: ^Audio_Entry) {
-    log.infof("Creating sound pool for audio tag %v", entry.tag)
+    log.debugf("Creating sound pool for audio tag %v", entry.tag)
     entry.pool = make(Sound_Pool)
 }
 
 @(private)
 audio_entry_destroy_pool :: proc(entry: ^Audio_Entry) {
-    log.infof("Destroying sound pool for audio tag %v", entry.tag)
+    log.debugf("Destroying sound pool for audio tag %v", entry.tag)
     
     audio_entry_clear_pool(entry)
     delete(entry.pool)
 }
 
 audio_entry_clear_pool :: proc(entry: ^Audio_Entry) {
-    log.infof("Clearing pool copies for %v", entry.tag)
+    log.debugf("Clearing pool copies for %v", entry.tag)
 
     for copy in entry.pool {
         ma.sound_uninit(copy)

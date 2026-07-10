@@ -59,7 +59,7 @@ game_create :: proc() {
     primatives.global_timer_init()
 
     data.global_manager_create()
-    data.audio_entry_load("sounds/pirate_bell.wav")
+    data.audio_entry_load("sounds/silly/pirate_bell.wav")
     data.audio_entry_load("music/shanty.ogg")
     data.music_play("music/shanty.ogg")
 

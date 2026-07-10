@@ -7,14 +7,16 @@ import strings "core:strings"
 import log "core:log"
 import fmt "core:fmt"
 
+Data_Tag :: distinct string
+
 Audio_Master :: struct {
     audio_engine: ma.engine,
-    data_map: map[string]^Audio_Entry,
+    data_map: map[Data_Tag]^Audio_Entry,
 }
 
 @(private)
-audio_create :: proc(master: ^Audio_Master) {
-    log.infof("Creating audio data manager")
+audio_master_create :: proc(master: ^Audio_Master) {
+    log.infof("Creating audio data master")
 
     // TODO: create an engine_config item to pass through for extra options
     log.infof("Creating microaudio engine")
@@ -23,12 +25,12 @@ audio_create :: proc(master: ^Audio_Master) {
         log.panicf("Miniaudio error: %v", ma.result_description(result))
     }
 
-    master.data_map = make(map[string]^Audio_Entry)
+    master.data_map = make(map[Data_Tag]^Audio_Entry)
 }
 
 @(private)
-audio_destroy :: proc(master: ^Audio_Master) {
-    log.infof("Destroying audio data manager")
+audio_master_destroy :: proc(master: ^Audio_Master) {
+    log.infof("Destroying audio data master")
 
     for tag, entry in master.data_map {
         audio_entry_destroy(entry)
@@ -41,66 +43,29 @@ audio_destroy :: proc(master: ^Audio_Master) {
 }
 
 
-DEFAULT_ASSET_FOLDER :: "assets/"
+DATA_TAG_DEFAULT_ASSET_FOLDER :: "assets/"
 
 // TODO: find some way to get multiple basic paths in here, to allow for mods to add their own asset folders to the load path
 @(private)
-audio_scrape_audio_entries :: proc() {
+audio_master_scrape_audio_entries :: proc() {
     log.infof("Creating data tags for audio")
 
-    flags := sdl.GlobFlags{ .CASEINSENSITIVE }
+    music_tags := make([dynamic]string)
+    defer delete(music_tags)
+    data_tag_resursive_grab_and_process_precursors("music/", "*.ogg", &music_tags)
+    audio_create_entries_from_scraped_tags(music_tags, .MUSIC)
 
-    tags := make([dynamic]string)
-    defer delete(tags)
+    sound_tags := make([dynamic]string)
+    defer delete(sound_tags)
+    data_tag_resursive_grab_and_process_precursors("sounds/", "*.wav", &sound_tags)
+    audio_create_entries_from_scraped_tags(sound_tags, .SOUND)
+}
 
-    process_tags :: proc(outer_strings: [^][^]u8, path: string, num_strings: i32, tags: ^[dynamic]string) {
-        inner_strings := outer_strings[:num_strings]
-        for data in inner_strings {
-            cstr := cstring(data)
-            // This isnt a clone, but a view into the raw cstring data
-            str := string(cstr)
-
-            // This IS a clone, aka allocates new_tag, which means it must be freed eventually.
-            new_tag := fmt.aprint(path, str, sep = "")
-
-            append(tags, new_tag)
-        }
-    }
-
-    // Grab all matching files
-    music_path := fmt.caprint(DEFAULT_ASSET_FOLDER, "music/", sep = "")
-    defer delete(music_path)
-    num_music_oggs: i32 = 0
-    music_oggs := sdl.GlobDirectory(music_path, "*.ogg", flags, &num_music_oggs)
-    // Process them into correctly formatted tags (example: music/subfolder/track_name.ogg)
-    process_tags(music_oggs, "music/", num_music_oggs, &tags)
-
-    // Clone the tags and create audio entries from them
-    for tag in tags {
-        clone_tag := strings.clone(tag)
-        audio_entry_create(cast(string) clone_tag, DEFAULT_ASSET_FOLDER, .MUSIC)
-        delete(tag)
-    }
-
-    sdl.free(music_oggs)
-
-    // reset tag array to begin again with sfx
-    clear(&tags)
-
-    // Grab all matching files
-    sound_path := fmt.caprint(DEFAULT_ASSET_FOLDER, "sounds/", sep = "")
-    defer delete(sound_path)
-    num_sound_wavs: i32 = 0
-    sound_wavs := sdl.GlobDirectory(sound_path, "*.wav", flags, &num_sound_wavs)
-    // Process them into correctly formatted tags (example: sounds/subfolder/explosion.wav)
-    process_tags(sound_wavs, "sounds/", num_sound_wavs, &tags)
-
-    // Clone the tags and create audio entries from them
+@(private)
+audio_create_entries_from_scraped_tags :: proc(tags: [dynamic]string, type: Audio_Type) {
     for tag in tags {
         copied_tag := strings.clone(tag)
-        audio_entry_create(cast(string) copied_tag, DEFAULT_ASSET_FOLDER, .SOUND)
+        audio_entry_create(cast(Data_Tag) copied_tag, DATA_TAG_DEFAULT_ASSET_FOLDER, type)
         delete(tag)
     }
-
-    sdl.free(sound_wavs)
 }

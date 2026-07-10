@@ -13,7 +13,7 @@ music_get_miniaudio_flags :: proc(looping: bool = true) -> (flags: ma.sound_flag
 }
 
 @(private)
-music_get_entry :: proc(tag: string) -> (^Audio_Entry, bool) {
+music_get_entry :: proc(tag: Data_Tag) -> (^Audio_Entry, bool) {
     entry, ok := audio_entry_get(tag)
 
     if entry.type != .MUSIC {
@@ -25,21 +25,21 @@ music_get_entry :: proc(tag: string) -> (^Audio_Entry, bool) {
     return entry, true
 }
 
-music_play :: proc(tag: string) {
+music_play :: proc(tag: Data_Tag) {
     entry, success := music_get_entry(tag)
     if !success do return
 
     ma.sound_start(entry.source_audio)
 }
 
-music_pause :: proc(tag: string) {
+music_pause :: proc(tag: Data_Tag) {
     entry, success := music_get_entry(tag)
     if !success do return
 
     ma.sound_stop(entry.source_audio)
 }
 
-music_reset :: proc(tag: string) {
+music_reset :: proc(tag: Data_Tag) {
     entry, success := music_get_entry(tag)
     if !success do return
 
