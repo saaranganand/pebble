@@ -56,7 +56,7 @@ app_create :: proc() {
     // Since we will be using our window size for rendering, this is important, and as such,
     // we need to immediately read the window's pixel size using this procedure.
     primatives.global_window_read_size(&app.window_width, &app.window_height)
-    app.display_id = primatives.global_window_read_screen_size(&app.window_width, &app.window_height)
+    app.display_id = primatives.global_window_read_screen_size(&app.screen_width, &app.screen_height)
 
     primatives.global_renderer_create()
     primatives.global_renderer_set_vsync()

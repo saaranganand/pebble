@@ -47,7 +47,7 @@ handle_app_input :: proc(input: App_Input) {
     }
 
     if input.new_display {
-        app.display_id = primatives.global_window_read_screen_size(&app.window_width, &app.window_height)
+        app.display_id = primatives.global_window_read_screen_size(&app.screen_width, &app.screen_height)
     }
 
     should_read_window_size := false
