@@ -55,7 +55,7 @@ main :: proc() {
     // setup
 }
     */
-game_init :: proc() {
+game_create :: proc() {
     primatives.global_timer_init()
 
     data.global_manager_create()
@@ -72,7 +72,7 @@ game_init :: proc() {
     camera.camera_set_follow(&game.player.position, 0.05)
 }
 
-game_close :: proc() {
+game_destroy :: proc() {
     data.global_manager_destroy()
 
     horde.destroy(&game.horde)

@@ -47,6 +47,7 @@ global_camera_destroy :: proc() {
 }
 
 camera_create :: proc(width, height: f32) -> (camera: ^Camera) {
+    log.infof("Allocating new camera")
     camera = new(Camera)
 
     camera.position = {0,0}
@@ -58,6 +59,7 @@ camera_create :: proc(width, height: f32) -> (camera: ^Camera) {
 }
 
 camera_destroy :: proc(camera: ^Camera) {
+    log.infof("Destroying camera")
     free(camera)
 }
 

@@ -5,12 +5,24 @@ import log "core:log"
 
 global_renderer: ^sdl.Renderer
 
-create_global_renderer :: proc() {
+global_renderer_create :: proc() {
     global_renderer = sdl.CreateRenderer(global_window, nil)
     if global_renderer == nil do log.errorf("SDL renderer creation fail: %v", sdl.GetError())
-    sdl.SetRenderVSync(global_renderer, 1)
+
+    log.infof("Created global renderer")
 }
 
-destroy_global_renderer :: proc() {
+global_renderer_destroy :: proc() {
+    log.infof("Destroyed global renderer")
+
     sdl.DestroyRenderer(global_renderer)
+}
+
+global_renderer_set_vsync :: proc(on: bool = true) {
+    set: i32 = 1
+    if !on do set = 0
+
+    log.infof("Set renderer vsync mode to %v", on)
+
+    sdl.SetRenderVSync(global_renderer, set)
 }

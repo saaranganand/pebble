@@ -3,7 +3,7 @@ package main
 import sdl "vendor:sdl3"
 import log "core:log"
 
-import data "data"
+import primatives "sdl_primatives"
 
 APP_SHUTDOWN_KEY :: sdl.K_ESCAPE
 
@@ -46,7 +46,9 @@ handle_app_input :: proc(input: App_Input) {
         app.fullscreen = false
     }
 
-    if input.new_display do read_screen_size()
+    if input.new_display {
+        app.display_id = primatives.global_window_read_screen_size(&app.window_width, &app.window_height)
+    }
 
     should_read_window_size := false
 
@@ -60,7 +62,10 @@ handle_app_input :: proc(input: App_Input) {
         // its pixel size changes with it
         input.new_display
         
-    if should_read_window_size do read_window_size()
+    if should_read_window_size do primatives.global_window_read_size(&app.window_width, &app.window_height)
+
+    
+    
 }
 
 poll_app_input :: proc() -> (input: App_Input) {

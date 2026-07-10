@@ -45,12 +45,12 @@ main_init :: proc() {
     
 
     // APP INIT
-    app_init()
+    app_create()
 }
 
 main_fini :: proc() {
     // APP DE-INIT
-    app_close()
+    app_destroy()
 
     // DE-INITIALIZATION
     ttf.Quit()

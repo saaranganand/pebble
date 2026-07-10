@@ -6,29 +6,7 @@ import log "core:log"
 
 import primatives "sdl_primatives"
 
-read_window_size :: proc() {
-    log.infof("Window pixel size being read, window was resized")
-
-    success := sdl.GetWindowSizeInPixels(primatives.global_window, &app.window_width, &app.window_height)
-    if !success do log.fatalf("Unable to get window size")
-}
-
-read_screen_size :: proc() {
-    log.infof("Screen pixel size being read, display was set or changed")
-
-    app.display_id = sdl.GetDisplayForWindow(primatives.global_window)
-    bounds: sdl.Rect
-    success := sdl.GetDisplayBounds(app.display_id, &bounds)
-    if !success do log.fatalf("Unable to get screen bounds")
-
-    // display size is in screen coordinates, not pixels.
-    // need to do this for HiDPI monitors and other nonsense.
-    scale := sdl.GetDisplayContentScale(app.display_id)
-    app.screen_width  = i32(f32(bounds.w) * scale)
-    app.screen_height = i32(f32(bounds.h) * scale)
-}
-
-app := struct {
+App :: struct {
     font: ^ttf.Font,
 
     display_id: sdl.DisplayID,
@@ -38,10 +16,9 @@ app := struct {
 
     prepare_shutdown: bool,
     shutdown_ready: bool,
-}{
-    window_width = 800,
-    window_height = 800,
 }
+
+app: ^App
 
 // this proc will just handle things like auto saving progress
 handle_app_shutdown :: proc() {
@@ -66,17 +43,23 @@ app_loop :: proc() -> bool {
     return false
 }
 
-app_init :: proc() {
-    primatives.create_global_window(app.window_width, app.window_height)
+app_create :: proc() {
+    app = new(App)
+
+    app.window_width = 800
+    app.window_height = 800
+
+    primatives.global_window_create(app.window_width, app.window_height)
     // We call this immediately because of window display scale
     // for example a HiDPI display could use the same window positioning, but have twice as many pixels.
     // On such a display, when we set our window to a size, it will actually have a pixel size of 2x.
     // Since we will be using our window size for rendering, this is important, and as such,
     // we need to immediately read the window's pixel size using this procedure.
-    read_window_size()
-    read_screen_size()
+    primatives.global_window_read_size(&app.window_width, &app.window_height)
+    app.display_id = primatives.global_window_read_screen_size(&app.window_width, &app.window_height)
 
-    primatives.create_global_renderer()
+    primatives.global_renderer_create()
+    primatives.global_renderer_set_vsync()
     
     // font
     //app.font = ttf.OpenFont("assets/fonts/Geo/Geo-Regular.ttf", 24)
@@ -86,14 +69,16 @@ app_init :: proc() {
     // configs
     if !load_configs() do log.errorf("Failed to load game config")
 
-    game_init()
+    game_create()
 }
 
-app_close :: proc() {
+app_destroy :: proc() {
+    game_destroy()
+
     ttf.CloseFont(app.font)
 
-    primatives.destroy_global_renderer()
-    primatives.destroy_global_window()
+    primatives.global_renderer_destroy()
+    primatives.global_window_destroy()
 
-    game_close()
+    free(app)
 }
