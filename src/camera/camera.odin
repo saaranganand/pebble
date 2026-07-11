@@ -147,6 +147,16 @@ camera_draw_center_lines :: proc() {
     sdl.RenderLine(primatives.global_renderer, global_camera.width / 2, 0, global_camera.width / 2, global_camera.height)
 }
 
+camera_draw_img :: proc(img_tag: data.Data_Tag, dest: sdl.FRect, src: ^sdl.FRect = nil) {
+    view_adjusted_pos := world_position_to_view({ dest.x, dest.y })
+    view_adjusted_dest := dest
+
+    view_adjusted_dest.x = view_adjusted_pos.x
+    view_adjusted_dest.y = view_adjusted_pos.y
+
+    data.img_draw(img_tag, &view_adjusted_dest, src)
+}
+
 camera_draw_grid :: proc() {
     color.sdl_set_color(color.Default_Palette_Colors.BLACK)
 

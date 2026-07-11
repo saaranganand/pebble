@@ -32,6 +32,8 @@ audio_master_destroy :: proc(master: ^Audio_Master) {
 
     for tag, entry in master.data_map {
         audio_entry_destroy(entry)
+        delete(cast(string) tag)
+        free(entry)
     }
 
     delete(master.data_map)

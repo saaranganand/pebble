@@ -19,10 +19,15 @@ global_manager: ^Data_Manager
 
 Data_Manager :: struct {
     audio_master: Audio_Master,
-
     font_master: Font_Master,
+    img_master: Img_Master,
+}
 
-    img_master: map[string]^sdl.Texture,
+// TODO: Add loading state to allow loading daata asynchronously with threads
+Data_Load_State :: enum {
+    UNLOADED,
+    LOADED,
+    FAILED,
 }
 
 global_manager_create :: proc() {
@@ -32,12 +37,13 @@ global_manager_create :: proc() {
     audio_master_create(&global_manager.audio_master)
     audio_master_scrape_data()
 
-    //img_create()
-    //font_create()
-    //data_create()
-
     font_master_create(&global_manager.font_master)
     font_master_scrape_data(&global_manager.font_master)
+
+    img_master_create(&global_manager.img_master)
+    img_master_scrape_data(&global_manager.img_master)
+
+    //data_create()
 
     return
 }
@@ -47,6 +53,7 @@ global_manager_destroy :: proc() {
 
     audio_master_destroy(&global_manager.audio_master)
     font_master_destroy(&global_manager.font_master)
+    img_master_destroy(&global_manager.img_master)
     //img_destroy()
     //font_destroy()
     //data_destroy()

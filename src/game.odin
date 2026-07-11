@@ -67,6 +67,8 @@ game_create :: proc() {
     data.font_load("fonts/ubuntu.ttf", 24)
     data.font_load("fonts/ubuntu.ttf", 16)
 
+    data.img_load("img/player/move.png")
+
     game.player = player_init()
 
     game.horde = horde.create(&game.player.position)

@@ -7,19 +7,12 @@ import fmt "core:fmt"
 
 Audio_Type :: enum { SOUND, MUSIC, }
 
-// TODO: Add loading state, and start loading audio asynchronously with threads
-Audio_Load_State :: enum {
-    UNLOADED,
-    LOADED,
-    FAILED,
-}
-
 Audio_Entry :: struct {
     // For SFX, this is only the source
     // This base should never be played on its own.
     source_audio: ^ma.sound,
     type: Audio_Type,
-    state: Audio_Load_State,
+    state: Data_Load_State,
     tag: Data_Tag,
     path_prefix: string,
     // Only SFX uses the pool
@@ -62,11 +55,7 @@ audio_entry_destroy :: proc(entry: ^Audio_Entry) {
     // If the pool is destroyed before, it will be trying to clear an 
     audio_entry_destroy_pool(entry)
 
-    delete(cast(string) entry.tag)
-
     free(entry.source_audio)
-
-    free(entry)   
 }
 
 @(private)

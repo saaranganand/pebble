@@ -10,6 +10,7 @@ import primatives "sdl_primatives"
 import geo "geometry"
 import camera "camera"
 import color "color"
+import data "data"
 
 Player :: struct {
     position: sdl.FPoint,
@@ -43,6 +44,9 @@ player_destroy :: proc(player: ^Player) {
 
 draw_player :: proc() {
     player := &game.player
+
+    test_img_dest := sdl.FRect{ player.position.x, player.position.y, 200, 200 }
+    camera.camera_draw_img("img/player/move.png", test_img_dest)
 
     // aim reticle
     aim_circle := geo.Circle{ player.position + { math.cos(player.aimAngle), math.sin(player.aimAngle) } * AIM_DIST, AIM_SIZE }
