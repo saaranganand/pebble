@@ -7,8 +7,6 @@ import log "core:log"
 import primatives "sdl_primatives"
 
 App :: struct {
-    font: ^ttf.Font,
-
     display_id: sdl.DisplayID,
     screen_width, screen_height: i32,
     window_width, window_height: i32,
@@ -60,11 +58,6 @@ app_create :: proc() {
 
     primatives.global_renderer_create()
     primatives.global_renderer_set_vsync()
-    
-    // font
-    //app.font = ttf.OpenFont("assets/fonts/Geo/Geo-Regular.ttf", 24)
-    //app.font = ttf.OpenFont("assets/fonts/Open_Sans/static/OpenSans-Regular.ttf", 24)
-    app.font = ttf.OpenFont("assets/fonts/Ubuntu/Ubuntu-Regular.ttf", 24)
 
     // configs
     if !load_configs() do log.errorf("Failed to load game config")
@@ -74,8 +67,6 @@ app_create :: proc() {
 
 app_destroy :: proc() {
     game_destroy()
-
-    ttf.CloseFont(app.font)
 
     primatives.global_renderer_destroy()
     primatives.global_window_destroy()

@@ -7,9 +7,10 @@ import math "core:math"
 import log "core:log"
 import fmt "core:fmt"
 
-import geo "../geometry"
 import primatives "../sdl_primatives"
+import geo "../geometry"
 import color "../color"
+import data "../data"
 
 Camera_Mode :: enum { STATIONARY, FOLLOW }
 
@@ -26,6 +27,8 @@ Camera :: struct {
 	height: f32,
 	mode:   Camera_Mode,
 	follow: Camera_Follow,
+
+    coordinate_text: ^ttf.Text,
 }
 
 // The way this package's procedures work,
@@ -55,11 +58,16 @@ camera_create :: proc(width, height: f32) -> (camera: ^Camera) {
     camera.height = height
     camera.mode = .STATIONARY
 
+    camera.coordinate_text = data.font_create_text("fonts/ubuntu.ttf", 24, "0,0")
+    color.sdl_set_text_color(camera.coordinate_text, color.Default_Palette_Colors.BLACK)
+
 	return
 }
 
 camera_destroy :: proc(camera: ^Camera) {
     log.infof("Destroying camera")
+
+    ttf.DestroyText(camera.coordinate_text)
     free(camera)
 }
 
@@ -135,7 +143,7 @@ camera_draw_center_lines :: proc() {
     sdl.RenderLine(primatives.global_renderer, global_camera.width / 2, 0, global_camera.width / 2, global_camera.height)
 }
 
-camera_draw_grid :: proc(font: ^ttf.Font) {
+camera_draw_grid :: proc() {
     color.sdl_set_color(color.Default_Palette_Colors.BLACK)
 
     // Calculate camera world bounds
@@ -180,7 +188,7 @@ camera_draw_grid :: proc(font: ^ttf.Font) {
             // Draw if visible with margin
             if view_pos.x >= -LABEL_MARGIN && view_pos.x < global_camera.width + LABEL_MARGIN &&
                view_pos.y >= -LABEL_MARGIN && view_pos.y < global_camera.height + LABEL_MARGIN {
-                draw_grid_label(font, int(grid_x), int(grid_y), view_pos)
+                draw_grid_label(int(grid_x), int(grid_y), view_pos)
             }
             
             grid_y += GRID_SIZE
@@ -189,19 +197,10 @@ camera_draw_grid :: proc(font: ^ttf.Font) {
     }
 }
 
-draw_grid_label :: proc(font: ^ttf.Font, world_x, world_y: int, view_pos: sdl.FPoint) {
-    label := fmt.caprintf("{},{}", world_x, world_y)
+draw_grid_label :: proc(world_x, world_y: int, view_pos: sdl.FPoint) {
+    label := fmt.caprint(world_x, ",", world_y, sep = "")
     defer delete(label)
-    
-    surf := ttf.RenderText_Blended(font, label, 0, color.default_color_palette[color.Default_Palette_Colors.GRAY])
-    defer sdl.DestroySurface(surf)
-    
-    texture := sdl.CreateTextureFromSurface(primatives.global_renderer, surf)
-    defer sdl.DestroyTexture(texture)
-    
-    w, h : f32
-    sdl.GetTextureSize(texture, &w, &h)
-    
-    dst := sdl.FRect{x = view_pos.x + 5, y = view_pos.y + 5, w = w, h = h}
-    sdl.RenderTexture(primatives.global_renderer, texture, nil, &dst)
+
+    ttf.SetTextString(global_camera.coordinate_text, label, 0)
+    ttf.DrawRendererText(global_camera.coordinate_text, view_pos.x + 5, view_pos.y + 5)
 }

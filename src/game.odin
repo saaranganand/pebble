@@ -63,6 +63,10 @@ game_create :: proc() {
     data.audio_entry_load("music/shanty.ogg")
     data.music_play("music/shanty.ogg")
 
+    data.font_load("fonts/ubuntu.ttf", 32)
+    data.font_load("fonts/ubuntu.ttf", 24)
+    data.font_load("fonts/ubuntu.ttf", 16)
+
     game.player = player_init()
 
     game.horde = horde.create(&game.player.position)
@@ -166,7 +170,7 @@ game_draw :: proc() {
     sdl.RenderClear(primatives.global_renderer)
 
     // drawing
-    camera.camera_draw_grid(app.font)
+    camera.camera_draw_grid()
     draw_background()
 
     draw_player()

@@ -48,6 +48,9 @@ audio_entry_create :: proc(tag: Data_Tag, path_prefix: string, type: Audio_Type 
     global_manager.audio_master.data_map[tag] = entry
 }
 
+// This isnt for outside calling, or just any kind of calling outside of destruction, ever
+// Double frees will happen if it is called extra times.
+// To unload data to save memory, use audio_entry_unload
 @(private)
 audio_entry_destroy :: proc(entry: ^Audio_Entry) {
     log.infof("Destroying audio entry for tag %v", entry.tag)
@@ -63,7 +66,7 @@ audio_entry_destroy :: proc(entry: ^Audio_Entry) {
 
     free(entry.source_audio)
 
-    free(entry)
+    free(entry)   
 }
 
 @(private)

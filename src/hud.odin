@@ -120,11 +120,11 @@ draw_hud :: proc() {
         }
 
     if any_auto_expiring(player) {
-        draw_expiry_exclamation(app.font)
+        //draw_expiry_exclamation(app.font)
     }
 
     // weapon name on bottom left
-    surf := ttf.RenderText_Blended(app.font, weapon_name, 0, sdl.Color{0, 0, 0, 255})
+    /*surf := ttf.RenderText_Blended(app.font, weapon_name, 0, sdl.Color{0, 0, 0, 255})
     texture := sdl.CreateTextureFromSurface(primatives.global_renderer, surf)
     sdl.DestroySurface(surf)
 
@@ -133,7 +133,7 @@ draw_hud :: proc() {
 
     dst := sdl.FRect{x = 10, y = f32(app.window_height) - h - 10, w = w, h = h}
     sdl.RenderTexture(primatives.global_renderer, texture, nil, &dst)
-    sdl.DestroyTexture(texture)
+    sdl.DestroyTexture(texture)*/
 }
 
 any_auto_expiring :: proc(player: Player) -> bool {

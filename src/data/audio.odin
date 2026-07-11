@@ -7,8 +7,6 @@ import strings "core:strings"
 import log "core:log"
 import fmt "core:fmt"
 
-Data_Tag :: distinct string
-
 Audio_Master :: struct {
     audio_engine: ma.engine,
     data_map: map[Data_Tag]^Audio_Entry,
@@ -47,7 +45,7 @@ DATA_TAG_DEFAULT_ASSET_FOLDER :: "assets/"
 
 // TODO: find some way to get multiple basic paths in here, to allow for mods to add their own asset folders to the load path
 @(private)
-audio_master_scrape_audio_entries :: proc() {
+audio_master_scrape_data :: proc() {
     log.infof("Creating data tags for audio")
 
     music_tags := make([dynamic]string)
@@ -65,6 +63,7 @@ audio_master_scrape_audio_entries :: proc() {
 audio_create_entries_from_scraped_tags :: proc(tags: [dynamic]string, type: Audio_Type) {
     for tag in tags {
         copied_tag := strings.clone(tag)
+        // TODO: pass an actual path prefix instead of the default one
         audio_entry_create(cast(Data_Tag) copied_tag, DATA_TAG_DEFAULT_ASSET_FOLDER, type)
         delete(tag)
     }
