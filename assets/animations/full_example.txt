@@ -1,4 +1,4 @@
-img_tag: atlases/entities/player
+img_tag: img/entities/player
 
 animations:
   idle:
