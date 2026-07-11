@@ -65,8 +65,7 @@ apply_movement_penalty :: proc() {
     input := &game.input
 
     if player.active_category == .Manual && player.weaponManual == .Scope && player.scope.is_charging {
-        input.dx *= 0.2 // 80% slowdown
-        input.dy *= 0.2
+        input.direction *= 0.2
     }
 }
 

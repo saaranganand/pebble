@@ -87,6 +87,10 @@ camera_update :: proc() {
         // lerp camera position toward target
         target := global_camera.follow.target^
         global_camera.position += (target - global_camera.position) * global_camera.follow.lerp_speed
+
+        // if we are within a pixel of the target, set position to the target
+        if math.trunc(global_camera.position.x - target.x) == 0 do global_camera.position.x = target.x
+        if math.trunc(global_camera.position.y - target.y) == 0 do global_camera.position.y = target.y
     }
 }
 

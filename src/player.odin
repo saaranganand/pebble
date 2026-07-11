@@ -88,7 +88,7 @@ update_player :: proc() {
     }
     
     // always centers player
-    player.position += sdl.FPoint{ input.dx, input.dy } * PLAYER_SPEED * primatives.dt
+    player.position += input.direction * PLAYER_SPEED * primatives.dt
 
     player_view_position := camera.world_position_to_view(player.position)
     player.aimAngle = math.atan2(input.mouseY - player_view_position.y, input.mouseX - player_view_position.x)

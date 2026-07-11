@@ -1,10 +1,13 @@
-// input handling
-
 package main
+
 import sdl "vendor:sdl3"
 
+import geo "geometry"
+
+import fmt "core:fmt"
+
 Input :: struct {
-    dx, dy: f32,
+    direction: sdl.FPoint,
     mouseX, mouseY: f32,
     fire: bool
 }
@@ -18,23 +21,19 @@ process_input :: proc() -> Input {
 
     if keyboard != nil {
         if keyboard[sdl.Scancode.W] {
-            inp.dy -= 1
+            inp.direction.y -= 1
         }
         if keyboard[sdl.Scancode.S] {
-            inp.dy += 1
+            inp.direction.y += 1
         }
         if keyboard[sdl.Scancode.A] {
-            inp.dx -= 1
+            inp.direction.x -= 1
         }
         if keyboard[sdl.Scancode.D] {
-            inp.dx += 1
+            inp.direction.x += 1
         }
         
-        // normalize diaognal
-        if inp.dx != 0 && inp.dy != 0 {
-            inp.dx *= 0.7
-            inp.dy *= 0.7
-        }
+        inp.direction = geo.normalize_point(inp.direction)
     }
     return inp
 }
