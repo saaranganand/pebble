@@ -7,9 +7,12 @@ import strings "core:strings"
 import log "core:log"
 import fmt "core:fmt"
 
+// TODO: add split sliders for sfx volume, music volume,
+// maybe even seperate sfx volume sliders
+// will rquire an extra enum for each audio entry at least
 Audio_Master :: struct {
     audio_engine: ma.engine,
-    data_map: map[Data_Tag]^Audio_Entry,
+    data_map: map[Data_Tag]Audio_Entry,
 }
 
 @(private)
@@ -23,17 +26,16 @@ audio_master_create :: proc(master: ^Audio_Master) {
         log.panicf("Miniaudio error: %v", ma.result_description(result))
     }
 
-    master.data_map = make(map[Data_Tag]^Audio_Entry)
+    master.data_map = make(map[Data_Tag]Audio_Entry)
 }
 
 @(private)
 audio_master_destroy :: proc(master: ^Audio_Master) {
     log.infof("Destroying audio data master")
 
-    for tag, entry in master.data_map {
-        audio_entry_destroy(entry)
+    for tag, &entry in master.data_map {
+        audio_entry_destroy(&entry)
         delete(cast(string) tag)
-        free(entry)
     }
 
     delete(master.data_map)

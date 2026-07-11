@@ -1,0 +1,33 @@
+img_tag: img/player/move.png
+
+animations:
+  idle:
+    fps: 0
+    looping: false
+    scale: 1.0
+    frames:
+      - source: { x: 0.0, y: 0.0, w: 82.0, h: 128.0 }
+
+  moving_facing_right:
+    fps: 0
+    looping: false
+    scale: 1.0
+    frames:
+      - source: { x: 164.0, y: 0.0, w: 82.0, h: 128.0 }
+  
+  moving_facing_left:
+    fps: 0.0
+    looping: false
+    scale: 1.0
+    frames:
+      - source: { x: 82.0, y: 0.0, w: 82.0, h: 128.0 }
+  
+  dancing:
+    fps: 3.0
+    looping: true
+    scale: 1.0
+    frames:
+      - source: { x: 82.0, y: 0.0, w: 82.0, h: 128.0 }
+      - source: { x: 0.0, y: 0.0, w: 82.0, h: 128.0 }
+      - source: { x: 164.0, y: 0.0, w: 82.0, h: 128.0 }
+      - source: { x: 0.0, y: 0.0, w: 82.0, h: 128.0 }

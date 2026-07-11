@@ -15,7 +15,7 @@ Font_Instance :: struct {
 }
 
 Font_Master :: struct {
-    instances: map[Data_Tag]^Font_Instance,
+    instances: map[Data_Tag]Font_Instance,
     engine: ^ttf.TextEngine,
 }
 
@@ -23,7 +23,7 @@ Font_Master :: struct {
 font_master_create :: proc(master: ^Font_Master) {
     log.infof("Creating font data master")
 
-    master.instances = make(map[Data_Tag]^Font_Instance)
+    master.instances = make(map[Data_Tag]Font_Instance)
     master.engine = ttf.CreateRendererTextEngine(primatives.global_renderer)
 }
 
@@ -38,8 +38,6 @@ font_master_destroy :: proc(master: ^Font_Master) {
         delete(instance.size_map)
 
         delete(cast(string) tag)
-
-        free(instance)
     }
 
     log.infof("Destroying font data manager")
@@ -67,17 +65,17 @@ font_master_create_maps_from_scraped_tags :: proc(master: ^Font_Master, tags: [d
         copied_tag := strings.clone(tag)
         
         log.infof("Creating font size map for font %v", copied_tag)
-        instance := new(Font_Instance)
+        master.instances[cast(Data_Tag) copied_tag] = {}
+        instance := &master.instances[cast(Data_Tag) copied_tag]
+
         instance.size_map = make(map[f32]^ttf.Font)
         // TODO: use an actual path prefix instead of the default one
         instance.path_prefix = DATA_TAG_DEFAULT_ASSET_FOLDER
-
-        master.instances[cast(Data_Tag) copied_tag] = instance
     }
 }
 
 font_load :: proc(tag: Data_Tag, size: f32) {
-    instance, ok := global_manager.font_master.instances[tag]
+    instance, ok := &global_manager.font_master.instances[tag]
 
     if !ok {
         log.errorf("Tried to load non-existent font with tag %v.", tag)
@@ -98,7 +96,7 @@ font_load :: proc(tag: Data_Tag, size: f32) {
 }
 
 font_unload :: proc(tag: Data_Tag, size: f32) {
-    instance, ok := global_manager.font_master.instances[tag]
+    instance, ok := &global_manager.font_master.instances[tag]
 
     if !ok {
         log.errorf("Tried to unload non-existent font with tag %v.", tag)
@@ -116,7 +114,7 @@ font_unload :: proc(tag: Data_Tag, size: f32) {
 
 // TODO: support temporary fonts with non-loaded font-sizes
 font_master_get_font :: proc(tag: Data_Tag, size: f32) -> (font: ^ttf.Font) {
-    instance, ok := global_manager.font_master.instances[tag]
+    instance, ok := &global_manager.font_master.instances[tag]
     font = nil
 
     if !ok {

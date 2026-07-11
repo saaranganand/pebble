@@ -28,7 +28,8 @@ Audio_Entry :: struct {
 audio_entry_create :: proc(tag: Data_Tag, path_prefix: string, type: Audio_Type = .SOUND) {
     log.infof("Creating audio entry for tag %v", tag)
 
-    entry := new(Audio_Entry)
+    global_manager.audio_master.data_map[tag] = {}
+    entry := &global_manager.audio_master.data_map[tag]
 
     entry.source_audio = new(ma.sound)
     entry.type = type
@@ -37,8 +38,6 @@ audio_entry_create :: proc(tag: Data_Tag, path_prefix: string, type: Audio_Type 
     entry.path_prefix = path_prefix
 
     audio_entry_create_pool(entry)
-
-    global_manager.audio_master.data_map[tag] = entry
 }
 
 // This isnt for outside calling, or just any kind of calling outside of destruction, ever
@@ -60,7 +59,7 @@ audio_entry_destroy :: proc(entry: ^Audio_Entry) {
 
 @(private)
 audio_entry_get :: proc(tag: Data_Tag) -> (^Audio_Entry, bool) {
-    entry, ok := global_manager.audio_master.data_map[tag]
+    entry, ok := &global_manager.audio_master.data_map[tag]
 
     if !ok {
         log.errorf("Tried to get non-existent audio entry with tag %v.", tag)
@@ -78,12 +77,9 @@ audio_entry_get :: proc(tag: Data_Tag) -> (^Audio_Entry, bool) {
 audio_entry_load :: proc(tag: Data_Tag) {
     log.infof("Loading audio entry for tag %v", tag)
 
-    entry, ok := global_manager.audio_master.data_map[tag]
+    entry, ok := &global_manager.audio_master.data_map[tag]
 
-    if !ok {
-        log.errorf("Tried to get non-existent audio entry with tag %v.", tag)
-        return
-    }
+    if !ok do return
 
     if entry.state != .UNLOADED {
         // Panics!!
@@ -112,6 +108,7 @@ audio_entry_load :: proc(tag: Data_Tag) {
 
 audio_entry_unload :: proc(tag: Data_Tag) {
     entry, ok := audio_entry_get(tag)
+    if !ok do return
 
     log.infof("Unloading audio entry for tag %v", entry.tag)
 

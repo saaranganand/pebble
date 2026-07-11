@@ -21,6 +21,7 @@ Data_Manager :: struct {
     audio_master: Audio_Master,
     font_master: Font_Master,
     img_master: Img_Master,
+    animation_master: Animation_Master,
 }
 
 // TODO: Add loading state to allow loading daata asynchronously with threads
@@ -43,6 +44,9 @@ global_manager_create :: proc() {
     img_master_create(&global_manager.img_master)
     img_master_scrape_data(&global_manager.img_master)
 
+    animation_master_create(&global_manager.animation_master)
+    animation_master_scrape_data(&global_manager.animation_master)
+
     //data_create()
 
     return
@@ -54,8 +58,7 @@ global_manager_destroy :: proc() {
     audio_master_destroy(&global_manager.audio_master)
     font_master_destroy(&global_manager.font_master)
     img_master_destroy(&global_manager.img_master)
-    //img_destroy()
-    //font_destroy()
+    animation_master_destroy(&global_manager.animation_master)
     //data_destroy()
 
     free(global_manager)

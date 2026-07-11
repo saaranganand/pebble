@@ -289,7 +289,6 @@ load_enemies :: proc(allocator: mem.Allocator) -> bool {
         large = load_enemy_type(m, "large"),
         // add more here
     }
-
     
 
     return true

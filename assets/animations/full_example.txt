@@ -1,0 +1,32 @@
+img_tag: atlases/entities/player
+
+animations:
+  idle:
+    fps: 6.0
+    looping: true
+    scale: 1.0
+    frames:
+      - source: { x: 0.0, y: 0.0, w: 32.0, h: 32.0 }
+        hang_frames: 1
+        dest_scale: [1.0, 1.0]
+      - source: { x: 32.0, y: 0.0, w: 32.0, h: 32.0 }
+        hang_frames: 1
+        dest_scale: [1.0, 1.0]
+      - source: { x: 64.0, y: 0.0, w: 32.0, h: 32.0 }
+        hang_frames: 1
+        dest_scale: [1.0, 1.0]
+
+  running:
+    fps: 12.0
+    looping: true
+    scale: 1.0
+    frames:
+      - source: { x: 0.0, y: 0.0, w: 32.0, h: 32.0 }
+        hang_frames: 1
+        dest_scale: [1.0, 1.0]
+      - source: { x: 32.0, y: 0.0, w: 32.0, h: 32.0 }
+        hang_frames: 1
+        dest_scale: [1.0, 1.0]
+      - source: { x: 64.0, y: 0.0, w: 32.0, h: 32.0 }
+        hang_frames: 1
+        dest_scale: [1.0, 1.0]

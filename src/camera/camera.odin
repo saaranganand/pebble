@@ -157,6 +157,16 @@ camera_draw_img :: proc(img_tag: data.Data_Tag, dest: sdl.FRect, src: ^sdl.FRect
     data.img_draw(img_tag, &view_adjusted_dest, src)
 }
 
+camera_draw_animation :: proc(
+    data_tag: data.Data_Tag,
+    animation_tag: data.Animation_Tag,
+    frame_count: ^f32,
+    dest_center: sdl.FPoint
+) {
+    view_adjusted_pos := world_position_to_view(dest_center)
+    data.animation_draw(data_tag, animation_tag, frame_count, view_adjusted_pos)
+}
+
 camera_draw_grid :: proc() {
     color.sdl_set_color(color.Default_Palette_Colors.BLACK)
 

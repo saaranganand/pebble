@@ -27,12 +27,15 @@ Player :: struct {
     ping: Ping,
     daemon: Daemon,
 
+    frame_count: f32,
+
     allied_damage_areas: [dynamic]geo.Circle,
 }
 
 player_init :: proc() -> (player: Player) {
     player.position = {0,0}
     player.hp = game_config.player.max_hp
+    player.frame_count = 0
 
     player.allied_damage_areas = make([dynamic]geo.Circle)
     return
@@ -46,7 +49,7 @@ draw_player :: proc() {
     player := &game.player
 
     test_img_dest := sdl.FRect{ player.position.x, player.position.y, 200, 200 }
-    camera.camera_draw_img("img/player/move.png", test_img_dest)
+    //camera.camera_draw_img("img/player/move.png", test_img_dest)
 
     // aim reticle
     aim_circle := geo.Circle{ player.position + { math.cos(player.aimAngle), math.sin(player.aimAngle) } * AIM_DIST, AIM_SIZE }
@@ -56,6 +59,8 @@ draw_player :: proc() {
 
     color.sdl_set_color(color.Default_Palette_Colors.BABY_BLUE)
     camera.camera_fill_circle({{player.position.x, player.position.y}, 40})
+
+    camera.camera_draw_animation("animations/entity/player.yaml", "dancing", &player.frame_count, player.position)
 }
 
 update_player :: proc() {

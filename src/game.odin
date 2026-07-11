@@ -69,6 +69,8 @@ game_create :: proc() {
 
     data.img_load("img/player/move.png")
 
+    data.animation_instance_load("animations/entity/player.yaml")
+
     game.player = player_init()
 
     game.horde = horde.create(&game.player.position)
