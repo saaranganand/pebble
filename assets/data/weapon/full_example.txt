@@ -1,0 +1,3 @@
+name: scope
+pierce: 1
+damage_type: bullet | ray | aoe
