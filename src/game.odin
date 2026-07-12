@@ -69,6 +69,8 @@ game_create :: proc() {
 
     data.animation_instance_load("animations/entity/player.yaml")
 
+    program_system_create()
+
     game.player = player_init()
 
     game.horde = horde.create(&game.player.position, game_config.enemies.horde)
@@ -79,6 +81,8 @@ game_create :: proc() {
 }
 
 game_destroy :: proc() {
+    program_system_destroy()
+
     data.global_manager_destroy()
 
     horde.destroy(&game.horde)
