@@ -9,10 +9,8 @@ import horde "enemy/horde"
 import camera "camera"
 import data "data"
 
-PLAYER_SIZE :: 100
 AIM_DIST :: 50
 AIM_SIZE :: 8
-PLAYER_SPEED :: 300
 
 TILE_SIZE :: 64
 

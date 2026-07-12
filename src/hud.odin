@@ -35,7 +35,7 @@ draw_hud :: proc() {
                   if player.scope.is_charging {
                       bgRect := sdl.FRect{
                           x = player.position.x - 30,
-                          y = player.position.y + PLAYER_SIZE / 2 + 10,
+                          y = player.position.y + game_config.player.size / 2 + 10,
                           w = 60,
                           h = 6
                       }

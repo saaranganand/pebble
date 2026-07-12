@@ -62,27 +62,18 @@ WeaponConfig :: struct {
 
 // Enemy
 
-EnemyTypeConfig :: struct {
-    health: f32,
-    speed: f32,
-    size: f32,
-    damage: f32,
-    spawn_weight: f32, // relative spawn probability across all types
-}
-
 EnemyConfig :: struct {
     spawn_rate: f32, // s b/w spawns
     spawn_dist: f32, // pixels from player
-    small: EnemyTypeConfig,
-    regular: EnemyTypeConfig,
-    large: EnemyTypeConfig,
-    // add more enemies here
+    horde: horde.Config, // leader/follower stuff, passed to horde.create
 }
 
 // Player
 
 PlayerConfig :: struct {
     max_hp: f32,
+    speed: f32, // pixels/s
+    size: f32, // pixels, hitbox
 }
 
 LevelConfig :: struct {
@@ -186,10 +177,9 @@ load_player :: proc(allocator: mem.Allocator) -> bool {
     if !ok { return true }
     game_config.player = {
         max_hp = yf(m, "max_hp"),
+        speed = yf(m, "speed"),
+        size = yf(m, "size"),
     }
-
-    
-
     return true
 }
 

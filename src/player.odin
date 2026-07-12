@@ -106,7 +106,7 @@ update_player :: proc() {
     else do player.current_animation = "idle"
     
     // always centers player
-    player.position += input.direction * PLAYER_SPEED * primatives.dt
+    player.position += input.direction * game_config.player.speed * primatives.dt
 
     player_view_position := camera.world_position_to_view(player.position)
     player.aimAngle = math.atan2(input.mouseY - player_view_position.y, input.mouseX - player_view_position.x)
