@@ -7,12 +7,6 @@ import log "core:log"
 import primatives "../../sdl_primatives"
 import geo "../../geometry"
 
-LEADER_SIZE :: 32
-LEADER_SPEED :: 90
-
-LEADER_STARTING_HEALTH :: 10
-LEADER_FOLLOWER_SIZE :: 1
-
 @(private)
 leader_create :: proc(registry: ^Leader_Registry, leader_position: sdl.FPoint, leader_target: ^sdl.FPoint) -> Leader_Handle {
     new_leader := entity_init(.LEADER)
@@ -23,7 +17,7 @@ leader_create :: proc(registry: ^Leader_Registry, leader_position: sdl.FPoint, l
 
         target = leader_target
     }
-    new_leader_collider := geo.Circle{ leader_position, LEADER_SIZE }
+    new_leader_collider := geo.Circle{leader_position, config.leader.size}
 
 
     // If the array is full, append the new leader
@@ -57,7 +51,7 @@ leader_spawn :: proc(horde: ^Horde, leader_position: sdl.FPoint) {
     new_leader_handle := leader_create(&horde.leader_registry, leader_position, leader_target)
 
     leader_followers_of := &horde.leader_registry.followers_of[new_leader_handle.ticket]
-    for i in 0..<LEADER_FOLLOWER_SIZE {
+    for i in 0..<config.followers_per_leader {
         new_follower_handle := follower_create(&horde.follower_registry, leader_position, new_leader_handle)
         
         append(leader_followers_of, new_follower_handle)

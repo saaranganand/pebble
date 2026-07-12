@@ -6,6 +6,8 @@ import yaml "../libs/odin-yaml"
 import fmt "core:fmt"
 import mem "core:mem"
 
+import horde "enemy/horde"
+
 
 // Weapon
 
@@ -243,21 +245,17 @@ load_weapons :: proc(allocator: mem.Allocator) -> bool {
         duration = yf(dm, "duration"),
         cone_angle = yf(dm, "cone_angle"),
     }
-
-
     return true
 }
 
 @(private)
-load_enemy_type :: proc(m: yaml.Mapping, key: string) -> EnemyTypeConfig {
+load_horde_entity :: proc(m: yaml.Mapping, key: string) -> horde.Entity_Config {
     em, ok := m[key].(yaml.Mapping)
     if !ok { return {} }
     return {
         health = yf(em, "health"),
         speed = yf(em, "speed"),
         size = yf(em, "size"),
-        damage = yf(em, "damage"),
-        spawn_weight = yf(em, "spawn_weight"),
     }
 }
 
@@ -274,10 +272,11 @@ load_enemies :: proc(allocator: mem.Allocator) -> bool {
     game_config.enemies = {
         spawn_rate = yf(m, "spawn_rate"),
         spawn_dist = yf(m, "spawn_dist"),
-        small = load_enemy_type(m, "small"),
-        regular = load_enemy_type(m, "regular"),
-        large = load_enemy_type(m, "large"),
-        // add more here
+        horde = {
+            leader = load_horde_entity(m, "leader"),
+            follower = load_horde_entity(m, "follower"),
+            followers_per_leader = int(yf(m, "followers_per_leader")),
+        },
     }
     
 

@@ -17,8 +17,12 @@ Horde_Entity :: struct {
 entity_init :: proc(type: Horde_Entity_Type = .FOLLOWER) -> (entity: Horde_Entity) {
     entity.type = type
 
-    if type == .LEADER do entity.health = LEADER_STARTING_HEALTH
-    else do entity.health = FOLLOWER_STARTING_HEALTH
+    if type == .LEADER {
+        entity.health = config.leader.health
+    }
+    else {
+        entity.health = config.follower.health
+    }
     
     return
 }
@@ -35,8 +39,10 @@ entity_take_damage :: proc(entity: ^Horde_Entity, damage: f32) {
 
 @(private)
 entity_move :: proc(entity: ^Horde_Entity, collider: ^geo.Circle, direction: sdl.FPoint) {
-    speed: f32 = LEADER_SPEED
-    if entity.type == .FOLLOWER do speed = FOLLOWER_SPEED
+    speed := config.leader.speed
+    if entity.type == .FOLLOWER {
+        speed = config.follower.speed
+    }
     
     collider.position += direction * speed * primatives.dt
 }

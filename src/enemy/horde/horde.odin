@@ -35,11 +35,33 @@ import color "../../color"
 // I dont think we will however, and so I leave this task for me at a later date, if it does end up happening.
 Horde :: struct {
     leader_registry: Leader_Registry,
-    
+
     follower_registry: Follower_Registry,
 
     target: ^sdl.FPoint,
 }
+
+// stats for one horde entity type
+Entity_Config :: struct {
+    health: f32,
+    speed: f32,
+    size: f32,
+}
+
+Config :: struct {
+    leader: Entity_Config,
+    follower: Entity_Config,
+    followers_per_leader: int,
+}
+
+// fallback if create() is called withou config
+DEFAULT_CONFIG :: Config{
+    leader = { health = 10, speed = 90, size = 32 },
+    follower = { health = 3, speed = 30, size = 16 },
+    followers_per_leader = 1,
+}
+
+config := DEFAULT_CONFIG
 
 debug_log :: proc(horde: ^Horde) {
     log.infof("------------------------ HORDE INFO ------------------------")
@@ -52,8 +74,9 @@ debug_log :: proc(horde: ^Horde) {
     log.infof("Total num. enemies: %v", total_num)
 }
 
-create :: proc(horde_target: ^sdl.FPoint) -> (horde: Horde) {
+create :: proc(horde_target: ^sdl.FPoint, horde_config: Config = DEFAULT_CONFIG) -> (horde: Horde) {
     horde.target = horde_target
+    config = horde_config
 
     horde.leader_registry = leader_registry_create()
     horde.follower_registry = follower_registry_create()

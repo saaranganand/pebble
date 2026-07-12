@@ -71,7 +71,7 @@ game_create :: proc() {
 
     game.player = player_init()
 
-    game.horde = horde.create(&game.player.position)
+    game.horde = horde.create(&game.player.position, game_config.enemies.horde)
     horde.leader_spawn(&game.horde, {200, 200})
 
     camera.global_camera_create(f32(app.window_width), f32(app.window_height))
