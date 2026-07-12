@@ -1,3 +1,5 @@
 src/sdlquickref.cpp
 *.bin
 log/*
+*.docx
+*.pdf
