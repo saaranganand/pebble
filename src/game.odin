@@ -77,7 +77,7 @@ game_create :: proc() {
     horde.leader_spawn(&game.horde, {200, 200})
 
     camera.global_camera_create(f32(app.window_width), f32(app.window_height))
-    camera.camera_set_follow(&game.player.position, 0.05)
+    camera.camera_set_follow(&game.player.position, 1)//0.05)
 }
 
 game_destroy :: proc() {
@@ -113,8 +113,6 @@ game_input :: proc() {
 game_update :: proc() {
     apply_movement_penalty()
 
-    camera.camera_update()
-
     update_player()
     update_bullets()
 
@@ -136,6 +134,8 @@ game_update :: proc() {
 
     //detect_collision()
     //detect_bullet_collision()
+
+    camera.camera_update()
 
     if game.player.ping.is_active {
         //detect_ping_damage()

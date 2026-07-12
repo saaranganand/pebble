@@ -28,6 +28,8 @@ Player :: struct {
     daemon: Daemon,
 
     frame_count: f32,
+    current_animation: data.Animation_Tag,
+    animation_tag: data.Data_Tag,
 
     allied_damage_areas: [dynamic]geo.Circle,
 }
@@ -36,6 +38,9 @@ player_init :: proc() -> (player: Player) {
     player.position = {0,0}
     player.hp = game_config.player.max_hp
     player.frame_count = 0
+
+    player.current_animation = "dancing"
+    player.animation_tag = "animations/entity/player.yaml"
 
     player.allied_damage_areas = make([dynamic]geo.Circle)
     return
@@ -57,10 +62,10 @@ draw_player :: proc() {
     color.sdl_set_color(color.Default_Palette_Colors.SKY_BLUE)
     camera.camera_fill_circle(aim_circle)
 
-    color.sdl_set_color(color.Default_Palette_Colors.BABY_BLUE)
-    camera.camera_fill_circle({{player.position.x, player.position.y}, 40})
+    camera.camera_draw_animation(player.animation_tag, player.current_animation, &player.frame_count, player.position)
 
-    camera.camera_draw_animation("animations/entity/player.yaml", "dancing", &player.frame_count, player.position)
+    color.sdl_set_color(color.Default_Palette_Colors.BABY_BLUE)
+    camera.camera_fill_circle({{player.position.x, player.position.y}, 10})
 }
 
 update_player :: proc() {
@@ -95,6 +100,10 @@ update_player :: proc() {
         //     update_daemon(&player.daemon, is_selected, input, dt)
         }
     }
+
+    if input.direction.x > 0 do player.current_animation = "moving_facing_right"
+    else if input.direction.x < 0 do player.current_animation = "moving_facing_left"
+    else do player.current_animation = "idle"
     
     // always centers player
     player.position += input.direction * PLAYER_SPEED * primatives.dt

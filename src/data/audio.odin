@@ -25,6 +25,7 @@ audio_master_create :: proc(master: ^Audio_Master) {
     if result != .SUCCESS {
         log.panicf("Miniaudio error: %v", ma.result_description(result))
     }
+    ma.engine_set_volume(&master.audio_engine, .25)
 
     master.data_map = make(map[Data_Tag]Audio_Entry)
 }
