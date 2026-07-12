@@ -8,6 +8,7 @@ import color "color"
 import horde "enemy/horde"
 import camera "camera"
 import data "data"
+import handle "handle"
 
 AIM_DIST :: 50
 AIM_SIZE :: 8
@@ -21,7 +22,7 @@ game := struct {
     //enemies: EnemyPool,
     game_over: bool,
     input: Input,
-    horde: horde.Horde,
+    horde: horde.Horde
 }{}
 
 game_loop :: proc() {
