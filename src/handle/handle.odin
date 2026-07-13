@@ -33,10 +33,7 @@ Handle :: struct($Handle_Tag: typeid) {
 // So this package cannot import any other package that might use it.
 // Not only that, but systems like effect and entity, that share data back and forth, need to access each other's tags.
 Effect_Tag :: struct {}
-Effect_Handle :: Handle(Effect_Tag)
-
 Entity_Tag :: struct {}
-Entity_Handle :: Handle(Entity_Tag)
 
 // Our generic pool struct does not include data on whether its data entries are "active" or not.
 // We still for pool owners, say the effect manager, to be able to know when their data has "died", in order to skip on updates though!
@@ -49,7 +46,7 @@ Pool :: struct($Tag: typeid, $T: typeid) {
     free_list: [dynamic]u32,
 }
 
-pool_create :: proc($Tag: typeid, $T: typeid) -> (pool: ^Pool(Tag, T)) {
+pool_create :: proc($Tag: typeid, $T: typeid) -> (pool: Pool(Tag, T)) {
     pool.data = make([dynamic]T)
     pool.generations = make([dynamic]u32)
     pool.free_list = make([dynamic]u32)
@@ -61,7 +58,7 @@ pool_destroy :: proc(pool: ^Pool($Tag, $T)) {
     delete(pool.free_list)
 }
 
-pool_get :: proc(pool: ^Pool($Tag, $T), handle: Handle(T)) -> (^T, bool) {
+pool_get :: proc(pool: ^Pool($Tag, $T), handle: Handle(Tag)) -> (^T, bool) {
     if handle.index >= u32(len(pool.generations)) do return nil, false
 
     if handle.generation != pool.generations[handle.index] do return nil, false
@@ -69,7 +66,7 @@ pool_get :: proc(pool: ^Pool($Tag, $T), handle: Handle(T)) -> (^T, bool) {
     return &pool.data[handle.index], true
 }
 
-pool_add :: proc(pool: ^Pool($Tag, $T), data: T) -> Handle(T) {    
+pool_add :: proc(pool: ^Pool($Tag, $T), data: T) -> Handle(Tag) {    
     // If we have any free spots, use those first
     if len(pool.free_list) > 0 {
         insert := pop(&pool.free_list)
@@ -86,7 +83,7 @@ pool_add :: proc(pool: ^Pool($Tag, $T), data: T) -> Handle(T) {
 
 // This here does what we talked about earlier -- when a pool is tasked with "removing" an entry,
 // We have to update generation now! Not later.
-pool_remove :: proc(pool: ^Pool($Tag, $T), handle: Handle(T)) -> bool {
+pool_remove :: proc(pool: ^Pool($Tag, $T), handle: Handle(Tag)) -> bool {
     _, ok := pool_get(pool, handle)
     if !ok do return
 
