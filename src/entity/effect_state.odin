@@ -39,6 +39,12 @@ effect_state_create :: proc(instance: ^Effect_Instance, source, target: Entity_H
     return
 }
 
+// TODO:
+// In both cases of refresh and extend, we currently only deal with timing values of the state.
+// Currently, we just keep the existing effect. But, should there be logic in which one is kept?
+// If a player reapplies burn to an enemy, should it keep the higher damage amount?
+// If an enemy reapplies burn to a player, should it keep the higher, or lower damage amount? 
+
 effect_state_refresh :: proc(state: ^Effect_State) {
     // TODO: trigger the effect on refresh if its a pulse
     state.elapsed = 0

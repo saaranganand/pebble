@@ -87,6 +87,9 @@ pool_remove :: proc(pool: ^Pool($Tag, $T), handle: Handle(Tag)) -> bool {
     _, ok := pool_get(pool, handle)
     if !ok do return
 
-    pool.free_list.append(handle.index)
     pool.generations[handle.index] += 1
+}
+
+pool_read_handle_with_index :: proc(pool: ^Pool($Tag, $T), index: u32) -> Handle(Tag) {
+    return Handle(Tag){ index = index, generation = pool.generations[index] }
 }

@@ -52,12 +52,17 @@ effect_manager_update :: proc(effect_manager: ^Effect_Manager, entity_manager: ^
         if !effect.active do continue
 
         // Generate the corresponding handle
-        current_handle := Effect_Handle{ index = i, generation = effect_manager.pool.generations[i] }
+        current_handle := handle.pool_read_handle_with_index(&effect_manager.pool, i)
 
         // Find the target entity
         target_entity, entity_ok := entity_get(entity_manager, effect.target)
         if !entity_ok {
             log.errorf("Error in accessing target entity of handle %v while updaing effect of handle %v", effect.target, current_handle)
+
+            // remove the effect
+            append(&effect_manager.removal_queue, current_handle)
+            entity_remove_active_effect_by_ID(target_entity, effect.instance.definition.unique_id)
+
             continue
         }
 
