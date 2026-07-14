@@ -66,7 +66,8 @@ effect_manager_update :: proc(effect_manager: ^Effect_Manager, entity_manager: ^
             continue
         }
 
-        should_remove := effect_state_update(&effect)
+        // todo: manage application queue? in case an effect wants to apply an effect?
+        should_remove := effect_state_update(&effect, target_entity)
 
         if should_remove {
             append(&effect_manager.removal_queue, current_handle)
@@ -91,9 +92,9 @@ effect_manager_update :: proc(effect_manager: ^Effect_Manager, entity_manager: ^
 // as well as manages the stacking logic of the preexisiting effect.
 effect_manager_stack_on_apply :: proc(
     effect_manager: ^Effect_Manager, entity_manager: ^Entity_Manager,
-    definition: ^Effect_Definition, target_entity: ^Entity
+    instance: ^Effect_Instance, target_entity: ^Entity
 ) -> (should_apply: bool) {
-    maybe_existing_effect := entity_get_active_effect_by_ID(target_entity, definition.unique_id)
+    maybe_existing_effect := entity_get_active_effect_by_ID(target_entity, instance.definition.unique_id)
     is_existing_effect := maybe_existing_effect != nil
 
     if !is_existing_effect do return true
@@ -107,14 +108,14 @@ effect_manager_stack_on_apply :: proc(
         return false
     }
 
-    switch definition.stack_behaviour {
+    switch instance.definition.stack_behaviour {
     case .NONE:
         return false
     case .REFRESH:
-        effect_state_refresh(existing_effect)
+        effect_state_refresh(entity_manager, existing_effect)
         return false
     case .EXTEND:
-        effect_state_extend(existing_effect)
+        effect_state_extend(existing_effect, instance^)
         return false
     case .STACK:
         // do nothing!
@@ -140,7 +141,7 @@ effect_manager_apply_effect :: proc(
 
     state := effect_state_create(instance, source, target)
 
-    should_apply := effect_manager_stack_on_apply(effect_manager, entity_manager, instance.definition, target_entity)
+    should_apply := effect_manager_stack_on_apply(effect_manager, entity_manager, instance, target_entity)
     if !should_apply do return
 
     new_effect_handle := handle.pool_add(&effect_manager.pool, state)

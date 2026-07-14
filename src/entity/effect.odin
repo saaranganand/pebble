@@ -29,31 +29,3 @@ Effect_Definition :: struct {
     stack_behaviour: Stack_Behaviour,
     type: Effect_Type,
 }
-
-Effect_Instance_Tag :: distinct string
-
-Effect_Damage_Data :: struct {
-    damage: f32,
-}
-
-Effect_Speed_Data :: struct {
-    mult: f32,
-    add: f32,
-}
-
-Effect_Instance_Data :: union {
-    Effect_Damage_Data,
-    Effect_Speed_Data,
-    //etc
-}
-
-// TODO: store instances in a allocated slice (not dynamic array)
-Effect_Instance :: struct {
-    definition: ^Effect_Definition,
-    unique_tag: Effect_Instance_Tag,
-    duration: f32,
-    interval: f32,
-    max_applications: int,
-
-    data: Effect_Instance_Data,
-}

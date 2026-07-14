@@ -6,11 +6,17 @@ import handle "../handle"
 
 Entity_Handle :: handle.Handle(handle.Entity_Tag)
 
+Entity_Force :: struct {
+    direction: sdl.FPoint,
+    force: f32,
+    decay_rate: f32,
+}
+
 Entity :: struct {
     position: sdl.FPoint,
     move_velocity: sdl.FPoint,
     base_move_speed, move_speed: f32,
-    forces: []sdl.FPoint,
+    forces: [dynamic]Entity_Force,
     health: f32,
 
     // A slice that is sized as the total number of unqiue effect definitions loaded in.
@@ -41,6 +47,11 @@ entity_add_active_effect_by_ID :: proc(entity: ^Entity, ID: Effect_Definition_ID
 
 entity_remove_active_effect_by_ID :: proc(entity: ^Entity, ID: Effect_Definition_ID) {
     entity.active_effects[ID] = nil
+}
+
+entity_deal_damage :: proc(entity: ^Entity, damage: f32) {
+    // TODO
+    entity.health -= damage
 }
 
 Entity_Manager :: struct {
