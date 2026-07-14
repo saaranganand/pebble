@@ -15,17 +15,17 @@ Effect_Handle :: handle.Handle(handle.Effect_Tag)
 //          if the effect is pulse, then the new effect's max applications absorbs the remaining applications of the exisiting effect.
 Stack_Behaviour :: enum { NONE, REFRESH, STACK, EXTEND }
 
-Effect_Def_Tag :: distinct string
-
 Effect_Type :: enum { PULSE, CONTINUOUS }
 
-Effect_Definition_ID :: distinct int
+Effect_Definition_Tag :: distinct string
+
+Effect_Definition_ID :: distinct u32
 
 // TODO: store definitions in a allocated slice (not dynamic array)
 Effect_Definition :: struct {
     callback: Effect_Callback,
     unique_id: Effect_Definition_ID,
-    unique_tag: Effect_Def_Tag,
+    unique_tag: Effect_Definition_Tag,
     stack_behaviour: Stack_Behaviour,
     type: Effect_Type,
 }

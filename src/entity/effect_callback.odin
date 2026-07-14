@@ -4,6 +4,11 @@ import sdl "vendor:sdl3"
 
 import primatives "../sdl_primatives"
 
+import strings "core:strings"
+import log "core:log"
+
+Effect_Callback_String :: distinct string
+
 // TODO
 Lua_Effect_Callback :: struct {
     name: string,
@@ -19,6 +24,33 @@ Odin_Effect_Callback :: enum {
     SPEED,
     POSITION,
     FORCE,
+}
+
+effect_callback_from_string :: proc(call_string: Effect_Callback_String) -> (callback: Effect_Callback) {
+    pre_comma, _, post_comma := strings.partition(cast(string) call_string, ",")
+
+    if pre_comma == "lua" {
+        callback = Lua_Effect_Callback{ name = post_comma }
+        return
+    }
+
+    callback = Odin_Effect_Callback{}
+
+    switch post_comma {
+    case "damage":
+        callback = .DAMAGE
+    case "speed":
+        callback = .SPEED
+    case "position":
+        callback = .POSITION
+    case "force":
+        callback = .FORCE
+    case:
+        log.errorf("Error in creating effect callback from call string %v", call_string)
+        callback = nil
+    }
+
+    return
 }
 
 Effect_Callback_Data :: struct {
@@ -75,7 +107,7 @@ effect_callback_trigger :: proc(state: ^Effect_State, target_entity: ^Entity) {
 
         damage := Effect_Damage_Fn(data, target_entity^)
         entity_deal_damage(target_entity, damage)
-        
+
     case .SPEED:
         data := state.instance.callback_data.data.(Effect_Speed_Fn_Data)
 

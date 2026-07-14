@@ -12,21 +12,56 @@ Effect_Application_Data :: struct {
 
 Effect_Manager :: struct {
     pool: handle.Pool(handle.Effect_Tag, Effect_State),
-    unqiue_definition_ids: Effect_Definition_ID,
+
+    unique_definition_ids: Effect_Definition_ID,
+    definitions: []Effect_Definition,
+
+    unique_instance_ids: Effect_Instance_ID,
+    instances: []Effect_Instance,
+
     application_queue: [dynamic]Effect_Application_Data,
     removal_queue: [dynamic]Effect_Handle,
+
+    loaded: bool,
 }
 
 effect_manager_create :: proc(effect_manager: ^Effect_Manager) {
     effect_manager.pool = handle.pool_create(handle.Effect_Tag, Effect_State)
+
     effect_manager.application_queue = make([dynamic]Effect_Application_Data)
     effect_manager.removal_queue = make([dynamic]Effect_Handle)
+
+    effect_manager.loaded = false
 }
 
 effect_manager_destroy :: proc(effect_manager: ^Effect_Manager) {
     handle.pool_destroy(&effect_manager.pool)
+
     delete(effect_manager.application_queue)
     delete(effect_manager.removal_queue)
+
+    effect_manager_unload(effect_manager)
+}
+
+// load definitions and instances
+effect_manager_load :: proc(effect_manager: ^Effect_Manager) {
+    if effect_manager.loaded {
+        log.errorf("Tried to load effect manager when already loaded")
+        return
+    }
+    effect_manager.loaded = true
+}
+
+// unload definitions and instances
+effect_manager_unload :: proc(effect_manager: ^Effect_Manager) {
+    if !effect_manager.loaded {
+        log.errorf("Tried to unload effect manager when not loaded")
+        return
+    }
+    effect_manager.loaded = false
+
+    delete(effect_manager.definitions)
+    delete(effect_manager.instances)
 }
 
 effect_manager_get_effect :: proc(effect_manager: ^Effect_Manager, effect_handle: Effect_Handle) -> (state: ^Effect_State, ok: bool) {
