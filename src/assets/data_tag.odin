@@ -1,4 +1,4 @@
-package data
+package assets
 
 import sdl "vendor:sdl3"
 
@@ -10,7 +10,6 @@ Data_Tag :: distinct string
 
 // Given a unqiue path in the assets folder, and a desired extension,
 // compiles a list of filenames that are to be turned into data tags
-@(private)
 data_tag_resursive_grab_and_process_precursors :: proc(unique_path: string, extension: cstring, tags: ^[dynamic]string) {
     total_path := fmt.caprint(DATA_TAG_DEFAULT_ASSET_FOLDER, unique_path, sep = "")
     defer delete(total_path)

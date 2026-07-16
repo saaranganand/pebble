@@ -7,7 +7,7 @@ import primatives "sdl_primatives"
 import color "color"
 import horde "enemy/horde"
 import camera "camera"
-import data "data"
+import assets "assets" 
 import handle "handle"
 
 PLAYER_SIZE :: 100
@@ -59,18 +59,18 @@ main :: proc() {
 game_create :: proc() {
     primatives.global_timer_init()
 
-    data.global_manager_create()
-    data.audio_entry_load("sounds/silly/pirate_bell.wav")
-    data.audio_entry_load("music/shanty.ogg")
-    data.music_play("music/shanty.ogg")
+    assets.global_manager_create()
+    assets.audio_entry_load("sounds/silly/pirate_bell.wav")
+    assets.audio_entry_load("music/shanty.ogg")
+    assets.music_play("music/shanty.ogg")
 
-    data.font_load("fonts/ubuntu.ttf", 32)
-    data.font_load("fonts/ubuntu.ttf", 24)
-    data.font_load("fonts/ubuntu.ttf", 16)
+    assets.font_load("fonts/ubuntu.ttf", 32)
+    assets.font_load("fonts/ubuntu.ttf", 24)
+    assets.font_load("fonts/ubuntu.ttf", 16)
 
-    data.img_load("img/player/move.png")
+    assets.img_load("img/player/move.png")
 
-    data.animation_instance_load("animations/entity/player.yaml")
+    assets.animation_instance_load("animations/entity/player.yaml")
 
     game.player = player_init()
 
@@ -82,7 +82,7 @@ game_create :: proc() {
 }
 
 game_destroy :: proc() {
-    data.global_manager_destroy()
+    assets.global_manager_destroy()
 
     horde.destroy(&game.horde)
 

@@ -10,7 +10,7 @@ import fmt "core:fmt"
 import primatives "../sdl_primatives"
 import geo "../geometry"
 import color "../color"
-import data "../data"
+import assets "../assets"
 
 Camera_Mode :: enum { STATIONARY, FOLLOW }
 
@@ -58,7 +58,7 @@ camera_create :: proc(width, height: f32) -> (camera: ^Camera) {
     camera.height = height
     camera.mode = .STATIONARY
 
-    camera.coordinate_text = data.font_create_text("fonts/ubuntu.ttf", 24, "0,0")
+    camera.coordinate_text = assets.font_create_text("fonts/ubuntu.ttf", 24, "0,0")
     color.sdl_set_text_color(camera.coordinate_text, color.Default_Palette_Colors.BLACK)
 
 	return
@@ -147,24 +147,24 @@ camera_draw_center_lines :: proc() {
     sdl.RenderLine(primatives.global_renderer, global_camera.width / 2, 0, global_camera.width / 2, global_camera.height)
 }
 
-camera_draw_img :: proc(img_tag: data.Data_Tag, dest: sdl.FRect, src: ^sdl.FRect = nil) {
+camera_draw_img :: proc(img_tag: assets.Data_Tag, dest: sdl.FRect, src: ^sdl.FRect = nil) {
     view_adjusted_pos := world_position_to_view({ dest.x, dest.y })
     view_adjusted_dest := dest
 
     view_adjusted_dest.x = view_adjusted_pos.x
     view_adjusted_dest.y = view_adjusted_pos.y
 
-    data.img_draw(img_tag, &view_adjusted_dest, src)
+    assets.img_draw(img_tag, &view_adjusted_dest, src)
 }
 
 camera_draw_animation :: proc(
-    data_tag: data.Data_Tag,
-    animation_tag: data.Animation_Tag,
+    data_tag: assets.Data_Tag,
+    animation_tag: assets.Animation_Tag,
     frame_count: ^f32,
     dest_center: sdl.FPoint
 ) {
     view_adjusted_pos := world_position_to_view(dest_center)
-    data.animation_draw(data_tag, animation_tag, frame_count, view_adjusted_pos)
+    assets.animation_draw(data_tag, animation_tag, frame_count, view_adjusted_pos)
 }
 
 camera_draw_grid :: proc() {

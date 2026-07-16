@@ -15,9 +15,11 @@ Effect_Manager :: struct {
 
     unique_definition_ids: Effect_Definition_ID,
     definitions: []Effect_Definition,
+    definition_tag_to_id: map[Effect_Definition_Tag]Effect_Definition_ID,
 
     unique_instance_ids: Effect_Instance_ID,
     instances: []Effect_Instance,
+    instance_tag_to_id: map[Effect_Instance_Tag]Effect_Instance_ID,
 
     application_queue: [dynamic]Effect_Application_Data,
     removal_queue: [dynamic]Effect_Handle,
@@ -50,6 +52,9 @@ effect_manager_load :: proc(effect_manager: ^Effect_Manager) {
         return
     }
     effect_manager.loaded = true
+
+    effect_definitions_load(effect_manager)
+    effect_instances_load(effect_manager)
 }
 
 // unload definitions and instances
@@ -60,8 +65,8 @@ effect_manager_unload :: proc(effect_manager: ^Effect_Manager) {
     }
     effect_manager.loaded = false
 
-    delete(effect_manager.definitions)
-    delete(effect_manager.instances)
+    effect_instances_unload(effect_manager)
+    effect_definitions_unload(effect_manager)
 }
 
 effect_manager_get_effect :: proc(effect_manager: ^Effect_Manager, effect_handle: Effect_Handle) -> (state: ^Effect_State, ok: bool) {

@@ -1,4 +1,4 @@
-package data
+package assets
 
 import ma "vendor:miniaudio"
 

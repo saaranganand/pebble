@@ -10,7 +10,7 @@ import primatives "sdl_primatives"
 import geo "geometry"
 import camera "camera"
 import color "color"
-import data "data"
+import assets "assets" 
 
 Player :: struct {
     position: sdl.FPoint,
@@ -28,8 +28,8 @@ Player :: struct {
     daemon: Daemon,
 
     frame_count: f32,
-    current_animation: data.Animation_Tag,
-    animation_tag: data.Data_Tag,
+    current_animation: assets.Animation_Tag,
+    animation_tag: assets.Data_Tag,
 
     allied_damage_areas: [dynamic]geo.Circle,
 }

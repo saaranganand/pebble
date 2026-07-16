@@ -1,4 +1,4 @@
-package data
+package assets
 
 import sdl "vendor:sdl3"
 import ma "vendor:miniaudio"

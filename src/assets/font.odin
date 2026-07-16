@@ -1,4 +1,4 @@
-package data
+package assets
 
 import ttf "vendor:sdl3/ttf"
 import sdl "vendor:sdl3"

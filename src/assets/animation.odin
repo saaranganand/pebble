@@ -1,4 +1,4 @@
-package data
+package assets
 
 import sdl "vendor:sdl3"
 import yaml "../../libs/odin-yaml"
@@ -138,24 +138,10 @@ animation_instance_load :: proc(tag: Data_Tag) {
     file_path := fmt.aprint(instance.path_prefix, tag, sep = "")
     defer delete(file_path)
 
-    data, err := yaml.decode_from_file(file_path, arena_alloc)
-    if err != nil {
-        log.errorf("yaml parser error in loading animation data with tag %v", tag)
-        return
-    }
-
-    data_map, map_ok := data.(yaml.Mapping)
-    if !map_ok {
-        log.errorf("Error in casting animation data of tag %v to a yaml map.", tag)
-        return
-    }
+    data_map, map_ok := yaml_parse.get_yaml_mapping(file_path, arena_alloc)
+    if !map_ok do return
 
     instance.state = .LOADED
-
-    read_ok: bool
-    read_value: yaml.Value
-
-    read_value, read_ok = data_map["img_tag"]
 
     instance.source_img_tag = cast(Data_Tag) strings.clone(yaml_parse.read_value_from_map(data_map, "img_tag", string, default = ""))
 
