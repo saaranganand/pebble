@@ -8,6 +8,7 @@ import assets "../assets"
 import handle "../handle"
 
 import runtime "base:runtime"
+import strings "core:strings"
 import log "core:log"
 import fmt "core:fmt"
 import mem "core:mem"
@@ -37,6 +38,8 @@ Effect_Definition :: struct {
 }
 
 effect_definitions_load :: proc(effect_manager: ^Effect_Manager) {
+    log.infof("Loading effect definitions")
+
     // Lib yaml binding requires use of arena allocator (good one)
     arena_memory := make([]byte, 1*mem.Megabyte)
     defer delete(arena_memory)
@@ -51,25 +54,80 @@ effect_definitions_load :: proc(effect_manager: ^Effect_Manager) {
     file_paths := make([dynamic]string)
     defer delete(file_paths)
 
-    pre_path := "assets/data/effect/definitions/"
+    pre_path := "data/effect/definitions/"
     assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
 
+    num_definitions := len(file_paths) + 1
+    effect_manager.unique_definition_ids = cast(Effect_Definition_ID) num_definitions
+    effect_manager.definitions = make([]Effect_Definition, num_definitions)
+    definition_id_counter: Effect_Definition_ID = 0
+
     for path in file_paths {
-        effect_definition_load(effect_manager, pre_path, path, arena_alloc)
+        effect_definition_load(effect_manager, pre_path, path, &definition_id_counter, arena_alloc)
         delete(path)
     }
 }
 
-effect_definition_load :: proc(effect_manager: ^Effect_Manager, pre_path, file_path: string, arena_allocator: runtime.Allocator) {
-    data_map, map_ok := yaml_parse.get_yaml_mapping(file_path, arena_allocator)
+effect_definition_load :: proc(
+    effect_manager: ^Effect_Manager, pre_path, file_path: string, counter: ^Effect_Definition_ID, arena_allocator: runtime.Allocator
+) {
+    defer counter^ += 1
+
+    full_path := fmt.aprint(assets.DATA_TAG_DEFAULT_ASSET_FOLDER, file_path, sep = "")
+    defer delete(full_path)
+    data_map, map_ok := yaml_parse.get_yaml_mapping(full_path, arena_allocator)
     if !map_ok {
-        log.errorf("Failed in loading effect instance from path %v", file_path)
+        log.errorf("Failed in loading effect definition from path %v", file_path)
         return
     }
 
+    log.debugf("Loading effect definition %v", file_path)
 
+    new_definition: Effect_Definition
+    defer effect_manager.definitions[counter^] = new_definition
+
+    new_definition.unique_id = counter^
+
+    new_definition.unique_tag = cast(Effect_Definition_Tag) strings.clone(strings.trim_prefix(strings.trim_suffix(file_path, ".yaml"), pre_path))
+
+    new_type := yaml_parse.read_value_from_map(data_map, "type", string, default = "")
+    new_behaviour := yaml_parse.read_value_from_map(data_map, "stack_behaviour", string, default = "")
+    new_callback := yaml_parse.read_value_from_map(data_map, "callback", string, default = "")
+
+    new_definition.callback = effect_callback_from_string(cast(Effect_Callback_String) new_callback)
+
+    switch new_type {
+    case "PULSE":
+        new_definition.type = .PULSE
+    case "CONTINUOUS":
+        new_definition.type = .CONTINUOUS
+    case:
+        log.errorf("Error in reading effect definition %v, type was not one of pulse or continuous", new_definition.unique_tag)
+    }
+
+    switch new_behaviour {
+    case "NONE":
+        new_definition.stack_behaviour = .NONE
+    case "EXTEND":
+        new_definition.stack_behaviour = .EXTEND
+    case "STACK":
+        new_definition.stack_behaviour = .STACK
+    case "REFRESH":
+        new_definition.stack_behaviour = .REFRESH
+    case:
+        log.errorf("Error in reading effect definition %v, stack logic was not one of none, extend, stack, or refresh", new_definition.unique_tag)
+    }
+
+    effect_manager.definition_tag_to_id[new_definition.unique_tag] = new_definition.unique_id
+
+    log.debugf("Loaded effect definition %v", file_path)
 }
 
 effect_definitions_unload :: proc(effect_manager: ^Effect_Manager) {
+    log.infof("Unloading effect definitions")
+
+    for &definition in &effect_manager.definitions {
+        delete(cast(string) definition.unique_tag)
+    }
     defer delete(effect_manager.definitions)
 }

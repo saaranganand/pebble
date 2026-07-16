@@ -11,6 +11,9 @@ Data_Tag :: distinct string
 // Given a unqiue path in the assets folder, and a desired extension,
 // compiles a list of filenames that are to be turned into data tags
 data_tag_resursive_grab_and_process_precursors :: proc(unique_path: string, extension: cstring, tags: ^[dynamic]string) {
+    // TODO: just adding the default asset folder is lazy, because if we want to load assets from other folders,
+    // like mods or even an act-folder-structure like deltarune uses, this is just not the way to do it
+    // default value maybe?
     total_path := fmt.caprint(DATA_TAG_DEFAULT_ASSET_FOLDER, unique_path, sep = "")
     defer delete(total_path)
 

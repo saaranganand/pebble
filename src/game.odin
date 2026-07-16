@@ -4,6 +4,7 @@ import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
 import primatives "sdl_primatives"
+import entity "entity"
 import color "color"
 import horde "enemy/horde"
 import camera "camera"
@@ -24,7 +25,8 @@ game := struct {
     //enemies: EnemyPool,
     game_over: bool,
     input: Input,
-    horde: horde.Horde
+    horde: horde.Horde,
+    effect_manager: entity.Effect_Manager,
 }{}
 
 game_loop :: proc() {
@@ -72,6 +74,10 @@ game_create :: proc() {
 
     assets.animation_instance_load("animations/entity/player.yaml")
 
+    entity.effect_manager_create(&game.effect_manager)
+
+    entity.effect_manager_load(&game.effect_manager)
+
     game.player = player_init()
 
     game.horde = horde.create(&game.player.position)
@@ -85,6 +91,8 @@ game_destroy :: proc() {
     assets.global_manager_destroy()
 
     horde.destroy(&game.horde)
+
+    entity.effect_manager_destroy(&game.effect_manager)
 
     player_destroy(&game.player)
 

@@ -50,6 +50,8 @@ pool_create :: proc($Tag: typeid, $T: typeid) -> (pool: Pool(Tag, T)) {
     pool.data = make([dynamic]T)
     pool.generations = make([dynamic]u32)
     pool.free_list = make([dynamic]u32)
+
+    return
 }
 
 pool_destroy :: proc(pool: ^Pool($Tag, $T)) {
@@ -68,7 +70,8 @@ pool_get :: proc(pool: ^Pool($Tag, $T), handle: Handle(Tag)) -> (^T, bool) {
 
 pool_add :: proc(pool: ^Pool($Tag, $T), data: T) -> Handle(Tag) {    
     // If we have any free spots, use those first
-    if len(pool.free_list) > 0 {
+    pool_size := cast(u32) len(pool.free_list)
+    if pool_size > 0 {
         insert := pop(&pool.free_list)
         pool.data[insert] = data
 
@@ -78,16 +81,18 @@ pool_add :: proc(pool: ^Pool($Tag, $T), data: T) -> Handle(Tag) {
     append(&pool.data, data)
     append(&pool.generations, 0)
 
-    return { insert, 0 }
+    return { pool_size, 0 }
 }
 
 // This here does what we talked about earlier -- when a pool is tasked with "removing" an entry,
 // We have to update generation now! Not later.
 pool_remove :: proc(pool: ^Pool($Tag, $T), handle: Handle(Tag)) -> bool {
     _, ok := pool_get(pool, handle)
-    if !ok do return
+    if !ok do return false
 
     pool.generations[handle.index] += 1
+
+    return true
 }
 
 pool_read_handle_with_index :: proc(pool: ^Pool($Tag, $T), index: u32) -> Handle(Tag) {

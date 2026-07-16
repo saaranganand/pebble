@@ -30,6 +30,8 @@ Effect_Instance :: struct {
 }
 
 effect_instances_load :: proc(effect_manager: ^Effect_Manager) {
+    log.infof("Loading effect instances")
+
     // Lib yaml binding requires use of arena allocator (good one)
     arena_memory := make([]byte, 1*mem.Megabyte)
     defer delete(arena_memory)
@@ -44,7 +46,7 @@ effect_instances_load :: proc(effect_manager: ^Effect_Manager) {
     file_paths := make([dynamic]string)
     defer delete(file_paths)
 
-    pre_path := "assets/data/effect/instances/"
+    pre_path := "data/effect/instances/"
     assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
 
     num_instances := len(file_paths) + 1
@@ -63,9 +65,13 @@ effect_instance_load :: proc(
 ) {
     defer counter^ += 1
 
-    data_map, map_ok := yaml_parse.get_yaml_mapping(file_path, arena_allocator)
+    log.debugf("Loading effect instance %v", file_path)
+
+    full_path := fmt.aprint(assets.DATA_TAG_DEFAULT_ASSET_FOLDER, file_path, sep = "")
+    defer delete(full_path)
+    data_map, map_ok := yaml_parse.get_yaml_mapping(full_path, arena_allocator)
     if !map_ok {
-        log.errorf("Failed in loading effect instance from path %v", file_path)
+        log.errorf("Failed in loading effect instance from path %v", full_path)
         return
     }
 
@@ -100,36 +106,44 @@ effect_instance_load :: proc(
     case .DAMAGE:
         var_data := Effect_Damage_Fn_Data{}
         var_data.damage = cast(f32) yaml_parse.read_value_from_map(data_map, "damage", f64, default = 0.0)
+
         new_instance.callback_data.data = var_data
     case .SPEED:
         var_data := Effect_Speed_Fn_Data{}
         var_data.add = cast(f32) yaml_parse.read_value_from_map(data_map, "damage", f64, default = 0.0)
         var_data.mult = cast(f32) yaml_parse.read_value_from_map(data_map, "damage", f64, default = 0.0)
+
         new_instance.callback_data.data = var_data
     case .POSITION:
+        var_data := Effect_Position_Fn_Data{}
+
+        direction_map := yaml_parse.read_value_from_map(data_map, "direction", yaml.Mapping, default = nil)
+        var_data.direction.x = cast(f32) yaml_parse.read_value_from_map(direction_map, "x", f64, default = 0.0)
+        var_data.direction.y = cast(f32) yaml_parse.read_value_from_map(direction_map, "y", f64, default = 0.0)
+
+        var_data.speed = cast(f32) yaml_parse.read_value_from_map(data_map, "speed", f64, default = 0.0)
+
+        new_instance.callback_data.data = var_data
     case .FORCE:
+        var_data := Effect_Force_Fn_Data{}
+
+        direction_map := yaml_parse.read_value_from_map(data_map, "direction", yaml.Mapping, default = nil)
+        var_data.direction.x = cast(f32) yaml_parse.read_value_from_map(direction_map, "x", f64, default = 0.0)
+        var_data.direction.y = cast(f32) yaml_parse.read_value_from_map(direction_map, "y", f64, default = 0.0)
+
+        var_data.force = cast(f32) yaml_parse.read_value_from_map(data_map, "force", f64, default = 0.0)
+
+        var_data.decay_rate = cast(f32) yaml_parse.read_value_from_map(data_map, "decay_rate", f64, default = 0.0)
+
+        new_instance.callback_data.data = var_data
     }
 
-    /*
-    instance.source_img_tag = cast(Data_Tag) strings.clone(yaml_parse.read_value_from_map(data_map, "img_tag", string, default = ""))
-
-    instance.animations = make(map[Animation_Tag]Animation_Data)
-
-    animation_list := yaml_parse.read_value_from_map(data_map, "animations", yaml.Mapping, default = nil)
-    for name, _ in animation_list {
-        tag := cast(Animation_Tag) strings.clone(name)
-        animation_data := yaml_parse.read_value_from_map(animation_list, name, yaml.Mapping, default = nil)
-
-        read_fps := yaml_parse.read_value_from_map(animation_data, "fps", f64, default = 1)
-        read_looping := yaml_parse.read_value_from_map(animation_data, "looping", bool, default = false)
-        read_scale := yaml_parse.read_value_from_map(animation_data, "scale", f64, default = 1)
-        read_frame_data := yaml_parse.read_value_from_map(animation_data, "frames", yaml.Sequence, default = nil)
-
-        instance.animations[tag] = animation_data_create(cast(f32) read_fps, read_looping, cast(f32) read_scale, read_frame_data)
-    }*/
+    log.debugf("Loaded effect instance %v", file_path)
 }
 
 effect_instances_unload :: proc(effect_manager: ^Effect_Manager) {
+    log.infof("Unloading effect instances")
+
     for &instance in &effect_manager.instances {
         delete(cast(string) instance.unique_tag)
     }
