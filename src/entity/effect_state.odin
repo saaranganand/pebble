@@ -13,8 +13,6 @@ Effect_State :: struct {
     source, target: Entity_Handle,
 
     active: bool,
-    // Set to true on the frame it activates, if pulsing
-    pulsed: bool,
 
     elapsed: f32,
     time_since_last_tick: f32,
@@ -35,7 +33,6 @@ effect_state_create :: proc(
     state.target = application_data.target
 
     state.active = true
-    state.pulsed = false
 
     state.elapsed = 0
     state.time_since_last_tick = 0
@@ -89,8 +86,6 @@ effect_state_update :: proc(state: ^Effect_State, target_entity: ^Entity) -> (sh
             // If we just set time since last tick to 0, it won't take into account the excess caused by framerate.
             // Thus, subtract the interval, to retain the excess.
             state.time_since_last_tick -= state.interval
-
-            state.pulsed = true
 
             effect_callback_trigger(state, target_entity)
         }
