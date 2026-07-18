@@ -54,14 +54,31 @@ effect_callback_from_string :: proc(call_string: Effect_Callback_String) -> (cal
     return
 }
 
+Effect_Fn_Data :: union {
+    Effect_Damage_Fn_Data,
+    Effect_Speed_Fn_Data,
+    Effect_Position_Fn_Data,
+    Effect_Force_Fn_Data,
+}
+
+effect_fn_data_to_type :: proc(fn_data: Effect_Fn_Data) -> (type: Odin_Effect_Callback) {
+    switch d in fn_data {
+    case Effect_Damage_Fn_Data:
+        return .DAMAGE
+	case Effect_Speed_Fn_Data:
+        return .SPEED
+	case Effect_Position_Fn_Data:
+        return .POSITION
+	case Entity_Force:
+        return .FORCE
+    }
+
+    return .DAMAGE
+}
+
 Effect_Callback_Data :: struct {
     type: Odin_Effect_Callback,
-    data: union {
-        Effect_Damage_Fn_Data,
-        Effect_Speed_Fn_Data,
-        Effect_Position_Fn_Data,
-        Effect_Force_Fn_Data,
-    }
+    data: Effect_Fn_Data
 }
 
 Effect_Damage_Fn_Data :: struct {
@@ -80,17 +97,17 @@ Effect_Position_Fn_Data :: struct {
 
 Effect_Force_Fn_Data :: Entity_Force
 
-Effect_Damage_Fn   :: proc(data: Effect_Damage_Fn_Data,   target_entity: Entity) -> (damage: f32) {
+effect_damage_fn   :: proc(data: Effect_Damage_Fn_Data,   target_entity: Entity) -> (damage: f32) {
     // TODO: add stuff like defense? aka entity impact in damage formula?
     damage = data.damage
     assets.sound_play("sounds/damage_tick.wav")
     return
 }
-Effect_Speed_Fn    :: proc(data: Effect_Speed_Fn_Data,    target_entity: Entity) -> (new_speed: f32) {
+effect_speed_fn    :: proc(data: Effect_Speed_Fn_Data,    target_entity: Entity) -> (new_speed: f32) {
     new_speed = (target_entity.move_speed + data.add) * data.mult
     return
 }
-Effect_Position_Fn :: proc(data: Effect_Position_Fn_Data, target_entity: Entity) -> (new_pos: sdl.FPoint) {
+effect_position_fn :: proc(data: Effect_Position_Fn_Data, target_entity: Entity) -> (new_pos: sdl.FPoint) {
     new_pos = target_entity.position + data.direction * data.speed * primatives.dt
     return
 }
@@ -103,26 +120,26 @@ effect_callback_trigger :: proc(state: ^Effect_State, target_entity: ^Entity) {
 
     // We straight up just expect these types to be matching.
     // This should never ever be different, so panic-ing when its not is fine.
-    switch state.instance.callback_data.type {
+    switch state.callback_data.type {
     case .DAMAGE:
-        data := state.instance.callback_data.data.(Effect_Damage_Fn_Data)
+        data := state.callback_data.data.(Effect_Damage_Fn_Data)
 
-        damage := Effect_Damage_Fn(data, target_entity^)
+        damage := effect_damage_fn(data, target_entity^)
         entity_deal_damage(target_entity, damage)
 
     case .SPEED:
-        data := state.instance.callback_data.data.(Effect_Speed_Fn_Data)
+        data := state.callback_data.data.(Effect_Speed_Fn_Data)
 
-        target_entity.move_speed = Effect_Speed_Fn(data, target_entity^)
+        target_entity.move_speed = effect_speed_fn(data, target_entity^)
 
     case .POSITION:
-        data := state.instance.callback_data.data.(Effect_Position_Fn_Data)
+        data := state.callback_data.data.(Effect_Position_Fn_Data)
 
         // TODO: seperate position into a buffer and apply it at end of frame
-        target_entity.position += Effect_Position_Fn(data, target_entity^)
+        target_entity.position += effect_position_fn(data, target_entity^)
 
     case .FORCE:
-        data := state.instance.callback_data.data.(Effect_Force_Fn_Data)
+        data := state.callback_data.data.(Effect_Force_Fn_Data)
         append(&target_entity.forces, data)
     }
 

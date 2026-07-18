@@ -39,7 +39,7 @@ Player :: struct {
 }
 
 player_init :: proc() -> (player: Player) {
-    entity_data := entity.entity_make_data({0.0,0.0}, PLAYER_SPEED, game_config.player.max_hp)
+    entity_data := entity.entity_make_data({0.0,0.0}, PLAYER_SPEED, game_config.player.max_hp, .ALLY, .PLAYER)
     player.entity = entity.entity_manager_add_entity(&game.entity_manager, entity_data)
 
     player.frame_count = 0

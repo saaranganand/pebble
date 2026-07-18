@@ -23,7 +23,7 @@ Effect_Handle :: handle.Handle(handle.Effect_Tag)
 //          if the effect is pulse, then the new effect's max applications absorbs the remaining applications of the exisiting effect.
 Stack_Behaviour :: enum { NONE, REFRESH, STACK, EXTEND }
 
-Effect_Type :: enum { PULSE, CONTINUOUS }
+Effect_Type :: enum { PULSE, CONTINUOUS, SINGLE }
 
 Effect_Definition_Tag :: distinct string
 Effect_Definition_ID :: distinct u32

@@ -1,3 +1,3 @@
 callback: "odin,damage"  # "odin,damage" | "odin,speed" | "odin,position" | "odin,force" | "lua,<fn_name>"
 stack_behaviour: "STACK" # NONE | REFRESH | STACK | EXTEND
-type: "PULSE"            # PULSE | CONTINUOUS
+type: "PULSE"            # PULSE | CONTINUOUS | SINGLE

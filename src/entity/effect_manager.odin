@@ -7,6 +7,7 @@ import log "core:log"
 // The data needed to apply an effect
 Effect_Application_Data :: struct {
     instance: ^Effect_Instance,
+    callback_data: Effect_Callback_Data,
     source, target: Entity_Handle
 }
 
@@ -101,7 +102,21 @@ effect_manager_get_effect :: proc(effect_manager: ^Effect_Manager, effect_handle
     return 
 }
 
-effect_manager_queue_apply :: proc(effect_manager: ^Effect_Manager, data: Effect_Application_Data) {
+effect_manager_queue_apply :: proc(effect_manager: ^Effect_Manager, data: Effect_Application_Data, override: union{Effect_Fn_Data} = nil) {
+    data := data
+    // Effects by default use their instance's data
+    data.callback_data = data.instance.callback_data
+
+    // Effect data can be overwritten. This is for dynamic purposes.
+    // For example, all damage is carried out through the effect system.
+    // Player damage is dynamic, and for example, could be boosted by 30% due to an item.
+    // Thus, when the player applies damage to another.
+    override_data, should_override := override.(Effect_Fn_Data)
+    if should_override {
+        success := effect_state_override_data(&data.callback_data, override_data)
+        if !success do log.errorf("Tried to overrite effect state with wrong override data type for instance with tag %v", data.instance.unique_tag)
+    }
+
     append(&effect_manager.application_queue, data)
 }
 
@@ -205,7 +220,7 @@ effect_manager_apply_effect :: proc(
         return
     }
 
-    state := effect_state_create(instance, source, target)
+    state := effect_state_create(application_data)
 
     should_apply := effect_manager_stack_on_apply(effect_manager, entity_manager, instance, target_entity)
     if !should_apply do return

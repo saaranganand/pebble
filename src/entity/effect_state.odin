@@ -13,32 +13,49 @@ Effect_State :: struct {
     source, target: Entity_Handle,
 
     active: bool,
+    // Set to true on the frame it activates, if pulsing
+    pulsed: bool,
 
     elapsed: f32,
     time_since_last_tick: f32,
 
     // Inherited from instance.
-    // These need to be inherited because they could be extended by stacking behaviour
+    // These need to be inherited because they could be extended by stacking behaviour or overrided
     duration: f32,
     interval: f32,
+    callback_data: Effect_Callback_Data,
 }
 
-effect_state_create :: proc(instance: ^Effect_Instance, source, target: Entity_Handle) -> (state: Effect_State) {
-    state.instance = instance
+effect_state_create :: proc(
+    application_data: Effect_Application_Data
+) -> (state: Effect_State) {
+    state.instance = application_data.instance
 
-    state.source = source
-    state.target = target
+    state.source = application_data.source
+    state.target = application_data.target
 
     state.active = true
+    state.pulsed = false
 
     state.elapsed = 0
     state.time_since_last_tick = 0
     
     //inherited from instance
-    state.duration = instance.duration
-    state.interval = instance.interval
+    state.duration = state.instance.duration
+    state.interval = state.instance.interval
+    state.callback_data = application_data.callback_data
 
     return
+}
+
+effect_state_override_data :: proc(callback_data: ^Effect_Callback_Data, override_data: Effect_Fn_Data) -> (success: bool) {
+    exisiting_data_type := callback_data.type
+    expected_data_type := effect_fn_data_to_type(override_data)
+
+    if exisiting_data_type != expected_data_type do return false
+
+    callback_data.data = override_data
+    return true
 }
 
 // TODO:
@@ -48,13 +65,7 @@ effect_state_create :: proc(instance: ^Effect_Instance, source, target: Entity_H
 // If an enemy reapplies burn to a player, should it keep the higher, or lower damage amount? 
 
 effect_state_refresh :: proc(entity_manager: ^Entity_Manager, state: ^Effect_State) {
-    if state.instance.definition.type == .PULSE {
-        // Find the target entity
-        target_entity, entity_ok := entity_get(entity_manager, state.target)
-        if entity_ok do effect_callback_trigger(state, target_entity)
-    }
-
-    state.duration += state.instance.duration
+    state.duration = state.duration + state.elapsed
 }
 
 effect_state_extend :: proc(state: ^Effect_State, new_instance: Effect_Instance) {
@@ -68,10 +79,6 @@ effect_state_update :: proc(state: ^Effect_State, target_entity: ^Entity) -> (sh
     defer state.elapsed += primatives.dt
 
     is_ending := state.elapsed > state.duration
-    if is_ending {
-        should_remove = true
-        state.active = false
-    }
 
     switch state.instance.definition.type {
     case .PULSE:
@@ -83,11 +90,21 @@ effect_state_update :: proc(state: ^Effect_State, target_entity: ^Entity) -> (sh
             // Thus, subtract the interval, to retain the excess.
             state.time_since_last_tick -= state.interval
 
+            state.pulsed = true
+
             effect_callback_trigger(state, target_entity)
         }
     case .CONTINUOUS:
         // just call the callback
         effect_callback_trigger(state, target_entity)
+    case .SINGLE:
+        effect_callback_trigger(state, target_entity)
+        is_ending = true
+    }
+
+    if is_ending {
+        should_remove = true
+        state.active = false
     }
 
     return
