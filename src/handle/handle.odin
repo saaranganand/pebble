@@ -1,6 +1,7 @@
 package handle
 
 import fmt "core:fmt"
+import log "core:log"
 
 // The handle pool system is for cross-system communication.
 // Accessing members of a dynamic array with a pointer does not work!
@@ -70,8 +71,9 @@ pool_get :: proc(pool: ^Pool($Tag, $T), handle: Handle(Tag)) -> (^T, bool) {
 
 pool_add :: proc(pool: ^Pool($Tag, $T), data: T) -> Handle(Tag) {    
     // If we have any free spots, use those first
-    pool_size := cast(u32) len(pool.free_list)
-    if pool_size > 0 {
+    free_size := cast(u32) len(pool.free_list)
+
+    if free_size > 0 {
         insert := pop(&pool.free_list)
         pool.data[insert] = data
 
@@ -81,7 +83,9 @@ pool_add :: proc(pool: ^Pool($Tag, $T), data: T) -> Handle(Tag) {
     append(&pool.data, data)
     append(&pool.generations, 0)
 
-    return { pool_size, 0 }
+    pool_size := cast(u32) len(pool.data)
+
+    return { pool_size - 1, 0 }
 }
 
 // This here does what we talked about earlier -- when a pool is tasked with "removing" an entry,
@@ -91,6 +95,7 @@ pool_remove :: proc(pool: ^Pool($Tag, $T), handle: Handle(Tag)) -> bool {
     if !ok do return false
 
     pool.generations[handle.index] += 1
+    append(&pool.free_list, handle.index)
 
     return true
 }

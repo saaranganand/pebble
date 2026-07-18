@@ -27,6 +27,8 @@ game := struct {
     input: Input,
     horde: horde.Horde,
     effect_manager: entity.Effect_Manager,
+    entity_manager: entity.Entity_Manager,
+    hud: HUD,
 }{}
 
 game_loop :: proc() {
@@ -63,6 +65,7 @@ game_create :: proc() {
 
     assets.global_manager_create()
     assets.audio_entry_load("sounds/silly/pirate_bell.wav")
+    assets.audio_entry_load("sounds/damage_tick.wav")
     assets.audio_entry_load("music/shanty.ogg")
     assets.music_play("music/shanty.ogg")
 
@@ -74,25 +77,31 @@ game_create :: proc() {
 
     assets.animation_instance_load("animations/entity/player.yaml")
 
+    // Effect manager must be create and loaded before creating entity manager
     entity.effect_manager_create(&game.effect_manager)
-
     entity.effect_manager_load(&game.effect_manager)
+
+    entity.entity_manager_create(&game.entity_manager, &game.effect_manager)
 
     game.player = player_init()
 
-    game.horde = horde.create(&game.player.position)
+    game.horde = horde.create(&game.player.tracking_position)
     horde.leader_spawn(&game.horde, {200, 200})
 
     camera.global_camera_create(f32(app.window_width), f32(app.window_height))
-    camera.camera_set_follow(&game.player.position, 1)//0.05)
+    camera.camera_set_follow(&game.player.tracking_position, 1)//0.05)
+
+    game.hud = create_hud()
 }
 
 game_destroy :: proc() {
+    destroy_hud(&game.hud)
     assets.global_manager_destroy()
 
     horde.destroy(&game.horde)
 
     entity.effect_manager_destroy(&game.effect_manager)
+    entity.entity_manager_destroy(&game.entity_manager)
 
     player_destroy(&game.player)
 
@@ -150,11 +159,13 @@ game_update :: proc() {
         //detect_ping_damage()
     }
     
-    if game.player.hp <=0 {
-        game.game_over = true
-    }
+    //if game.player.hp <=0 {
+      //  game.game_over = true
+    //}
 
     horde.update(&game.horde, &game.player.allied_damage_areas)
+
+    entity.effect_manager_update(&game.effect_manager, &game.entity_manager)
 }
 
 draw_background :: proc() {

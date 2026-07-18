@@ -7,6 +7,7 @@ import "core:math"
 
 import primatives "sdl_primatives"
 import assets "assets" 
+import entity "entity"
 
 WeaponCategory :: enum {
     Manual,
@@ -45,6 +46,9 @@ update_bitpistol :: proc(bp: ^BitPistol, x: f32, y: f32, aimAngle: f32) {
         bp.cooldown -= primatives.dt
     }
     if input.fire && bp.cooldown <= 0 {
+        effect_data := entity.effect_application_data_from_tag(&game.effect_manager, "burn_high", game.player.entity, game.player.entity)
+        entity.effect_manager_queue_apply(&game.effect_manager, effect_data)
+
         assets.sound_play("sounds/silly/pirate_bell.wav")
         spawn_bullet(pool, x, y, aimAngle, BulletType.BitPistol, cfg.damage, cfg.bullet_speed, cfg.bullet_size)
         bp.cooldown = 1.0 / cfg.fire_rate

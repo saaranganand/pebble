@@ -4,6 +4,8 @@ import sdl "vendor:sdl3"
 
 import handle "../handle"
 
+import log "core:log"
+
 Entity_Handle :: handle.Handle(handle.Entity_Tag)
 
 Entity_Force :: struct {
@@ -16,8 +18,9 @@ Entity :: struct {
     position: sdl.FPoint,
     move_velocity: sdl.FPoint,
     base_move_speed, move_speed: f32,
-    forces: [dynamic]Entity_Force,
     health: f32,
+    max_health: f32,
+    forces: [dynamic]Entity_Force,
 
     // A slice that is sized as the total number of unqiue effect definitions loaded in.
     // When an effect is applied, give this the handle.
@@ -34,6 +37,31 @@ Entity :: struct {
     // Thus, whether or not this check is valid or invalid does not matter to us.
     // !! If that were to change !! Then this system would need to be reworked.
     active_effects: []union{Effect_Handle},
+}
+
+// Is used to allow outside sources to create and entity
+entity_make_data :: proc(position: sdl.FPoint, base_move_speed, max_health: f32) -> (data: Entity) {
+    data.position = position
+    data.move_velocity = {0.0,0.0}
+    data.base_move_speed = base_move_speed
+    data.move_speed = base_move_speed
+    data.health = max_health
+    data.max_health = max_health
+
+    return
+}
+
+// Is only used for entity manager adding entity into pool
+@(private)
+entity_create :: proc(entity: ^Entity, entity_manager: ^Entity_Manager) {
+    entity.forces = make([dynamic]Entity_Force)
+    entity.active_effects = make([]union{Effect_Handle}, entity_manager.borrowed_effect_definition_count)
+}
+
+@(private)
+entity_destroy :: proc(entity: ^Entity) {
+    delete(entity.forces)
+    delete(entity.active_effects)
 }
 
 entity_get_active_effect_by_ID :: proc(entity: ^Entity, ID: Effect_Definition_ID) -> (active: union{Effect_Handle}) {
@@ -56,9 +84,58 @@ entity_deal_damage :: proc(entity: ^Entity, damage: f32) {
 
 Entity_Manager :: struct {
     pool: handle.Pool(handle.Entity_Tag, Entity),
+    borrowed_effect_definition_count: Effect_Definition_ID,
 }
 
-entity_get :: proc(manager: ^Entity_Manager, entity_handle: Entity_Handle) -> (entity: ^Entity, ok: bool) {
-    entity, ok = handle.pool_get(&manager.pool, entity_handle)
+entity_manager_create :: proc(entity_manager: ^Entity_Manager, effect_manager: ^Effect_Manager) {
+    log.infof("Creating entity manager")
+
+    entity_manager.pool = handle.pool_create(handle.Entity_Tag, Entity)
+    entity_manager.borrowed_effect_definition_count = effect_manager.unique_definition_ids
+}
+
+entity_manager_destroy :: proc(entity_manager: ^Entity_Manager) {
+    log.infof("Destroying entity manager")
+
+    
+    i: u32 = 0
+    for &effect in entity_manager.pool.data {
+        defer i += 1
+
+        current_handle := handle.pool_read_handle_with_index(&entity_manager.pool, i)
+
+        // Find the target entity
+        entity, entity_ok := entity_get(entity_manager, current_handle)
+        if !entity_ok do continue
+        entity_destroy(entity)
+    }
+
+    handle.pool_destroy(&entity_manager.pool)
+}
+
+entity_get :: proc(entity_manager: ^Entity_Manager, entity_handle: Entity_Handle) -> (entity: ^Entity, ok: bool) {
+    entity, ok = handle.pool_get(&entity_manager.pool, entity_handle)
     return 
 }
+
+entity_manager_add_entity :: proc(entity_manager: ^Entity_Manager, entity_data: Entity) -> (new_handle: Entity_Handle) {
+    new_entity := entity_data
+    entity_create(&new_entity, entity_manager)
+
+    new_handle = handle.pool_add(&entity_manager.pool, new_entity)
+    log.debugf("Adding entity with handle %v", new_handle)
+
+    return 
+}
+
+entity_manager_remove_entity :: proc(entity_manager: ^Entity_Manager, to_remove: Entity_Handle) {
+    entity, ok := entity_get(entity_manager, to_remove)
+    if !ok do return
+
+    log.debugf("Removing entity with handle %v", to_remove)
+
+    entity_destroy(entity)
+
+    handle.pool_remove(&entity_manager.pool, to_remove)
+}
+

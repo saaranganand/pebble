@@ -2,6 +2,8 @@ package entity
 
 import primatives "../sdl_primatives"
 
+import log "core:log"
+
 // This both stores all the instance-specific data about the effect, as well as the effect's state (aka its progress)
 // Basically, the burn effect does the same thing, but different burn effects applied by different sources might do different damage,
 // last different amount of times, etc.
@@ -75,7 +77,7 @@ effect_state_update :: proc(state: ^Effect_State, target_entity: ^Entity) -> (sh
     case .PULSE:
         defer state.time_since_last_tick += primatives.dt
 
-        should_trigger := state.time_since_last_tick >= state.interval
+        should_trigger := state.time_since_last_tick >= state.interval - (primatives.dt / 10) // with margin
         if should_trigger {
             // If we just set time since last tick to 0, it won't take into account the excess caused by framerate.
             // Thus, subtract the interval, to retain the excess.

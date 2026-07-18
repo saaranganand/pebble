@@ -10,6 +10,23 @@ Effect_Application_Data :: struct {
     source, target: Entity_Handle
 }
 
+effect_application_data_from_tag :: proc(
+    effect_manager: ^Effect_Manager, instance_tag: Effect_Instance_Tag, source, target: Entity_Handle
+) -> (data: Effect_Application_Data) {
+    data.source = source
+    data.target = target
+
+    id, ok := effect_manager.instance_tag_to_id[instance_tag]
+    if !ok {
+        log.errorf("Tried to create effect application data from tag %v that is not in map", instance_tag)
+        return
+    }
+
+    data.instance = &effect_manager.instances[id]
+
+    return
+}
+
 Effect_Manager :: struct {
     pool: handle.Pool(handle.Effect_Tag, Effect_State),
 
@@ -45,6 +62,7 @@ effect_manager_destroy :: proc(effect_manager: ^Effect_Manager) {
 
     handle.pool_destroy(&effect_manager.pool)
 
+    delete(effect_manager.instance_tag_to_id)
     delete(effect_manager.definition_tag_to_id)
 
     delete(effect_manager.application_queue)
@@ -83,8 +101,7 @@ effect_manager_get_effect :: proc(effect_manager: ^Effect_Manager, effect_handle
     return 
 }
 
-effect_manager_queue_apply :: proc(effect_manager: ^Effect_Manager, instance: ^Effect_Instance, source, target: Entity_Handle) {
-    data := Effect_Application_Data{instance, source, target}
+effect_manager_queue_apply :: proc(effect_manager: ^Effect_Manager, data: Effect_Application_Data) {
     append(&effect_manager.application_queue, data)
 }
 

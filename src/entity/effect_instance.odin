@@ -138,6 +138,8 @@ effect_instance_load :: proc(
         new_instance.callback_data.data = var_data
     }
 
+    effect_manager.instance_tag_to_id[new_instance.unique_tag] = new_instance.unique_id
+
     log.debugf("Loaded effect instance %v", file_path)
 }
 
