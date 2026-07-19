@@ -23,6 +23,45 @@ Default_Palette_Color :: enum {
     RED, PINK, BROWN, YELLOW, PALE,
 }
 
+default_palette_color_from_string :: proc(color_name: string) -> Maybe(Default_Palette_Color) {
+    switch color_name {
+    case "WHITE":
+        return .WHITE
+    case "LIGHT_GRAY":
+        return .LIGHT_GRAY
+    case "GRAY":
+        return .GRAY
+    case "DARK_GRAY":
+        return .DARK_GRAY
+    case "BLACK":
+        return .BLACK
+    case "BLUE":
+        return .BLUE
+    case "SKY_BLUE":
+        return .SKY_BLUE
+    case "BABY_BLUE":
+        return .BABY_BLUE
+    case "DARK_GREEN":
+        return .DARK_GREEN
+    case "GREEN":
+        return .GREEN
+    case "GRASS_GREEN":
+        return .GRASS_GREEN
+    case "RED":
+        return .RED
+    case "PINK":
+        return .PINK
+    case "BROWN":
+        return .BROWN
+    case "YELLOW":
+        return .YELLOW
+    case "PALE":
+        return .PALE
+    }
+
+    return nil
+}
+
 //https://lospec.com/palette-list/arne-soft-16
 @(rodata)
 default_color_palette := [Default_Palette_Color]sdl.Color {

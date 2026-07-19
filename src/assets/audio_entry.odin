@@ -79,7 +79,10 @@ audio_entry_load :: proc(tag: Data_Tag) {
 
     entry, ok := &global_manager.audio_master.data_map[tag]
 
-    if !ok do return
+    if !ok {
+        log.errorf("Tried to load audio with tag %v and failed", tag)
+        return
+    }
 
     if entry.state != .UNLOADED {
         // Panics!!

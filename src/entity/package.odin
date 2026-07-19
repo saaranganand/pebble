@@ -15,6 +15,7 @@ global_init :: proc() -> (effect_manger: ^Effect_Manager, entity_manager: ^Entit
 
     entity_manager = entity_manager_create()
     reaction_manager = reaction_manager_create()
+    reaction_manager_load()
 
     return
 }

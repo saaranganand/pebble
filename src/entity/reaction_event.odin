@@ -38,6 +38,7 @@ reaction_event_trigger :: proc(event: Reaction_Event, data: Reaction_Data, targe
         // spawn external animation
         // bruh idk data.external_animation_tag
     case .TRIGGER:
+        
         sound, sound_ok := data.trigger_sound.(assets.Data_Tag)
         if sound_ok do assets.sound_play(sound)
 

@@ -27,7 +27,7 @@ read_value_from_map :: proc(ymap: yaml.Mapping, ykey: string, $T: typeid, defaul
 get_yaml_mapping :: proc(file_path: string, arena_allocator: runtime.Allocator) -> (data_map: yaml.Mapping, map_ok: bool) {
     data, err := yaml.decode_from_file(file_path, arena_allocator)
     if err != nil {
-        log.errorf("yaml parser error in loading file %v", file_path)
+        log.errorf("yaml parser error in loading file %v: %v", file_path, err)
         return nil, false
     }
 

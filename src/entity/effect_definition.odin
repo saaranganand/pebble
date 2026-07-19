@@ -101,6 +101,8 @@ effect_definition_load :: proc(
         new_definition.type = .PULSE
     case "CONTINUOUS":
         new_definition.type = .CONTINUOUS
+    case "SINGLE":
+        new_definition.type = .SINGLE
     case:
         log.errorf("Error in reading effect definition %v, type was not one of pulse or continuous", new_definition.unique_tag)
     }

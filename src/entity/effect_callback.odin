@@ -115,7 +115,6 @@ Effect_Force_Fn_Data :: Entity_Force
 effect_damage_fn   :: proc(data: Effect_Damage_Fn_Data,   target_entity: Entity) -> (damage: f32) {
     // TODO: add stuff like defense? aka entity impact in damage formula?
     damage = data.damage
-    assets.sound_play("sounds/damage_tick.wav")
     return
 }
 effect_speed_fn    :: proc(data: Effect_Speed_Fn_Data,    target_entity: Entity) -> (new_speed: f32) {
