@@ -64,9 +64,10 @@ entity_make_data :: proc(
 
 // Is only used for entity manager adding entity into pool
 @(private)
-entity_create :: proc(entity: ^Entity, entity_manager: ^Entity_Manager) {
+entity_create :: proc(entity: ^Entity) {
+    total_effect_definitions := global_effect_manager.unique_definition_ids
     entity.forces = make([dynamic]Entity_Force)
-    entity.active_effects = make([]union{Effect_Handle}, entity_manager.borrowed_effect_definition_count)
+    entity.active_effects = make([]union{Effect_Handle}, total_effect_definitions)
 }
 
 @(private)

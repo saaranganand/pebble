@@ -37,7 +37,7 @@ Effect_Definition :: struct {
     type: Effect_Type,
 }
 
-effect_definitions_load :: proc(effect_manager: ^Effect_Manager) {
+effect_definitions_load :: proc() {
     log.infof("Loading effect definitions")
 
     // Lib yaml binding requires use of arena allocator (good one)
@@ -58,18 +58,18 @@ effect_definitions_load :: proc(effect_manager: ^Effect_Manager) {
     assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
 
     num_definitions := len(file_paths) + 1
-    effect_manager.unique_definition_ids = cast(Effect_Definition_ID) num_definitions
-    effect_manager.definitions = make([]Effect_Definition, num_definitions)
+    global_effect_manager.unique_definition_ids = cast(Effect_Definition_ID) num_definitions
+    global_effect_manager.definitions = make([]Effect_Definition, num_definitions)
     definition_id_counter: Effect_Definition_ID = 0
 
     for path in file_paths {
-        effect_definition_load(effect_manager, pre_path, path, &definition_id_counter, arena_alloc)
+        effect_definition_load(pre_path, path, &definition_id_counter, arena_alloc)
         delete(path)
     }
 }
 
 effect_definition_load :: proc(
-    effect_manager: ^Effect_Manager, pre_path, file_path: string, counter: ^Effect_Definition_ID, arena_allocator: runtime.Allocator
+    pre_path, file_path: string, counter: ^Effect_Definition_ID, arena_allocator: runtime.Allocator
 ) {
     defer counter^ += 1
 
@@ -84,7 +84,7 @@ effect_definition_load :: proc(
     log.debugf("Loading effect definition %v", file_path)
 
     new_definition: Effect_Definition
-    defer effect_manager.definitions[counter^] = new_definition
+    defer global_effect_manager.definitions[counter^] = new_definition
 
     new_definition.unique_id = counter^
 
@@ -118,16 +118,16 @@ effect_definition_load :: proc(
         log.errorf("Error in reading effect definition %v, stack logic was not one of none, extend, stack, or refresh", new_definition.unique_tag)
     }
 
-    effect_manager.definition_tag_to_id[new_definition.unique_tag] = new_definition.unique_id
+    global_effect_manager.definition_tag_to_id[new_definition.unique_tag] = new_definition.unique_id
 
     log.debugf("Loaded effect definition %v", file_path)
 }
 
-effect_definitions_unload :: proc(effect_manager: ^Effect_Manager) {
+effect_definitions_unload :: proc() {
     log.infof("Unloading effect definitions")
 
-    for &definition in &effect_manager.definitions {
+    for &definition in &global_effect_manager.definitions {
         delete(cast(string) definition.unique_tag)
     }
-    defer delete(effect_manager.definitions)
+    defer delete(global_effect_manager.definitions)
 }

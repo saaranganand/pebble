@@ -26,8 +26,9 @@ game := struct {
     game_over: bool,
     input: Input,
     horde: horde.Horde,
-    effect_manager: entity.Effect_Manager,
-    entity_manager: entity.Entity_Manager,
+    effect_manager: ^entity.Effect_Manager,
+    entity_manager: ^entity.Entity_Manager,
+    reaction_manager: ^entity.Reaction_Manager,
     hud: HUD,
 }{}
 
@@ -63,25 +64,9 @@ main :: proc() {
 game_create :: proc() {
     primatives.global_timer_init()
 
-    assets.global_manager_create()
-    assets.audio_entry_load("sounds/silly/pirate_bell.wav")
-    assets.audio_entry_load("sounds/damage_tick.wav")
-    assets.audio_entry_load("music/shanty.ogg")
-    assets.music_play("music/shanty.ogg")
+    assets.global_init()
 
-    assets.font_load("fonts/ubuntu.ttf", 32)
-    assets.font_load("fonts/ubuntu.ttf", 24)
-    assets.font_load("fonts/ubuntu.ttf", 16)
-
-    assets.img_load("img/player/move.png")
-
-    assets.animation_instance_load("animations/entity/player.yaml")
-
-    // Effect manager must be create and loaded before creating entity manager
-    entity.effect_manager_create(&game.effect_manager)
-    entity.effect_manager_load(&game.effect_manager)
-
-    entity.entity_manager_create(&game.entity_manager, &game.effect_manager)
+    game.effect_manager, game.entity_manager, game.reaction_manager = entity.global_init()
 
     game.player = player_init()
 
@@ -96,12 +81,11 @@ game_create :: proc() {
 
 game_destroy :: proc() {
     destroy_hud(&game.hud)
-    assets.global_manager_destroy()
+
+    entity.global_destroy()
+    assets.global_destroy()
 
     horde.destroy(&game.horde)
-
-    entity.effect_manager_destroy(&game.effect_manager)
-    entity.entity_manager_destroy(&game.entity_manager)
 
     player_destroy(&game.player)
 
@@ -165,7 +149,7 @@ game_update :: proc() {
 
     horde.update(&game.horde, &game.player.allied_damage_areas)
 
-    entity.effect_manager_update(&game.effect_manager, &game.entity_manager)
+    entity.effect_manager_update()
 }
 
 draw_background :: proc() {

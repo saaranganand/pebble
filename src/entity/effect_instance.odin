@@ -29,7 +29,7 @@ Effect_Instance :: struct {
     callback_data: Effect_Callback_Data,
 }
 
-effect_instances_load :: proc(effect_manager: ^Effect_Manager) {
+effect_instances_load :: proc() {
     log.infof("Loading effect instances")
 
     // Lib yaml binding requires use of arena allocator (good one)
@@ -50,18 +50,18 @@ effect_instances_load :: proc(effect_manager: ^Effect_Manager) {
     assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
 
     num_instances := len(file_paths) + 1
-    effect_manager.unique_instance_ids = cast(Effect_Instance_ID) num_instances
-    effect_manager.instances = make([]Effect_Instance, num_instances)
+    global_effect_manager.unique_instance_ids = cast(Effect_Instance_ID) num_instances
+    global_effect_manager.instances = make([]Effect_Instance, num_instances)
     instance_id_counter: Effect_Instance_ID = 0
 
     for path in file_paths {
-        effect_instance_load(effect_manager, pre_path, path, &instance_id_counter, arena_alloc)
+        effect_instance_load(pre_path, path, &instance_id_counter, arena_alloc)
         delete(path)
     }
 }
 
 effect_instance_load :: proc(
-    effect_manager: ^Effect_Manager, pre_path, file_path: string, counter: ^Effect_Instance_ID, arena_allocator: runtime.Allocator
+    pre_path, file_path: string, counter: ^Effect_Instance_ID, arena_allocator: runtime.Allocator
 ) {
     defer counter^ += 1
 
@@ -76,18 +76,18 @@ effect_instance_load :: proc(
     }
 
     new_instance: Effect_Instance
-    defer effect_manager.instances[counter^] = new_instance
+    defer global_effect_manager.instances[counter^] = new_instance
 
     new_instance.unique_id = counter^
 
     definition_tag := cast(Effect_Definition_Tag) yaml_parse.read_value_from_map(data_map, "definition", string, default = "")
-    definition_id, found := effect_manager.definition_tag_to_id[definition_tag]
+    definition_id, found := global_effect_manager.definition_tag_to_id[definition_tag]
     if !found {
         log.errorf("Could not find matching definition of tag %v for new instance from file %v", definition_tag, file_path)
         return
     }
 
-    definition := &effect_manager.definitions[definition_id]
+    definition := &global_effect_manager.definitions[definition_id]
 
     new_instance.definition = definition
 
@@ -138,16 +138,16 @@ effect_instance_load :: proc(
         new_instance.callback_data.data = var_data
     }
 
-    effect_manager.instance_tag_to_id[new_instance.unique_tag] = new_instance.unique_id
+    global_effect_manager.instance_tag_to_id[new_instance.unique_tag] = new_instance.unique_id
 
     log.debugf("Loaded effect instance %v", file_path)
 }
 
-effect_instances_unload :: proc(effect_manager: ^Effect_Manager) {
+effect_instances_unload :: proc() {
     log.infof("Unloading effect instances")
 
-    for &instance in &effect_manager.instances {
+    for &instance in &global_effect_manager.instances {
         delete(cast(string) instance.unique_tag)
     }
-    defer delete(effect_manager.instances)
+    defer delete(global_effect_manager.instances)
 }

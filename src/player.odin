@@ -40,7 +40,7 @@ Player :: struct {
 
 player_init :: proc() -> (player: Player) {
     entity_data := entity.entity_make_data({0.0,0.0}, PLAYER_SPEED, game_config.player.max_hp, .ALLY, .PLAYER)
-    player.entity = entity.entity_manager_add_entity(&game.entity_manager, entity_data)
+    player.entity = entity.entity_manager_add_entity(entity_data)
 
     player.frame_count = 0
 
@@ -58,7 +58,7 @@ player_destroy :: proc(player: ^Player) {
 draw_player :: proc() {
     player := &game.player
 
-    entity, ok := entity.entity_get(&game.entity_manager, player.entity)
+    entity, ok := entity.entity_get(player.entity)
     if !ok do return
 
     // aim reticle
@@ -80,7 +80,7 @@ update_player :: proc() {
     waves := &game.waves
     input := &game.input
 
-    entity, ok := entity.entity_get(&game.entity_manager, player.entity)
+    entity, ok := entity.entity_get(player.entity)
     if !ok do return
 
     player.tracking_position = entity.position

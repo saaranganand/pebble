@@ -61,7 +61,7 @@ effect_state_override_data :: proc(callback_data: ^Effect_Callback_Data, overrid
 // If a player reapplies burn to an enemy, should it keep the higher damage amount?
 // If an enemy reapplies burn to a player, should it keep the higher, or lower damage amount? 
 
-effect_state_refresh :: proc(entity_manager: ^Entity_Manager, state: ^Effect_State) {
+effect_state_refresh :: proc(state: ^Effect_State) {
     state.duration = state.duration + state.elapsed
 }
 

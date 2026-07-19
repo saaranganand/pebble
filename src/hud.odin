@@ -32,7 +32,7 @@ draw_hud :: proc() {
     input := game.input
     hud := game.hud
 
-    player_entity, ok := entity.entity_get(&game.entity_manager, player.entity)
+    player_entity, ok := entity.entity_get(player.entity)
     if !ok do return
 
 
@@ -50,12 +50,12 @@ draw_hud :: proc() {
     effect_rect := sdl.FRect{x = 10 + 200 + 10, y = 10, w = 20, h = 20}
 
     // top left player effects
-    for i in 0..<game.entity_manager.borrowed_effect_definition_count {
+    for i in 0..<game.effect_manager.unique_definition_ids {
         effect_maybe := entity.entity_get_active_effect_by_ID(player_entity, i)
         effect_handle, effect_handle_ok := effect_maybe.(entity.Effect_Handle)
         if !effect_handle_ok do continue
 
-        effect, effect_ok := entity.effect_manager_get_effect(&game.effect_manager, effect_handle)
+        effect, effect_ok := entity.effect_manager_get_effect(effect_handle)
         if !effect_ok do continue
 
         effect_color := color.Default_Palette_Colors.PINK

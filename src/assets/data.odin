@@ -15,7 +15,7 @@ import fmt "core:fmt"
 // This works because SDL uses pointers to types. For example, when you load in a texture, it does not give you the texture data,
 // but the pointer to the texture that is loaded in its backend.
 // Thus, no space is being wasted here. The pointers all start empty, but then the program eventually loads in the file using the tag.
-global_manager: ^Data_Manager
+global_manager: Data_Manager
 
 Data_Manager :: struct {
     audio_master: Audio_Master,
@@ -33,7 +33,6 @@ Data_Load_State :: enum {
 
 global_manager_create :: proc() {
     log.infof("Creating data manager")
-    global_manager = new(Data_Manager)
 
     audio_master_create(&global_manager.audio_master)
     audio_master_scrape_data()
@@ -60,6 +59,4 @@ global_manager_destroy :: proc() {
     img_master_destroy(&global_manager.img_master)
     animation_master_destroy(&global_manager.animation_master)
     //data_destroy()
-
-    free(global_manager)
 }
