@@ -16,7 +16,7 @@ generate_color :: proc(hex: int, alpha: u8 = 0xff) -> sdl.Color{
     }
 }
 
-Default_Palette_Colors :: enum {
+Default_Palette_Color :: enum {
     WHITE = 0, LIGHT_GRAY, GRAY, DARK_GRAY, BLACK,
     BLUE, SKY_BLUE, BABY_BLUE,
     DARK_GREEN, GREEN, GRASS_GREEN,
@@ -25,7 +25,7 @@ Default_Palette_Colors :: enum {
 
 //https://lospec.com/palette-list/arne-soft-16
 @(rodata)
-default_color_palette := [Default_Palette_Colors]sdl.Color {
+default_color_palette := [Default_Palette_Color]sdl.Color {
     .WHITE       = {0xff, 0xff, 0xff, 0xff},
     .LIGHT_GRAY  = {0xdd, 0xdd, 0xdd, 0xff},
     .GRAY        = {0xaa, 0xaa, 0xaa, 0xff},
@@ -47,7 +47,7 @@ default_color_palette := [Default_Palette_Colors]sdl.Color {
     .PALE        = {0xf5, 0xf0, 0xd0, 0xff},
 }
 
-sdl_set_default_color_palette :: proc(pcolor: Default_Palette_Colors) {
+sdl_set_default_color_palette :: proc(pcolor: Default_Palette_Color) {
     color := default_color_palette[pcolor]
     sdl.SetRenderDrawColor(primatives.global_renderer, color.r, color.g, color.b, color.a)
 }
@@ -65,7 +65,7 @@ sdl_set_color :: proc{
     sdl_set_rgba_color,
 }
 
-sdl_set_text_default_color_palette :: proc(text: ^ttf.Text, pcolor: Default_Palette_Colors) {
+sdl_set_text_default_color_palette :: proc(text: ^ttf.Text, pcolor: Default_Palette_Color) {
     color := default_color_palette[pcolor]
     ttf.SetTextColor(text, color.r, color.g, color.b, color.a)
 }

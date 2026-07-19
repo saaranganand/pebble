@@ -7,56 +7,61 @@ import handle "../handle"
 import log "core:log"
 import fmt "core:fmt"
 
-// Reaction data contains a collection of data related to possible reaction outcomes.
-// Some effects might play a sound on their callback, while some may display an animation while active.
-// Some may do both.
-// Reaction sets are children to effect definitions, and there is the potential for one for each combination of entity team and category.
-// For example: a burn effect show a burning animation around the entity, and might play a sound every time it ticks.
-// However, we only want to play the sound for allied members in combat: not allied NPCs/bullets, and not enemies.
-// So, the allied player reaction set would contain a sound_on_callback, and a external_animation_tag,
-// while the default reaction set would contain just an external_animation_tag.
-Reaction_Data :: struct {
-    sound_on_apply:   Maybe(string),
-    sound_on_tick:    Maybe(string),
-    sound_on_remove:  Maybe(string),
-
-    flash_color:      Maybe([4]f32),
-    flash_duration:   f32,
-
-    attached_anim_tag: Maybe(string), // starts on Applied, stops on Removed
-
-    shake_amount:     f32,            // 0 = none
-}
-
-Reaction_Data_Tag :: distinct string
-
-reaction_data_tag_create :: proc(team: Entity_Team, category: Entity_Category) -> (tag: Reaction_Data_Tag) {
-    return cast(Reaction_Data_Tag) fmt.aprint(team, category, sep = "")
-}
-
-reaction_data_tag_destroy :: proc(tag: Reaction_Data_Tag) {
-    delete(cast(string) tag)
-}
-
-// All reaction sets have at least a default data object.
-// For each necessary combination of team and category, a tag is created through the enum names in a comma seperated string
-Reaction_Set :: struct {
-    default_reaction_data: Reaction_Data,
-    reaction_data_map: map[Reaction_Data_Tag]Reaction_Data,
-}
-
 @(private)
 global_reaction_manager: Reaction_Manager
 
 Reaction_Manager :: struct {
     // 1-1 with effect definition ID
     table: []Reaction_Set,
+    events: [dynamic]Reaction_Event,
 }
 
 reaction_manager_create :: proc() -> (reaction_manager: ^Reaction_Manager) {
     log.infof("Creating reaction manager")
+
     global_reaction_manager.table = make([]Reaction_Set, global_effect_manager.unique_definition_ids)
+    global_reaction_manager.events = make([dynamic]Reaction_Event)
 
     reaction_manager = &global_reaction_manager
     return
+}
+
+reaction_manager_destroy :: proc() {
+    log.infof("Destroying reaction manager")
+
+    delete(global_reaction_manager.table)
+    delete(global_reaction_manager.events)
+}
+
+reaction_manager_queue_event :: proc(event_data: Reaction_Event) {
+    append(&global_reaction_manager.events, event_data)
+}
+
+reaction_manager_update :: proc() {
+    for event in global_reaction_manager.events {
+        // Get entity
+        target_entity, entity_ok := entity_get(event.target)
+        if !entity_ok do continue
+
+        log.warnf("checking event as reaction with type %v", event.type)
+
+        // Get reaction key
+        reaction_key := reaction_data_tag_create(target_entity.team, target_entity.category)
+        defer reaction_data_tag_destroy(reaction_key)
+
+        // Get team,cateogry linked reaction
+        reaction_set := global_reaction_manager.table[event.definition_id]
+        reaction_data, reaction_data_ok := reaction_set.reaction_data_map[reaction_key]
+        if !reaction_data_ok {
+            // Get default reaction
+            default_reation_data_ok: bool
+            reaction_data, default_reation_data_ok = reaction_set.default_reaction_data.(Reaction_Data)
+            if !default_reation_data_ok do continue
+        }
+
+        // trigger the reaction
+        reaction_event_trigger(event, reaction_data, target_entity)
+    }
+
+    clear(&global_reaction_manager.events)
 }

@@ -18,7 +18,7 @@ HUD :: struct {
 
 create_hud :: proc() -> (hud: HUD) {
     hud.effect_duration_text = assets.font_create_text("fonts/ubuntu.ttf", 16, "0s")
-    color.sdl_set_text_color(hud.effect_duration_text, color.Default_Palette_Colors.BLACK)
+    color.sdl_set_text_color(hud.effect_duration_text, color.Default_Palette_Color.BLACK)
 
     return
 }
@@ -41,10 +41,10 @@ draw_hud :: proc() {
     bgRect := sdl.FRect{x = 10, y = 10, w = 200, h = 20}
     fillRect := sdl.FRect{x = 10, y = 10, w = 200 * hp_ratio, h = 20}
 
-    color.sdl_set_color(color.Default_Palette_Colors.DARK_GRAY)
+    color.sdl_set_color(color.Default_Palette_Color.DARK_GRAY)
     sdl.RenderFillRect(primatives.global_renderer, &bgRect)
 
-    color.sdl_set_color(color.Default_Palette_Colors.GRASS_GREEN)
+    color.sdl_set_color(color.Default_Palette_Color.GRASS_GREEN)
     sdl.RenderFillRect(primatives.global_renderer, &fillRect)
 
     effect_rect := sdl.FRect{x = 10 + 200 + 10, y = 10, w = 20, h = 20}
@@ -58,16 +58,16 @@ draw_hud :: proc() {
         effect, effect_ok := entity.effect_manager_get_effect(effect_handle)
         if !effect_ok do continue
 
-        effect_color := color.Default_Palette_Colors.PINK
+        effect_color := color.Default_Palette_Color.PINK
         switch effect.instance.definition.unique_tag {
         case "burn":
-            effect_color := color.Default_Palette_Colors.RED
+            effect_color := color.Default_Palette_Color.RED
         case "gravity":
-            effect_color := color.Default_Palette_Colors.DARK_GREEN
+            effect_color := color.Default_Palette_Color.DARK_GREEN
         case "knockback":
             continue
         case "slow":
-            effect_color := color.Default_Palette_Colors.BABY_BLUE
+            effect_color := color.Default_Palette_Color.BABY_BLUE
         }
 
         color.sdl_set_color(effect_color)

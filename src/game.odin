@@ -118,6 +118,8 @@ game_update :: proc() {
     update_player()
     update_bullets()
 
+    entity.global_update()
+
     /*
     is_ping_selected := player.active_category == .Auto && player.weaponAuto == .Ping
     is_daemon_selected := player.active_category == .Auto && player.weaponAuto == .Daemon
@@ -148,8 +150,6 @@ game_update :: proc() {
     //}
 
     horde.update(&game.horde, &game.player.allied_damage_areas)
-
-    entity.effect_manager_update()
 }
 
 draw_background :: proc() {
@@ -158,7 +158,7 @@ draw_background :: proc() {
 
     /*
     // bg texture
-    color.sdl_set_color(color.Default_Palette_Colors.BLACK)
+    color.sdl_set_color(color.Default_Palette_Color.BLACK)
 
     x := -math.mod(cam.x, f32(TILE_SIZE))
     for x < space_width {
@@ -174,7 +174,7 @@ draw_background :: proc() {
 }
 
 game_draw :: proc() {
-    color.sdl_set_color(color.Default_Palette_Colors.WHITE)
+    color.sdl_set_color(color.Default_Palette_Color.WHITE)
     sdl.RenderClear(primatives.global_renderer)
 
     // drawing

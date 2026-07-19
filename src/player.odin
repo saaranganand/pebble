@@ -64,12 +64,12 @@ draw_player :: proc() {
     // aim reticle
     aim_circle := geo.Circle{ entity.position + { math.cos(player.aimAngle), math.sin(player.aimAngle) } * AIM_DIST, AIM_SIZE }
 
-    color.sdl_set_color(color.Default_Palette_Colors.SKY_BLUE)
+    color.sdl_set_color(color.Default_Palette_Color.SKY_BLUE)
     camera.camera_fill_circle(aim_circle)
 
     camera.camera_draw_animation(player.animation_tag, player.current_animation, &player.frame_count, entity.position)
 
-    color.sdl_set_color(color.Default_Palette_Colors.BABY_BLUE)
+    color.sdl_set_color(color.Default_Palette_Color.BABY_BLUE)
     camera.camera_fill_circle({{entity.position.x, entity.position.y}, 10})
 }
 

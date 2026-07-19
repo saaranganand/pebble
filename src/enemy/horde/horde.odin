@@ -77,11 +77,11 @@ resolve_handle :: proc {
 
 draw :: proc(horde: ^Horde) {
     // Leader color
-    color.sdl_set_color(color.Default_Palette_Colors.RED)
+    color.sdl_set_color(color.Default_Palette_Color.RED)
     leader_registry_draw(&horde.leader_registry)
     
     // Follower color
-    color.sdl_set_color(color.Default_Palette_Colors.PINK)
+    color.sdl_set_color(color.Default_Palette_Color.PINK)
     follower_registry_draw(&horde.follower_registry)
 }
 

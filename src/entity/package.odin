@@ -20,6 +20,14 @@ global_init :: proc() -> (effect_manger: ^Effect_Manager, entity_manager: ^Entit
 }
 
 global_destroy :: proc() {
-    effect_manager_destroy()
+    reaction_manager_destroy()
     entity_manager_destroy()
+    effect_manager_destroy()
+}
+
+global_update :: proc() {
+    effect_manager_update()
+
+    // Since reactions are explicitly reactions to effects, must update this after effects.
+    reaction_manager_update()
 }

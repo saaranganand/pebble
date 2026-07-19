@@ -59,7 +59,7 @@ camera_create :: proc(width, height: f32) -> (camera: ^Camera) {
     camera.mode = .STATIONARY
 
     camera.coordinate_text = assets.font_create_text("fonts/ubuntu.ttf", 24, "0,0")
-    color.sdl_set_text_color(camera.coordinate_text, color.Default_Palette_Colors.BLACK)
+    color.sdl_set_text_color(camera.coordinate_text, color.Default_Palette_Color.BLACK)
 
 	return
 }
@@ -141,7 +141,7 @@ camera_fill_circle :: proc(circle: geo.Circle) {
 }
 
 camera_draw_center_lines :: proc() {
-    color.sdl_set_color(color.Default_Palette_Colors.GRASS_GREEN)
+    color.sdl_set_color(color.Default_Palette_Color.GRASS_GREEN)
 
     sdl.RenderLine(primatives.global_renderer, 0, global_camera.height / 2, global_camera.width, global_camera.height / 2)
     sdl.RenderLine(primatives.global_renderer, global_camera.width / 2, 0, global_camera.width / 2, global_camera.height)
@@ -168,7 +168,7 @@ camera_draw_animation :: proc(
 }
 
 camera_draw_grid :: proc() {
-    color.sdl_set_color(color.Default_Palette_Colors.BLACK)
+    color.sdl_set_color(color.Default_Palette_Color.BLACK)
 
     // Calculate camera world bounds
     half_width := global_camera.width / 2.0

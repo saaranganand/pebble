@@ -16,7 +16,7 @@ draw_camera :: proc() {
     space_height := f32(app.window_height)
 
     // bg texture
-    color.sdl_set_color(color.Default_Palette_Colors.BLACK)
+    color.sdl_set_color(color.Default_Palette_Color.BLACK)
 
     x := -math.mod(cam.x, f32(TILE_SIZE))
     for x < space_width {

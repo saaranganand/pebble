@@ -76,6 +76,21 @@ effect_fn_data_to_type :: proc(fn_data: Effect_Fn_Data) -> (type: Odin_Effect_Ca
     return .DAMAGE
 }
 
+effect_fn_data_get_reaction_magnitude :: proc(fn_data: Effect_Fn_Data) -> (magnitude: f32) {
+    switch d in fn_data {
+    case Effect_Damage_Fn_Data:
+        return d.damage
+	case Effect_Speed_Fn_Data:
+        return d.mult
+	case Effect_Position_Fn_Data:
+        return d.speed
+	case Entity_Force:
+        return d.force
+    }
+
+    return 0
+}
+
 Effect_Callback_Data :: struct {
     type: Odin_Effect_Callback,
     data: Effect_Fn_Data

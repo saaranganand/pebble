@@ -42,7 +42,7 @@ Entity :: struct {
     // and thus this shadowing situation is possible, are also situations where we do not care if there is or is not the effect on the entity.
     // Thus, whether or not this check is valid or invalid does not matter to us.
     // !! If that were to change !! Then this system would need to be reworked.
-    active_effects: []union{Effect_Handle},
+    active_effects: []Maybe(Effect_Handle),
 }
 
 // Is used to allow outside sources to create and entity
@@ -67,7 +67,7 @@ entity_make_data :: proc(
 entity_create :: proc(entity: ^Entity) {
     total_effect_definitions := global_effect_manager.unique_definition_ids
     entity.forces = make([dynamic]Entity_Force)
-    entity.active_effects = make([]union{Effect_Handle}, total_effect_definitions)
+    entity.active_effects = make([]Maybe(Effect_Handle), total_effect_definitions)
 }
 
 @(private)
@@ -76,12 +76,12 @@ entity_destroy :: proc(entity: ^Entity) {
     delete(entity.active_effects)
 }
 
-entity_get_active_effect_by_ID :: proc(entity: ^Entity, ID: Effect_Definition_ID) -> (active: union{Effect_Handle}) {
+entity_get_active_effect_by_ID :: proc(entity: ^Entity, ID: Effect_Definition_ID) -> (active: Maybe(Effect_Handle)) {
     return entity.active_effects[ID]
 }
 
 entity_add_active_effect_by_ID :: proc(entity: ^Entity, ID: Effect_Definition_ID, effect_handle: Effect_Handle) {
-    union_wrapper: union{Effect_Handle} = effect_handle
+    union_wrapper: Maybe(Effect_Handle) = effect_handle
     entity.active_effects[ID] = union_wrapper
 }
 

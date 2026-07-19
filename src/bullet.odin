@@ -45,7 +45,7 @@ draw_bullets :: proc() {
         }
         switch b.type {
             case .BitPistol:
-                color.sdl_set_color(color.Default_Palette_Colors.YELLOW)
+                color.sdl_set_color(color.Default_Palette_Color.YELLOW)
                 camera.camera_fill_circle({{b.x, b.y}, b.size})
             // case .Scope:
             //     bulletRect:=sdl.FRect{

@@ -72,6 +72,7 @@ effect_state_extend :: proc(state: ^Effect_State, new_instance: Effect_Instance)
 
 effect_state_update :: proc(state: ^Effect_State, target_entity: ^Entity) -> (should_remove: bool) {
     should_remove = false
+    should_call := false
 
     defer state.elapsed += primatives.dt
 
@@ -87,14 +88,25 @@ effect_state_update :: proc(state: ^Effect_State, target_entity: ^Entity) -> (sh
             // Thus, subtract the interval, to retain the excess.
             state.time_since_last_tick -= state.interval
 
-            effect_callback_trigger(state, target_entity)
+            should_call = true
         }
     case .CONTINUOUS:
         // just call the callback
-        effect_callback_trigger(state, target_entity)
+        should_call = true
+        
     case .SINGLE:
-        effect_callback_trigger(state, target_entity)
+        should_call = true
         is_ending = true
+    }
+
+    if should_call {
+        effect_callback_trigger(state, target_entity)
+
+        reaction_manager_queue_event(Reaction_Event{
+            type = .TRIGGER, target = state.target,
+            definition_id = state.instance.definition.unique_id,
+            magnitude = effect_fn_data_get_reaction_magnitude(state.callback_data.data)
+        })
     }
 
     if is_ending {

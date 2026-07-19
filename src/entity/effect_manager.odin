@@ -85,7 +85,7 @@ effect_manager_get_effect :: proc(effect_handle: Effect_Handle) -> (state: ^Effe
     return 
 }
 
-effect_manager_queue_apply :: proc(data: Effect_Application_Data, override: union{Effect_Fn_Data} = nil) {
+effect_manager_queue_apply :: proc(data: Effect_Application_Data, override: Maybe(Effect_Fn_Data) = nil) {
     data := data
     // Effects by default use their instance's data
     data.callback_data = data.instance.callback_data
@@ -142,7 +142,16 @@ effect_manager_update :: proc() {
     // do removals
     for len(global_effect_manager.removal_queue) > 0 {
         to_remove := pop(&global_effect_manager.removal_queue)
-        handle.pool_remove(&global_effect_manager.pool, to_remove)
+        defer handle.pool_remove(&global_effect_manager.pool, to_remove)
+
+        removal_effect, ok := effect_manager_get_effect(to_remove)
+        if !ok do continue
+
+        reaction_manager_queue_event(Reaction_Event{
+            type = .REMOVE, target = removal_effect.target,
+            definition_id = removal_effect.instance.definition.unique_id,
+            magnitude = effect_fn_data_get_reaction_magnitude(removal_effect.callback_data.data)
+        })        
     }
 
     // do applications
@@ -205,6 +214,13 @@ effect_manager_apply_effect :: proc(
 
     should_apply := effect_manager_stack_on_apply(instance, target_entity)
     if !should_apply do return
+
+    // Queue event that will cause reaction
+    reaction_manager_queue_event(Reaction_Event{
+        type = .APPLY, target = application_data.target,
+        definition_id = application_data.instance.definition.unique_id,
+        magnitude = effect_fn_data_get_reaction_magnitude(application_data.callback_data.data)
+    })
 
     new_effect_handle := handle.pool_add(&global_effect_manager.pool, state)
     entity_add_active_effect_by_ID(target_entity, state.instance.definition.unique_id, new_effect_handle)
