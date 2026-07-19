@@ -18,14 +18,14 @@ import mem "core:mem"
 REACTION_ANIMATION_SOURCE: assets.Data_Tag: "animations/reactions.yaml"
 
 
-Reaction_Data_Tag :: distinct string
+Reaction_Data_Tag :: string
 
 reaction_data_tag_create :: proc(team: Entity_Team, category: Entity_Category) -> (tag: Reaction_Data_Tag) {
-    return cast(Reaction_Data_Tag) fmt.aprint(team, category, sep = ",")
+    return fmt.aprint(team, category, sep = ",")
 }
 
 reaction_data_tag_destroy :: proc(tag: Reaction_Data_Tag) {
-    delete(cast(string) tag)
+    delete(tag)
 }
 
 // Reaction data contains a collection of data related to possible reaction outcomes.
@@ -104,13 +104,16 @@ reaction_set_create :: proc(set: ^Reaction_Set, default_data: Maybe(Reaction_Dat
 
 reaction_set_destroy :: proc(set: ^Reaction_Set) {
     for key, &data in set.reaction_data_map {
-        delete(cast(string) key)
+        delete(key)
         reaction_data_destroy(&data)
     }
     delete(set.reaction_data_map)
 }
 
-reaction_data_load :: proc(pre_path, file_path: string, arena_allocator: runtime.Allocator) {
+reaction_data_load :: proc(
+    pre_path, file_path: string, effect_definition_tag_to_id: map[Effect_Definition_Tag]Effect_Definition_ID,
+    arena_allocator: runtime.Allocator
+) {
     full_path := fmt.aprint(assets.DATA_TAG_DEFAULT_ASSET_FOLDER, file_path, sep = "")
     defer delete(full_path)
     data_map, map_ok := yaml_parse.get_yaml_mapping(full_path, arena_allocator)
@@ -121,8 +124,8 @@ reaction_data_load :: proc(pre_path, file_path: string, arena_allocator: runtime
 
     log.debugf("Loading effect reaction %v", file_path)
 
-    definition_tag := cast(Effect_Definition_Tag) yaml_parse.read_value_from_map(data_map, "definition", string, default = "")
-    definition_id, id_ok := global_effect_manager.definition_tag_to_id[definition_tag]
+    definition_tag := yaml_parse.read_value_from_map(data_map, "definition", string, default = "")
+    definition_id, id_ok := effect_definition_tag_to_id[definition_tag]
     if !id_ok {
         log.errorf("Effect reaction %v with definition %v could not resolve such definition", file_path, definition_tag)
     }
@@ -145,16 +148,12 @@ reaction_data_load :: proc(pre_path, file_path: string, arena_allocator: runtime
         }
     }
 
-    // parse out every listed default and team,category reaction for each definition, if there is any
-    
-    // create the reaction datas and assign them to the map with a created key
-
     global_reaction_manager.table[definition_id] = new_reaction_set
 }
 
 reaction_data_read_yaml_map :: proc(yaml_map: yaml.Mapping) -> (data: Reaction_Data, combo_name: Reaction_Data_Tag) {
     data = reaction_data_empty_struct()
-    combo_name = cast(Reaction_Data_Tag) strings.clone(yaml_parse.read_value_from_map(yaml_map, "tag", string, default = ""))
+    combo_name = strings.clone(yaml_parse.read_value_from_map(yaml_map, "tag", string, default = ""))
 
     apply_sound := yaml_parse.read_value_from_map(yaml_map, "apply_sound", string, default = "")
     if apply_sound != "" do data.apply_sound = cast(assets.Data_Tag) strings.clone(apply_sound)

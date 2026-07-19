@@ -6,16 +6,16 @@ import handle "../handle"
 
 import log "core:log"
 
-global_init :: proc() -> (effect_manger: ^Effect_Manager, entity_manager: ^Entity_Manager, reaction_manager: ^Reaction_Manager) {
+global_init :: proc() -> (effect_manager: ^Effect_Manager, entity_manager: ^Entity_Manager, reaction_manager: ^Reaction_Manager) {
     // Effect manager must be created and loaded before other entity processes.
     // This is because the number of total effect definitions is important for the ability to use
     // malloced arrays instead of dynamic ones.
-    effect_manger = effect_manager_create()
+    effect_manager = effect_manager_create()
     effect_manager_load()
 
     entity_manager = entity_manager_create()
-    reaction_manager = reaction_manager_create()
-    reaction_manager_load()
+    reaction_manager = reaction_manager_create(effect_manager.unique_definition_ids)
+    reaction_manager_load(effect_manager.definition_tag_to_id)
 
     return
 }

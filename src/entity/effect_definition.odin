@@ -25,8 +25,8 @@ Stack_Behaviour :: enum { NONE, REFRESH, STACK, EXTEND }
 
 Effect_Type :: enum { PULSE, CONTINUOUS, SINGLE }
 
-Effect_Definition_Tag :: distinct string
-Effect_Definition_ID :: distinct u32
+Effect_Definition_Tag :: string
+Effect_Definition_ID :: u32
 
 // TODO: store definitions in a allocated slice (not dynamic array)
 Effect_Definition :: struct {
@@ -58,7 +58,7 @@ effect_definitions_load :: proc() {
     assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
 
     num_definitions := len(file_paths) + 1
-    global_effect_manager.unique_definition_ids = cast(Effect_Definition_ID) num_definitions
+    global_effect_manager.unique_definition_ids = cast(u32) num_definitions
     global_effect_manager.definitions = make([]Effect_Definition, num_definitions)
     definition_id_counter: Effect_Definition_ID = 0
 
@@ -88,13 +88,13 @@ effect_definition_load :: proc(
 
     new_definition.unique_id = counter^
 
-    new_definition.unique_tag = cast(Effect_Definition_Tag) strings.clone(strings.trim_prefix(strings.trim_suffix(file_path, ".yaml"), pre_path))
+    new_definition.unique_tag = strings.clone(strings.trim_prefix(strings.trim_suffix(file_path, ".yaml"), pre_path))
 
     new_type := yaml_parse.read_value_from_map(data_map, "type", string, default = "")
     new_behaviour := yaml_parse.read_value_from_map(data_map, "stack_behaviour", string, default = "")
     new_callback := yaml_parse.read_value_from_map(data_map, "callback", string, default = "")
 
-    new_definition.callback = effect_callback_from_string(cast(Effect_Callback_String) new_callback)
+    new_definition.callback = effect_callback_from_string(new_callback)
 
     switch new_type {
     case "PULSE":
@@ -129,7 +129,7 @@ effect_definitions_unload :: proc() {
     log.infof("Unloading effect definitions")
 
     for &definition in &global_effect_manager.definitions {
-        delete(cast(string) definition.unique_tag)
+        delete(definition.unique_tag)
     }
     defer delete(global_effect_manager.definitions)
 }

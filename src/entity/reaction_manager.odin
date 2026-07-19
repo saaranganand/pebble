@@ -19,10 +19,10 @@ Reaction_Manager :: struct {
     events: [dynamic]Reaction_Event,
 }
 
-reaction_manager_create :: proc() -> (reaction_manager: ^Reaction_Manager) {
+reaction_manager_create :: proc(unique_effect_definition_ids: u32) -> (reaction_manager: ^Reaction_Manager) {
     log.infof("Creating reaction manager")
 
-    global_reaction_manager.table = make([]Reaction_Set, global_effect_manager.unique_definition_ids)
+    global_reaction_manager.table = make([]Reaction_Set, unique_effect_definition_ids)
     global_reaction_manager.events = make([dynamic]Reaction_Event)
 
     reaction_manager = &global_reaction_manager
@@ -41,7 +41,7 @@ reaction_manager_destroy :: proc() {
     delete(global_reaction_manager.events)
 }
 
-reaction_manager_load :: proc() {
+reaction_manager_load :: proc(effect_definition_tag_to_id: map[Effect_Definition_Tag]Effect_Definition_ID) {
     log.infof("Loading effect reaction manager")
 
     // Lib yaml binding requires use of arena allocator (good one)
@@ -62,7 +62,7 @@ reaction_manager_load :: proc() {
     assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
 
     for path in file_paths {
-        reaction_data_load(pre_path, path, arena_alloc)
+        reaction_data_load(pre_path, path, effect_definition_tag_to_id, arena_alloc)
         delete(path)
     }
 }
@@ -84,15 +84,15 @@ reaction_manager_get_data_from_enums :: proc(
     if ok do return data, true
 
     // Then, try matching team with any category
-    team_key := cast(Reaction_Data_Tag) fmt.aprint(team, "ANY", sep = ",")
-    defer delete(cast(string) team_key)
+    team_key := fmt.aprint(team, "ANY", sep = ",")
+    defer delete(team_key)
 
     data, ok = reaction_set.reaction_data_map[team_key]
     if ok do return data, true
 
     // Then, category with any team
-    category_key := cast(Reaction_Data_Tag) fmt.aprint("ANY", category, sep = ",")
-    defer delete(cast(string) category_key)
+    category_key := fmt.aprint("ANY", category, sep = ",")
+    defer delete(category_key)
 
     data, ok = reaction_set.reaction_data_map[category_key]
     if ok do return data, true

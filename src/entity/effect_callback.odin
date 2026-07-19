@@ -8,7 +8,7 @@ import assets "../assets"
 import strings "core:strings"
 import log "core:log"
 
-Effect_Callback_String :: distinct string
+Effect_Callback_String :: string
 
 // TODO
 Lua_Effect_Callback :: struct {
@@ -28,7 +28,7 @@ Odin_Effect_Callback :: enum {
 }
 
 effect_callback_from_string :: proc(call_string: Effect_Callback_String) -> (callback: Effect_Callback) {
-    pre_comma, _, post_comma := strings.partition(cast(string) call_string, ",")
+    pre_comma, _, post_comma := strings.partition(call_string, ",")
 
     if pre_comma == "lua" {
         callback = Lua_Effect_Callback{ name = post_comma }

@@ -13,9 +13,9 @@ import log "core:log"
 import fmt "core:fmt"
 import mem "core:mem"
 
-Effect_Instance_Tag :: distinct string
+Effect_Instance_Tag :: string
 
-Effect_Instance_ID :: distinct u32
+Effect_Instance_ID :: u32
 
 // TODO: store instances in a allocated slice (not dynamic array)
 Effect_Instance :: struct {
@@ -50,7 +50,7 @@ effect_instances_load :: proc() {
     assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
 
     num_instances := len(file_paths) + 1
-    global_effect_manager.unique_instance_ids = cast(Effect_Instance_ID) num_instances
+    global_effect_manager.unique_instance_ids = cast(u32) num_instances
     global_effect_manager.instances = make([]Effect_Instance, num_instances)
     instance_id_counter: Effect_Instance_ID = 0
 
@@ -80,7 +80,7 @@ effect_instance_load :: proc(
 
     new_instance.unique_id = counter^
 
-    definition_tag := cast(Effect_Definition_Tag) yaml_parse.read_value_from_map(data_map, "definition", string, default = "")
+    definition_tag := yaml_parse.read_value_from_map(data_map, "definition", string, default = "")
     definition_id, found := global_effect_manager.definition_tag_to_id[definition_tag]
     if !found {
         log.errorf("Could not find matching definition of tag %v for new instance from file %v", definition_tag, file_path)
@@ -91,7 +91,7 @@ effect_instance_load :: proc(
 
     new_instance.definition = definition
 
-    new_instance.unique_tag = cast(Effect_Instance_Tag) strings.clone(strings.trim_prefix(strings.trim_suffix(file_path, ".yaml"), pre_path))
+    new_instance.unique_tag = strings.clone(strings.trim_prefix(strings.trim_suffix(file_path, ".yaml"), pre_path))
 
     new_instance.duration = cast(f32) yaml_parse.read_value_from_map(data_map, "duration", f64, default = 0.0)
     new_instance.interval = cast(f32) yaml_parse.read_value_from_map(data_map, "interval", f64, default = 0.0)
@@ -147,7 +147,7 @@ effect_instances_unload :: proc() {
     log.infof("Unloading effect instances")
 
     for &instance in &global_effect_manager.instances {
-        delete(cast(string) instance.unique_tag)
+        delete(instance.unique_tag)
     }
     defer delete(global_effect_manager.instances)
 }
