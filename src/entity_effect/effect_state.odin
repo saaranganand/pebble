@@ -1,6 +1,8 @@
-package entity
+package effect
 
 import primatives "../sdl_primatives"
+import handle "../handle"
+import entity "../entity"
 
 import log "core:log"
 
@@ -10,7 +12,7 @@ import log "core:log"
 Effect_State :: struct {
     instance: ^Effect_Instance,
 
-    source, target: Entity_Handle,
+    source, target: handle.Entity_Handle,
 
     active: bool,
 
@@ -70,7 +72,7 @@ effect_state_extend :: proc(state: ^Effect_State, new_instance: Effect_Instance)
     state.duration += new_instance.duration
 }
 
-effect_state_update :: proc(state: ^Effect_State, target_entity: ^Entity) -> (should_remove: bool) {
+effect_state_update :: proc(state: ^Effect_State, target_entity: ^entity.Entity) -> (should_remove: bool) {
     should_remove = false
     should_call := false
 
@@ -102,7 +104,7 @@ effect_state_update :: proc(state: ^Effect_State, target_entity: ^Entity) -> (sh
     if should_call {
         effect_callback_trigger(state, target_entity)
 
-        reaction_manager_queue_event(Reaction_Event{
+        effect_manager_queue_event(Effect_Event{
             type = .TRIGGER, target = state.target,
             definition_id = state.instance.definition.unique_id,
             magnitude = effect_fn_data_get_reaction_magnitude(state.callback_data.data)

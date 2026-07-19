@@ -5,6 +5,8 @@ import ttf "vendor:sdl3/ttf"
 
 import primatives "sdl_primatives"
 import entity "entity"
+import effect "entity_effect"
+import reaction "entity_effect_reaction"
 import color "color"
 import horde "enemy/horde"
 import camera "camera"
@@ -26,9 +28,9 @@ game := struct {
     game_over: bool,
     input: Input,
     horde: horde.Horde,
-    effect_manager: ^entity.Effect_Manager,
+    effect_manager: ^effect.Effect_Manager,
     entity_manager: ^entity.Entity_Manager,
-    reaction_manager: ^entity.Reaction_Manager,
+    reaction_manager: ^reaction.Reaction_Manager,
     hud: HUD,
 }{}
 
@@ -66,7 +68,15 @@ game_create :: proc() {
 
     assets.global_init()
 
-    game.effect_manager, game.entity_manager, game.reaction_manager = entity.global_init()
+    // Effect manager must be created and loaded before other entity processes.
+    // This is because the number of total effect definitions is important for the ability to use
+    // malloced arrays instead of dynamic ones.
+    game.effect_manager = effect.effect_manager_create()
+    effect.effect_manager_load()
+
+    game.entity_manager = entity.entity_manager_create()
+    game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.unique_definition_ids)
+    reaction.reaction_manager_load(game.effect_manager.definition_tag_to_id)
 
     game.player = player_init()
 
@@ -82,14 +92,17 @@ game_create :: proc() {
 game_destroy :: proc() {
     destroy_hud(&game.hud)
 
-    entity.global_destroy()
-    assets.global_destroy()
-
     horde.destroy(&game.horde)
 
     player_destroy(&game.player)
 
     camera.global_camera_destroy()
+
+    reaction.reaction_manager_destroy()
+    entity.entity_manager_destroy()
+    effect.effect_manager_destroy()
+
+    assets.global_destroy()
 }
 
 game_input :: proc() {
@@ -118,7 +131,10 @@ game_update :: proc() {
     update_player()
     update_bullets()
 
-    entity.global_update()
+    effect.effect_manager_update()
+
+    // Since reactions are explicitly reactions to effects, must update this after effects.
+    reaction.reaction_manager_update(game.effect_manager)
 
     /*
     is_ping_selected := player.active_category == .Auto && player.weaponAuto == .Ping

@@ -49,6 +49,7 @@ draw_hud :: proc() {
 
     effect_rect := sdl.FRect{x = 10 + 200 + 10, y = 10, w = 20, h = 20}
 
+    /*
     // top left player effects
     for i in 0..<game.effect_manager.unique_definition_ids {
         effect_maybe := entity.entity_get_active_effect_by_ID(player_entity, i)
@@ -80,7 +81,7 @@ draw_hud :: proc() {
         ttf.DrawRendererText(hud.effect_duration_text, effect_rect.x + 20 + 2, effect_rect.y + 2)
 
         effect_rect.x += 40 + 5
-    }
+    }*/
     
     weapon_name : cstring
     switch player.active_category {

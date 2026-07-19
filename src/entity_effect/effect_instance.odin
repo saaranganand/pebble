@@ -1,4 +1,4 @@
-package entity
+package effect
 
 import sdl "vendor:sdl3"
 import yaml "../../libs/odin-yaml"

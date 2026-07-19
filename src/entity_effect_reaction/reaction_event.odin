@@ -1,26 +1,22 @@
-package entity
+package reaction
 
 import sdl "vendor:sdl3"
+import yaml "../../libs/odin-yaml"
 
-import assets "../assets"
+import yaml_parse "../assets/yaml_parse"
 import color "../color"
+import assets "../assets"
+import handle "../handle"
+import entity "../entity"
+import effect "../entity_effect"
 
+import runtime "base:runtime"
+import strings "core:strings"
 import log "core:log"
 import fmt "core:fmt"
+import mem "core:mem"
 
-Reaction_Event_Type :: enum { APPLY, TRIGGER, REMOVE }
-
-Reaction_Event :: struct {
-    type: Reaction_Event_Type,
-    target: Entity_Handle,
-    definition_id: Effect_Definition_ID,
-    // Kind of a catch all value.
-    // Can be used to display damage amount as floating text,
-    // or in an equation to determine screen shake based on amount of damage taken.
-    magnitude: f32,
-}
-
-reaction_event_trigger :: proc(event: Reaction_Event, data: Reaction_Data, target_entity: ^Entity) {
+reaction_event_trigger :: proc(event: effect.Effect_Event, data: Reaction_Data, target_entity: ^entity.Entity) {
     switch event.type {
     case .APPLY:
         sound, sound_ok := data.apply_sound.(assets.Data_Tag)

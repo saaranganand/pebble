@@ -1,4 +1,4 @@
-package entity
+package effect
 
 import sdl "vendor:sdl3"
 import yaml "../../libs/odin-yaml"
@@ -13,7 +13,7 @@ import log "core:log"
 import fmt "core:fmt"
 import mem "core:mem"
 
-Effect_Handle :: handle.Handle(handle.Effect_Tag)
+Effect_Handle :: handle.Effect_Handle
 
 // Defines what happens when an effect is attempted to be applied to an entity that already has said effect.
 // NONE:    the effect is not applied

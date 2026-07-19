@@ -1,11 +1,14 @@
-package entity
+package reaction
 
 import sdl "vendor:sdl3"
 import yaml "../../libs/odin-yaml"
 
 import yaml_parse "../assets/yaml_parse"
-import assets "../assets"
 import color "../color"
+import assets "../assets"
+import handle "../handle"
+import entity "../entity"
+import effect "../entity_effect"
 
 import runtime "base:runtime"
 import strings "core:strings"
@@ -20,7 +23,7 @@ REACTION_ANIMATION_SOURCE: assets.Data_Tag: "animations/reactions.yaml"
 
 Reaction_Data_Tag :: string
 
-reaction_data_tag_create :: proc(team: Entity_Team, category: Entity_Category) -> (tag: Reaction_Data_Tag) {
+reaction_data_tag_create :: proc(team: entity.Entity_Team, category: entity.Entity_Category) -> (tag: Reaction_Data_Tag) {
     return fmt.aprint(team, category, sep = ",")
 }
 
@@ -111,7 +114,7 @@ reaction_set_destroy :: proc(set: ^Reaction_Set) {
 }
 
 reaction_data_load :: proc(
-    pre_path, file_path: string, effect_definition_tag_to_id: map[Effect_Definition_Tag]Effect_Definition_ID,
+    pre_path, file_path: string, effect_definition_tag_to_id: effect.Effect_Definition_Tag_To_ID_Map,
     arena_allocator: runtime.Allocator
 ) {
     full_path := fmt.aprint(assets.DATA_TAG_DEFAULT_ASSET_FOLDER, file_path, sep = "")

@@ -1,6 +1,7 @@
-package entity
+package effect
 
 import primatives "../sdl_primatives"
+import handle "../handle"
 
 import log "core:log"
 
@@ -8,11 +9,11 @@ import log "core:log"
 Effect_Application_Data :: struct {
     instance: ^Effect_Instance,
     callback_data: Effect_Callback_Data,
-    source, target: Entity_Handle
+    source, target: handle.Entity_Handle
 }
 
 effect_application_data_from_tag :: proc(
-    instance_tag: Effect_Instance_Tag, source, target: Entity_Handle
+    instance_tag: Effect_Instance_Tag, source, target: handle.Entity_Handle
 ) -> (data: Effect_Application_Data) {
     data.source = source
     data.target = target

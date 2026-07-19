@@ -1,8 +1,11 @@
-package entity
+package reaction
 
 import sdl "vendor:sdl3"
 
 import assets "../assets"
+import handle "../handle"
+import entity "../entity"
+import effect "../entity_effect"
 
 import runtime "base:runtime"
 import strings "core:strings"
@@ -16,14 +19,12 @@ global_reaction_manager: Reaction_Manager
 Reaction_Manager :: struct {
     // 1-1 with effect definition ID
     table: []Reaction_Set,
-    events: [dynamic]Reaction_Event,
 }
 
 reaction_manager_create :: proc(unique_effect_definition_ids: u32) -> (reaction_manager: ^Reaction_Manager) {
     log.infof("Creating reaction manager")
 
     global_reaction_manager.table = make([]Reaction_Set, unique_effect_definition_ids)
-    global_reaction_manager.events = make([dynamic]Reaction_Event)
 
     reaction_manager = &global_reaction_manager
 
@@ -38,10 +39,9 @@ reaction_manager_destroy :: proc() {
     } 
 
     delete(global_reaction_manager.table)
-    delete(global_reaction_manager.events)
 }
 
-reaction_manager_load :: proc(effect_definition_tag_to_id: map[Effect_Definition_Tag]Effect_Definition_ID) {
+reaction_manager_load :: proc(effect_definition_tag_to_id: effect.Effect_Definition_Tag_To_ID_Map) {
     log.infof("Loading effect reaction manager")
 
     // Lib yaml binding requires use of arena allocator (good one)
@@ -67,12 +67,8 @@ reaction_manager_load :: proc(effect_definition_tag_to_id: map[Effect_Definition
     }
 }
 
-reaction_manager_queue_event :: proc(event_data: Reaction_Event) {
-    append(&global_reaction_manager.events, event_data)
-}
-
 reaction_manager_get_data_from_enums :: proc(
-    team: Entity_Team, category: Entity_Category, definition_id: Effect_Definition_ID
+    team: entity.Entity_Team, category: entity.Entity_Category, definition_id: effect.Effect_Definition_ID
 ) -> (data: Reaction_Data, ok: bool) {
     reaction_set := global_reaction_manager.table[definition_id]
 
@@ -104,10 +100,10 @@ reaction_manager_get_data_from_enums :: proc(
     return {}, false
 }
 
-reaction_manager_update :: proc() {
-    for event in global_reaction_manager.events {
+reaction_manager_update :: proc(effect_manager: ^effect.Effect_Manager) {
+    for event in effect_manager.events {
         // Get entity
-        target_entity, entity_ok := entity_get(event.target)
+        target_entity, entity_ok := entity.entity_get(event.target)
         if !entity_ok do continue
 
         data, data_ok := reaction_manager_get_data_from_enums(target_entity.team, target_entity.category, event.definition_id)
@@ -117,5 +113,5 @@ reaction_manager_update :: proc() {
         reaction_event_trigger(event, data, target_entity)
     }
 
-    clear(&global_reaction_manager.events)
+    clear(&effect_manager.events)
 }

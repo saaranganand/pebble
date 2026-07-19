@@ -1,9 +1,10 @@
-package entity
+package effect
 
 import sdl "vendor:sdl3"
 
 import primatives "../sdl_primatives"
 import assets "../assets"
+import entity "../entity"
 
 import strings "core:strings"
 import log "core:log"
@@ -69,7 +70,7 @@ effect_fn_data_to_type :: proc(fn_data: Effect_Fn_Data) -> (type: Odin_Effect_Ca
         return .SPEED
 	case Effect_Position_Fn_Data:
         return .POSITION
-	case Entity_Force:
+	case Effect_Force_Fn_Data:
         return .FORCE
     }
 
@@ -84,7 +85,7 @@ effect_fn_data_get_reaction_magnitude :: proc(fn_data: Effect_Fn_Data) -> (magni
         return d.mult
 	case Effect_Position_Fn_Data:
         return d.speed
-	case Entity_Force:
+	case Effect_Force_Fn_Data:
         return d.force
     }
 
@@ -110,23 +111,23 @@ Effect_Position_Fn_Data :: struct {
     speed: f32,
 }
 
-Effect_Force_Fn_Data :: Entity_Force
+Effect_Force_Fn_Data :: entity.Entity_Force
 
-effect_damage_fn   :: proc(data: Effect_Damage_Fn_Data,   target_entity: Entity) -> (damage: f32) {
+effect_damage_fn   :: proc(data: Effect_Damage_Fn_Data, target_entity: entity.Entity) -> (damage: f32) {
     // TODO: add stuff like defense? aka entity impact in damage formula?
     damage = data.damage
     return
 }
-effect_speed_fn    :: proc(data: Effect_Speed_Fn_Data,    target_entity: Entity) -> (new_speed: f32) {
+effect_speed_fn    :: proc(data: Effect_Speed_Fn_Data, target_entity: entity.Entity) -> (new_speed: f32) {
     new_speed = (target_entity.move_speed + data.add) * data.mult
     return
 }
-effect_position_fn :: proc(data: Effect_Position_Fn_Data, target_entity: Entity) -> (new_pos: sdl.FPoint) {
+effect_position_fn :: proc(data: Effect_Position_Fn_Data, target_entity: entity.Entity) -> (new_pos: sdl.FPoint) {
     new_pos = target_entity.position + data.direction * data.speed * primatives.dt
     return
 }
 
-effect_callback_trigger :: proc(state: ^Effect_State, target_entity: ^Entity) {
+effect_callback_trigger :: proc(state: ^Effect_State, target_entity: ^entity.Entity) {
     if _, ok := state.instance.definition.callback.(Lua_Effect_Callback); ok {
         // TODO
         return
@@ -139,7 +140,7 @@ effect_callback_trigger :: proc(state: ^Effect_State, target_entity: ^Entity) {
         data := state.callback_data.data.(Effect_Damage_Fn_Data)
 
         damage := effect_damage_fn(data, target_entity^)
-        entity_deal_damage(target_entity, damage)
+        entity.entity_deal_damage(target_entity, damage)
 
     case .SPEED:
         data := state.callback_data.data.(Effect_Speed_Fn_Data)
