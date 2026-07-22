@@ -10,11 +10,15 @@ import primatives "sdl_primatives"
 import geo "geometry"
 import camera "camera"
 import color "color"
-import data "data"
+import assets "assets" 
+import entity "entity"
+import weapon "weapon"
 
 Player :: struct {
-    position: sdl.FPoint,
-    hp: f32,
+    entity: entity.Entity_Handle,
+
+    tracking_position: sdl.FPoint,
+
     aimAngle: f32,
     weaponManual: WeaponManual,
     weaponHold: WeaponHold,
@@ -27,45 +31,48 @@ Player :: struct {
     ping: Ping,
     daemon: Daemon,
 
-    frame_count: f32,
-    current_animation: data.Animation_Tag,
-    animation_tag: data.Data_Tag,
+    weapon_controller: weapon.Weapon_Controller,
+    weapon_select: int,
 
     allied_damage_areas: [dynamic]geo.Circle,
 }
 
 player_init :: proc() -> (player: Player) {
-    player.position = {0,0}
-    player.hp = game_config.player.max_hp
-    player.frame_count = 0
-
-    player.current_animation = "dancing"
-    player.animation_tag = "animations/entity/player.yaml"
+    entity_data := entity.entity_make_data({0.0,0.0}, game_config.player.speed, game_config.player.max_hp, .ALLY, .PLAYER, "animations/entity/player.yaml")
+    player.entity = entity.entity_manager_add_entity(entity_data)
 
     player.allied_damage_areas = make([dynamic]geo.Circle)
+
+    weapon.weapon_controller_create(&player.weapon_controller)
+    weapon.weapon_controller_add_weapon(&player.weapon_controller, "bit_pistol", true)
+    weapon.weapon_controller_init(&player.weapon_controller, AIM_DIST)
+    player.weapon_select = 0
     return
 }
 
 player_destroy :: proc(player: ^Player) {
     delete(player.allied_damage_areas)
+    weapon.weapon_controller_destroy(&player.weapon_controller)
 }
 
 draw_player :: proc() {
     player := &game.player
 
-    test_img_dest := sdl.FRect{ player.position.x, player.position.y, 200, 200 }
-    //camera.camera_draw_img("img/player/move.png", test_img_dest)
+    entity, ok := entity.entity_get(player.entity)
+    if !ok do return
 
     // aim reticle
-    aim_circle := geo.Circle{ player.position + { math.cos(player.aimAngle), math.sin(player.aimAngle) } * AIM_DIST, AIM_SIZE }
+    //aim_circle := geo.Circle{ entity.position + { math.cos(player.aimAngle), math.sin(player.aimAngle) } * AIM_DIST, AIM_SIZE }
 
-    color.sdl_set_color(color.Default_Palette_Colors.SKY_BLUE)
-    camera.camera_fill_circle(aim_circle)
+    //color.sdl_set_color(color.Default_Palette_Color.SKY_BLUE)
+    //camera.camera_fill_circle(aim_circle)
 
-    camera.camera_draw_animation(player.animation_tag, player.current_animation, &player.frame_count, player.position)
+    camera.camera_draw_animation(&entity.animation_controller, entity.position)
 
-    color.sdl_set_color(color.Default_Palette_Colors.BABY_BLUE)
-    camera.camera_fill_circle({{player.position.x, player.position.y}, 10})
+    color.sdl_set_color(color.Default_Palette_Color.BABY_BLUE)
+    camera.camera_fill_circle({{entity.position.x, entity.position.y}, 10})
+
+    weapon.weapon_controller_draw(&player.weapon_controller, entity.position)
 }
 
 update_player :: proc() {
@@ -75,13 +82,25 @@ update_player :: proc() {
     waves := &game.waves
     input := &game.input
 
+    entity, ok := entity.entity_get(player.entity)
+    if !ok do return
+
+    if input.select == 1 && player.weapon_select != 1 {
+        player.weapon_select = 1
+        weapon.weapon_controller_select_weapon(&player.weapon_controller, "bit_pistol")
+    }
+
+    player.tracking_position = entity.position
+
+    entity.move_speed = entity.base_move_speed
+
     switch player.active_category { 
     case .Manual:
         switch player.weaponManual {
         case .BitPistol:
-            update_bitpistol(&player.bitPistol, player.position.x, player.position.y, player.aimAngle)
+            update_bitpistol(&player.bitPistol, entity.position.x, entity.position.y, player.aimAngle)
         case .Scope:
-            update_scope(&player.scope, player.position.x, player.position.y, player.aimAngle)    
+            update_scope(&player.scope, entity.position.x, entity.position.y, player.aimAngle)    
         }
 
     case .Hold:
@@ -89,7 +108,7 @@ update_player :: proc() {
         case .Bus:
             update_bus(&player.bus)
         case .Trace:
-            update_trace(&player.trace, player.position.x, player.position.y, player.aimAngle)
+            update_trace(&player.trace, entity.position.x, entity.position.y, player.aimAngle)
         }
 
     case .Auto:
@@ -101,13 +120,15 @@ update_player :: proc() {
         }
     }
 
-    if input.direction.x > 0 do player.current_animation = "moving_facing_right"
-    else if input.direction.x < 0 do player.current_animation = "moving_facing_left"
-    else do player.current_animation = "idle"
+    if input.direction.x > 0 do entity.animation_controller.current_animation = "moving_facing_right"
+    else if input.direction.x < 0 do entity.animation_controller.current_animation = "moving_facing_left"
+    else do entity.animation_controller.current_animation = "idle"
     
     // always centers player
-    player.position += input.direction * game_config.player.speed * primatives.dt
+    entity.position += input.direction * game_config.player.speed * primatives.dt
 
-    player_view_position := camera.world_position_to_view(player.position)
+    player_view_position := camera.world_position_to_view(entity.position)
     player.aimAngle = math.atan2(input.mouseY - player_view_position.y, input.mouseX - player_view_position.x)
+
+    weapon.weapon_controller_update(&player.weapon_controller, input^, entity.position)
 }

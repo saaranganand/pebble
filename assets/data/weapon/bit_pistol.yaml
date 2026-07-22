@@ -1,0 +1,23 @@
+category: RANGED
+projectile_category: BULLET
+piercing: 1
+
+gcd_interval: 0.5
+cooldown: 0.0
+uses_before_cooldown: 0
+max_charge_time: 0.0
+
+animation_source: animations/weapon/bit_pistol.yaml
+animation_default_angle_deg: 0.0
+
+projectile_data:
+  category: BULLET
+  piercing: 1
+  speed: 1500.0
+  lifetime: 3.0
+  animation_source: animations/projectile/bullet.yaml
+  shape_radius: 10.0
+
+sounds:
+  select: sounds/weapons/bit_pistol/select.wav
+  shoot: sounds/weapons/bit_pistol/shoot.wav

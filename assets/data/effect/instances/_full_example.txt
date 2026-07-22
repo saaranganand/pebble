@@ -1,0 +1,29 @@
+# only one per file 
+
+definition: "burn"
+duration: 5.0
+interval: 1.0
+callback_type: "damage"
+# data
+damage: 4.0
+
+definition: "slow"
+duration: 3.0
+callback_type: "speed"
+# data
+mult: 0.5
+add: 0.0
+
+definition: "gravity"
+duration: 8.0
+callback_type: "position"
+# data
+direction: {x: 1.0, y: 0.0}
+
+definition: "knockback"
+duration: 0.0
+callback_type: "force"
+# data
+direction: {x: 1.0, y: 0.0}
+force: 20.0
+decay_rate: 0.5

@@ -16,7 +16,7 @@
     - stat: fire_rate
       multiplier: 1.5
 
-- id: checksum # bitpistol misses less often
+- id: bp_checksum # bitpistol misses less often
   buffs:
     - stat: bitpistol.miss_chance
       multiplier: 0.5

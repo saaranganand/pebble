@@ -23,7 +23,7 @@ import color "../../color"
 // Instead of leaving dead entities in the data array and skipping them on iteration,
 // entities are removed on death, using unordered remove.
 // This messes with the handles, but can be solved with two arrays:
-// tickets is a dynamic array of tickets. It is what handles point to, and tickets themselves point to data.
+// tickets is a dynamic array of tickets. It is what handles point to, and tickets themselves point to assets.
 // The next is an array that shadows data, and acts as a reverse lookup table. It answers: whats the index into the ticket array
 // for the ticket that points to entity at index i? The array at index i holds an index j, which is the ticket.
 // This would be used to find the ticket that needs to be updated when entity a dies, and is replaced with entity b at the end of the array --
@@ -100,11 +100,11 @@ resolve_handle :: proc {
 
 draw :: proc(horde: ^Horde) {
     // Leader color
-    color.sdl_set_color(color.Default_Palette_Colors.RED)
+    color.sdl_set_color(color.Default_Palette_Color.RED)
     leader_registry_draw(&horde.leader_registry)
     
     // Follower color
-    color.sdl_set_color(color.Default_Palette_Colors.PINK)
+    color.sdl_set_color(color.Default_Palette_Color.PINK)
     follower_registry_draw(&horde.follower_registry)
 }
 

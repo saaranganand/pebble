@@ -4,11 +4,16 @@ import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
 import primatives "sdl_primatives"
+import entity "entity"
+import effect "entity_effect"
+import reaction "entity_effect_reaction"
+import projectile "projectile"
 import color "color"
 import horde "enemy/horde"
 import camera "camera"
-import data "data"
-import handle "handle"
+import assets "assets" 
+import weapon "weapon"
+import input "input"
 
 AIM_DIST :: 50
 AIM_SIZE :: 8
@@ -21,8 +26,14 @@ game := struct {
     waves: PingWavePool,
     //enemies: EnemyPool,
     game_over: bool,
-    input: Input,
-    horde: horde.Horde
+    input: input.Input,
+    horde: horde.Horde,
+    effect_manager: ^effect.Effect_Manager,
+    entity_manager: ^entity.Entity_Manager,
+    reaction_manager: ^reaction.Reaction_Manager,
+    weapon_manager: ^weapon.Weapon_Manager,
+    projectile_manager: ^projectile.Projectile_Manager,
+    hud: HUD,
 }{}
 
 game_loop :: proc() {
@@ -57,44 +68,56 @@ main :: proc() {
 game_create :: proc() {
     primatives.global_timer_init()
 
-    data.global_manager_create()
-    data.audio_entry_load("sounds/silly/pirate_bell.wav")
-    data.audio_entry_load("music/shanty.ogg")
-    data.music_play("music/shanty.ogg")
+    assets.global_init()
 
-    data.font_load("fonts/ubuntu.ttf", 32)
-    data.font_load("fonts/ubuntu.ttf", 24)
-    data.font_load("fonts/ubuntu.ttf", 16)
+    // Effect manager must be created and loaded before other entity processes.
+    // This is because the number of total effect definitions is important for the ability to use
+    // malloced arrays instead of dynamic ones.
+    game.effect_manager = effect.effect_manager_create()
+    effect.effect_manager_load()
 
-    data.img_load("img/player/move.png")
+    game.entity_manager = entity.entity_manager_create()
+    game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.unique_definition_ids)
+    reaction.reaction_manager_load(game.effect_manager.definition_tag_to_id)
 
-    data.animation_instance_load("animations/entity/player.yaml")
+    game.weapon_manager = weapon.weapon_manager_create()
+    weapon.weapon_manager_load()
 
-    program_system_create()
+    game.projectile_manager = projectile.projectile_manager_create()
 
     game.player = player_init()
 
-    game.horde = horde.create(&game.player.position, game_config.enemies.horde)
+    game.horde = horde.create(&game.player.tracking_position)
     horde.leader_spawn(&game.horde, {200, 200})
 
     camera.global_camera_create(f32(app.window_width), f32(app.window_height))
-    camera.camera_set_follow(&game.player.position, 1)//0.05)
+    camera.camera_set_follow(&game.player.tracking_position, 1)//0.05)
+
+    game.hud = create_hud()
 }
 
 game_destroy :: proc() {
-    program_system_destroy()
-
-    data.global_manager_destroy()
+    destroy_hud(&game.hud)
 
     horde.destroy(&game.horde)
 
     player_destroy(&game.player)
 
+    projectile.projectile_manager_destroy()
+
     camera.global_camera_destroy()
+
+    weapon.weapon_manager_destroy()
+
+    reaction.reaction_manager_destroy()
+    entity.entity_manager_destroy()
+    effect.effect_manager_destroy()
+
+    assets.global_destroy()
 }
 
 game_input :: proc() {
-    game.input = process_input()
+    game.input = input.process_input()
 }
 /*case sdl.K_1:
                         player.active_category = WeaponCategory.Manual
@@ -119,6 +142,11 @@ game_update :: proc() {
     update_player()
     update_bullets()
 
+    effect.effect_manager_update()
+
+    // Since reactions are explicitly reactions to effects, must update this after effects.
+    reaction.reaction_manager_update(game.effect_manager)
+
     /*
     is_ping_selected := player.active_category == .Auto && player.weaponAuto == .Ping
     is_daemon_selected := player.active_category == .Auto && player.weaponAuto == .Daemon
@@ -138,15 +166,17 @@ game_update :: proc() {
     //detect_collision()
     //detect_bullet_collision()
 
+    projectile.projectile_manager_update()
+
     camera.camera_update()
 
     if game.player.ping.is_active {
         //detect_ping_damage()
     }
     
-    if game.player.hp <=0 {
-        game.game_over = true
-    }
+    //if game.player.hp <=0 {
+      //  game.game_over = true
+    //}
 
     horde.update(&game.horde, &game.player.allied_damage_areas)
 }
@@ -157,7 +187,7 @@ draw_background :: proc() {
 
     /*
     // bg texture
-    color.sdl_set_color(color.Default_Palette_Colors.BLACK)
+    color.sdl_set_color(color.Default_Palette_Color.BLACK)
 
     x := -math.mod(cam.x, f32(TILE_SIZE))
     for x < space_width {
@@ -173,7 +203,7 @@ draw_background :: proc() {
 }
 
 game_draw :: proc() {
-    color.sdl_set_color(color.Default_Palette_Colors.WHITE)
+    color.sdl_set_color(color.Default_Palette_Color.WHITE)
     sdl.RenderClear(primatives.global_renderer)
 
     // drawing
@@ -181,6 +211,8 @@ game_draw :: proc() {
     draw_background()
 
     draw_player()
+
+    projectile.projectile_manager_draw()
 
     horde.draw(&game.horde)
 
