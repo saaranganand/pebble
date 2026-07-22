@@ -4,6 +4,7 @@ package main
 
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
+import img "vendor:sdl3/image"
 
 import fmt "core:fmt"
 
@@ -14,17 +15,35 @@ import assets "assets"
 
 HUD :: struct {
     effect_duration_text: ^ttf.Text,
+    weapon_name_text: ^ttf.Text,
+    weapon_cursors: map[string]^sdl.Cursor,
 }
 
 create_hud :: proc() -> (hud: HUD) {
     hud.effect_duration_text = assets.font_create_text("fonts/ubuntu.ttf", 16, "0s")
     color.sdl_set_text_color(hud.effect_duration_text, color.Default_Palette_Color.BLACK)
 
+    hud.weapon_name_text = assets.font_create_text("fonts/ubuntu.ttf", 24, "")
+    color.sdl_set_text_color(hud.weapon_name_text, color.Default_Palette_Color.BLACK)
+
+
+    hud.weapon_cursors = make(map[string]^sdl.Cursor)
+
+    crosshair_surface := img.Load("assets/img/crosshair.png")
+    crosshair := sdl.CreateColorCursor(crosshair_surface, 32, 32)
+    sdl.DestroySurface(crosshair_surface)
+    hud.weapon_cursors["scope"] = crosshair
+
     return
 }
 
 destroy_hud :: proc(hud: ^HUD) {
     ttf.DestroyText(hud.effect_duration_text)
+    ttf.DestroyText(hud.weapon_name_text)
+    for _, cursor in hud.weapon_cursors {
+        sdl.DestroyCursor(cursor)
+    }
+    delete(hud.weapon_cursors)   
 }
 
 draw_hud :: proc() {
@@ -183,29 +202,25 @@ draw_hud :: proc() {
         //draw_expiry_exclamation(app.font)
     }
 
-    // weapon name on bottom left
-    /*surf := ttf.RenderText_Blended(app.font, weapon_name, 0, sdl.Color{0, 0, 0, 255})
-    texture := sdl.CreateTextureFromSurface(primatives.global_renderer, surf)
-    sdl.DestroySurface(surf)
-
-    w, h : f32
-    sdl.GetTextureSize(texture, &w, &h)
-
-    dst := sdl.FRect{x = 10, y = f32(app.window_height) - h - 10, w = w, h = h}
-    sdl.RenderTexture(primatives.global_renderer, texture, nil, &dst)
-    sdl.DestroyTexture(texture)*/
+    // weapon name
+    active_name := fmt.caprint(game.player.weapon_controller.active_weapon)
+    defer delete(active_name)
+    ttf.SetTextString(game.hud.weapon_name_text, active_name, 0)
+    w, h: i32
+    ttf.GetTextSize(game.hud.weapon_name_text, &w, &h)
+    ttf.DrawRendererText(game.hud.weapon_name_text, 10, f32(app.window_height) - f32(h) - 10)
 }
 
 any_auto_expiring :: proc(player: Player) -> bool {
     return (player.ping.is_active && player.ping.timer <= 3.0) || (player.daemon.is_active && player.daemon.timer <= 3.0)
 }
 
-update_cursor :: proc(player: Player, crosshair: ^sdl.Cursor) {
-    if player.active_category == .Manual && player.weaponManual == .Scope {
-        _ = sdl.SetCursor(crosshair)
-    }
-    else {
-        _ =sdl.SetCursor(sdl.GetDefaultCursor())
+update_cursor :: proc() {
+    active := game.player.weapon_controller.active_weapon
+    if cursor, ok := game.hud.weapon_cursors[active]; ok {
+        _ = sdl.SetCursor(cursor)
+    } else {
+        _ = sdl.SetCursor(sdl.GetDefaultCursor())
     }
 }
 

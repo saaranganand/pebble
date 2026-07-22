@@ -45,7 +45,9 @@ player_init :: proc() -> (player: Player) {
 
     weapon.weapon_controller_create(&player.weapon_controller)
     weapon.weapon_controller_add_weapon(&player.weapon_controller, "bit_pistol", true)
+    weapon.weapon_controller_add_weapon(&player.weapon_controller, "scope", false) // change to true when animation_source added
     weapon.weapon_controller_init(&player.weapon_controller, AIM_DIST)
+    player.weapon_controller.active_weapon = "bit_pistol" // default
     player.weapon_select = 0
     return
 }
@@ -85,10 +87,16 @@ update_player :: proc() {
     entity, ok := entity.entity_get(player.entity)
     if !ok do return
 
-    if input.select == 1 && player.weapon_select != 1 {
-        player.weapon_select = 1
-        weapon.weapon_controller_select_weapon(&player.weapon_controller, "bit_pistol")
+    if input.select != 0 && input.select != player.weapon_select {
+        switch input.select {
+            case 1: 
+                weapon.weapon_controller_select_weapon(&player.weapon_controller, "bit_pistol")
+            case 2:
+                weapon.weapon_controller_select_weapon(&player.weapon_controller, "scope")
+        }
+        player.weapon_select = input.select
     }
+
 
     player.tracking_position = entity.position
 

@@ -1,0 +1,21 @@
+category: RANGED
+
+gcd_interval: 1.0
+cooldown: 0.0
+uses_before_cooldown: 0
+max_charge_time: 0.0
+
+# animation_source:
+animation_default_angle_deg: 0.0
+
+projectile_data:
+  category: BULLET
+  piercing: 1
+  speed: 600.0
+  lifetime: 3.0
+  # animation_source:
+  shape_radius: 8.0
+
+# sounds:
+#   select: sounds/weapons/trace/select.wav
+#   shoot: sounds/weapons/trace/shoot.wav

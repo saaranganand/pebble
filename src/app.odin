@@ -32,7 +32,7 @@ app_loop :: proc() -> bool {
 
     handle_app_input(poll_app_input())
 
-    //update_cursor(player, crosshair_cursor)
+    update_cursor()
 
     game_loop()
 
