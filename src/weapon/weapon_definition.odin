@@ -30,7 +30,6 @@ Weapon_Definition :: struct {
     //shoot_callback: Shoot_Callback,
     start_charge_callback: Start_Charge_Callback,
     
-    // Projectile info ----------
     projectile_shell: projectile.Projectile_State,
 
     gcd_interval: f32,
@@ -108,7 +107,6 @@ weapon_definition_load :: proc(
 
     global_weapon_manager.definition_tag_to_id[new_definition.unique_tag] = new_definition.unique_id
 
-    log.warnf("%v", new_definition.projectile_shell)
     log.debugf("Loaded weapon definition %v", file_path)
 }
 

@@ -39,8 +39,6 @@ projectile_state_update :: proc(state: ^Projectile_State, index: u32) {
 
     if state.lifetime <= 0 do projectile_manager_remove(index, state.team, state.category)
 
-    log.warnf("updating proj")
-
     switch state.category {
         case .BULLET:
             projectile_category_bullet_update(state, state.shape.(Circle))

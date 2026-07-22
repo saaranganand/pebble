@@ -9,7 +9,8 @@ import effect "entity_effect"
 import reaction "entity_effect_reaction"
 import projectile "projectile"
 import color "color"
-import horde "enemy/horde"
+import horde "entity_horde"
+
 import camera "camera"
 import assets "assets" 
 import weapon "weapon"
@@ -29,7 +30,8 @@ game := struct {
     //enemies: EnemyPool,
     game_over: bool,
     input: input.Input,
-    horde: horde.Horde,
+    //horde: horde.Horde,
+    horde_manager: ^horde.Horde_Manager,
     effect_manager: ^effect.Effect_Manager,
     entity_manager: ^entity.Entity_Manager,
     reaction_manager: ^reaction.Reaction_Manager,
@@ -89,8 +91,11 @@ game_create :: proc() {
 
     game.player = player_init()
 
-    game.horde = horde.create(&game.player.tracking_position)
-    horde.leader_spawn(&game.horde, {200, 200})
+    game.horde_manager = horde.horde_manager_create()
+    horde.horde_manager_spawn_horde({0,0}, game.player.entity)
+
+    //game.horde = horde.create(&game.player.tracking_position)
+    //horde.leader_spawn(&game.horde, {200, 200})
 
     camera.global_camera_create(f32(app.window_width), f32(app.window_height))
     camera.camera_set_follow(&game.player.tracking_position, 1)//0.05)
@@ -101,7 +106,9 @@ game_create :: proc() {
 game_destroy :: proc() {
     destroy_hud(&game.hud)
 
-    horde.destroy(&game.horde)
+    horde.horde_manager_destroy()
+
+    //horde.destroy(&game.horde)
 
     player_destroy(&game.player)
 
@@ -146,6 +153,8 @@ game_update :: proc() {
 
     effect.effect_manager_update()
 
+    horde.horde_manager_update()
+
     // Since reactions are explicitly reactions to effects, must update this after effects.
     reaction.reaction_manager_update(game.effect_manager)
 
@@ -180,7 +189,7 @@ game_update :: proc() {
       //  game.game_over = true
     //}
 
-    horde.update(&game.horde, &game.player.allied_damage_areas)
+    //horde.update(&game.horde, &game.player.allied_damage_areas)
 }
 
 draw_background :: proc() {
@@ -212,11 +221,14 @@ game_draw :: proc() {
     camera.camera_draw_grid()
     draw_background()
 
+    horde.horde_manager_draw()
+
     draw_player()
+
 
     projectile.projectile_manager_draw()
 
-    horde.draw(&game.horde)
+    //horde.draw(&game.horde)
 
     draw_hud()
     draw_bullets()

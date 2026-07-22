@@ -25,6 +25,7 @@ Entity :: struct {
     health: f32,
     max_health: f32,
     forces: [dynamic]Force,
+    active: bool,
     animation_controller: assets.Animation_Controller,
 
     team: Team,
@@ -42,11 +43,13 @@ entity_make_data :: proc(
     data.move_speed = base_move_speed
     data.health = max_health
     data.max_health = max_health
+    data.active = true
 
     data.team = team
     data.category = category
 
     data.animation_controller.data_tag = animation_source_tag
+    data.animation_controller.current_animation = "idle"
 
     return
 }
@@ -60,6 +63,7 @@ entity_create :: proc(entity: ^Entity) {
 @(private)
 entity_destroy :: proc(entity: ^Entity) {
     delete(entity.forces)
+    entity.active = false
 }
 
 entity_deal_damage :: proc(entity: ^Entity, damage: f32) {

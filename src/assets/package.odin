@@ -13,7 +13,7 @@ Load_Group :: enum{ DEBUG_ALL }
 load_group_procs := [Load_Group]Load_Group_Proc{
     .DEBUG_ALL = { load = debug_all_load }
 }
-
+// tag IB tag surendra
 debug_all_load :: proc() {
     audio_entry_load("sounds/silly/pirate_bell.wav")
     audio_entry_load("sounds/effects/burn_tick.wav")
@@ -31,12 +31,16 @@ debug_all_load :: proc() {
     img_load("img/player/move.png")
     img_load("img/weapon/ranged.png")
     img_load("img/projectile/bullet.png")
+    img_load("img/entity/horde.png")
 
     animation_instance_load("animations/entity/player.yaml")
 
     animation_instance_load("animations/weapon/bit_pistol.yaml")
 
     animation_instance_load("animations/projectile/bullet.yaml")
+
+    animation_instance_load("animations/entity/horde_leader.yaml")
+    animation_instance_load("animations/entity/horde_follower.yaml")
 }
 
 global_init :: proc() {
