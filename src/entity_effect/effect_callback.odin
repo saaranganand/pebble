@@ -111,7 +111,7 @@ Effect_Position_Fn_Data :: struct {
     speed: f32,
 }
 
-Effect_Force_Fn_Data :: entity.Entity_Force
+Effect_Force_Fn_Data :: entity.Force
 
 effect_damage_fn   :: proc(data: Effect_Damage_Fn_Data, target_entity: entity.Entity) -> (damage: f32) {
     // TODO: add stuff like defense? aka entity impact in damage formula?

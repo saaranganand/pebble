@@ -1,3 +1,19 @@
-name: scope
-pierce: 1
-damage_type: bullet | ray | aoe
+category: MELEE | RANGED | CHARGE | AUTO | AOE | ELEMENTAL
+projectile_category: BULLET | RAY | AOE | RADIAL | LINE
+piercing: 0 | 1 | 2 | ...
+apply_effect: ?.data/effect/instances/item.yaml
+
+gcd_interval: 0.0...
+cooldown: 0.0...
+uses_before_cooldown: 0 | 1 | 2 | ...
+max_charge_time: 0.0...
+
+animation_source: animations/category/item.yaml
+animation_default_angle_deg: 0.0
+
+sounds:
+    select: ?.sounds/weapons/item/sound.yaml
+    move: ?.sounds/weapons/item/sound.yaml
+    charge: ?.sounds/weapons/item/sound.yaml
+    fire: ?.sounds/weapons/item/sound.yaml
+    reload: ?.sounds/weapons/item/sound.yaml

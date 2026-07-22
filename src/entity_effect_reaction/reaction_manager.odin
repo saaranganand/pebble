@@ -68,7 +68,7 @@ reaction_manager_load :: proc(effect_definition_tag_to_id: effect.Effect_Definit
 }
 
 reaction_manager_get_data_from_enums :: proc(
-    team: entity.Entity_Team, category: entity.Entity_Category, definition_id: effect.Effect_Definition_ID
+    team: entity.Team, category: entity.Category, definition_id: effect.Effect_Definition_ID
 ) -> (data: Reaction_Data, ok: bool) {
     reaction_set := global_reaction_manager.table[definition_id]
 

@@ -11,7 +11,8 @@ import color "color"
 import horde "enemy/horde"
 import camera "camera"
 import assets "assets" 
-import handle "handle"
+import weapon "weapon"
+import input "input"
 
 PLAYER_SIZE :: 100
 AIM_DIST :: 50
@@ -26,11 +27,12 @@ game := struct {
     waves: PingWavePool,
     //enemies: EnemyPool,
     game_over: bool,
-    input: Input,
+    input: input.Input,
     horde: horde.Horde,
     effect_manager: ^effect.Effect_Manager,
     entity_manager: ^entity.Entity_Manager,
     reaction_manager: ^reaction.Reaction_Manager,
+    weapon_manager: ^weapon.Weapon_Manager,
     hud: HUD,
 }{}
 
@@ -78,6 +80,9 @@ game_create :: proc() {
     game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.unique_definition_ids)
     reaction.reaction_manager_load(game.effect_manager.definition_tag_to_id)
 
+    game.weapon_manager = weapon.weapon_manager_create()
+    weapon.weapon_manager_load()
+
     game.player = player_init()
 
     game.horde = horde.create(&game.player.tracking_position)
@@ -98,6 +103,8 @@ game_destroy :: proc() {
 
     camera.global_camera_destroy()
 
+    weapon.weapon_manager_destroy()
+
     reaction.reaction_manager_destroy()
     entity.entity_manager_destroy()
     effect.effect_manager_destroy()
@@ -106,7 +113,7 @@ game_destroy :: proc() {
 }
 
 game_input :: proc() {
-    game.input = process_input()
+    game.input = input.process_input()
 }
 /*case sdl.K_1:
                         player.active_category = WeaponCategory.Manual

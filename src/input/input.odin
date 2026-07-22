@@ -1,15 +1,14 @@
-package main
+package input
 
 import sdl "vendor:sdl3"
 
-import geo "geometry"
-
-import fmt "core:fmt"
+import geo "../geometry"
 
 Input :: struct {
     direction: sdl.FPoint,
     mouseX, mouseY: f32,
-    fire: bool
+    fire: bool,
+    select: int,
 }
 
 process_input :: proc() -> Input {
@@ -18,6 +17,7 @@ process_input :: proc() -> Input {
     mouse := sdl.GetMouseState(&inp.mouseX, &inp.mouseY)
 
     inp.fire = .LEFT in mouse // left click to fire
+    inp.select = 0
 
     if keyboard != nil {
         if keyboard[sdl.Scancode.W] {
@@ -32,6 +32,7 @@ process_input :: proc() -> Input {
         if keyboard[sdl.Scancode.D] {
             inp.direction.x += 1
         }
+        if keyboard[sdl.Scancode._1] do inp.select = 1
         
         inp.direction = geo.normalize_point(inp.direction)
     }

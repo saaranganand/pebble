@@ -221,17 +221,16 @@ animation_frame_create :: proc(frame_map: yaml.Mapping) -> (frame: Animation_Fra
 }
 
 animation_draw :: proc(
-    data_tag: Data_Tag,
-    animation_tag: Animation_Tag,
-    frame_count: ^f32,
-    dest_center: sdl.FPoint
+    controller: ^Animation_Controller,
+    dest_center: sdl.FPoint,
+    angle: f64 = 0, flip_mode: sdl.FlipMode = .NONE, center: ^sdl.FPoint = nil
 ) {
-    instance, ok := animation_instance_get(data_tag)
+    instance, ok := animation_instance_get(controller.data_tag)
     if !ok do return
 
-    anim, anim_ok := &instance.animations[animation_tag]
+    anim, anim_ok := &instance.animations[controller.current_animation]
     if !anim_ok {
-        log.errorf("Tried to get non-existent animation %v in %v.", animation_tag, data_tag)
+        log.errorf("Tried to get non-existent animation %v in %v.", controller.current_animation, controller.data_tag)
         return
     }
 
@@ -241,7 +240,7 @@ animation_draw :: proc(
     }
     if total_ticks == 0 do return
 
-    elapsed_ticks := frame_count^ * anim.fps
+    elapsed_ticks := controller.frame_count * anim.fps
 
     frame_index := len(anim.frames) - 1
     tick_accum := 0
@@ -278,14 +277,20 @@ animation_draw :: proc(
     }
 
     src := frame.source
-    img_draw(instance.source_img_tag, &dest, &src)
+    img_draw(instance.source_img_tag, &dest, &src, angle, flip_mode, center)
 
-    frame_count^ += primatives.dt
+    controller.frame_count += primatives.dt
 
     if !anim.looping {
         max_time := f32(total_ticks) / anim.fps
-        if frame_count^ > max_time {
-            frame_count^ = max_time // freeze on last frame
+        if controller.frame_count > max_time {
+            controller.frame_count = max_time // freeze on last frame
         }
     }
+}
+
+Animation_Controller :: struct {
+    data_tag: Data_Tag,
+    current_animation: Animation_Tag,
+    frame_count: f32,
 }

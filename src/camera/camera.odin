@@ -147,24 +147,26 @@ camera_draw_center_lines :: proc() {
     sdl.RenderLine(primatives.global_renderer, global_camera.width / 2, 0, global_camera.width / 2, global_camera.height)
 }
 
-camera_draw_img :: proc(img_tag: assets.Data_Tag, dest: sdl.FRect, src: ^sdl.FRect = nil) {
+camera_draw_img :: proc(
+    img_tag: assets.Data_Tag, dest: sdl.FRect, src: ^sdl.FRect = nil,
+    angle: f64 = 0, flip_mode: sdl.FlipMode = .NONE, center: ^sdl.FPoint = nil
+) {
     view_adjusted_pos := world_position_to_view({ dest.x, dest.y })
     view_adjusted_dest := dest
 
     view_adjusted_dest.x = view_adjusted_pos.x
     view_adjusted_dest.y = view_adjusted_pos.y
 
-    assets.img_draw(img_tag, &view_adjusted_dest, src)
+    assets.img_draw(img_tag, &view_adjusted_dest, src, angle, flip_mode, center)
 }
 
 camera_draw_animation :: proc(
-    data_tag: assets.Data_Tag,
-    animation_tag: assets.Animation_Tag,
-    frame_count: ^f32,
-    dest_center: sdl.FPoint
+    animation_controller: ^assets.Animation_Controller,
+    dest_center: sdl.FPoint,
+    angle: f64 = 0, flip_mode: sdl.FlipMode = .NONE, center: ^sdl.FPoint = nil
 ) {
     view_adjusted_pos := world_position_to_view(dest_center)
-    assets.animation_draw(data_tag, animation_tag, frame_count, view_adjusted_pos)
+    assets.animation_draw(animation_controller, view_adjusted_pos, angle, flip_mode, center)
 }
 
 camera_draw_grid :: proc() {

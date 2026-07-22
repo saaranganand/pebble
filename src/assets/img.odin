@@ -7,6 +7,7 @@ import img "vendor:sdl3/image"
 import primatives "../sdl_primatives"
 
 import strings "core:strings"
+import math "core:math"
 import log "core:log"
 import fmt "core:fmt"
 
@@ -117,9 +118,11 @@ img_get_instance :: proc(tag: Data_Tag) -> (instance: ^Img_Instance, ok: bool) {
     return
 }
 
-img_draw :: proc(img_tag: Data_Tag, dest: ^sdl.FRect, src: ^sdl.FRect = nil) {
+img_draw :: proc(
+    img_tag: Data_Tag, dest: ^sdl.FRect, src: ^sdl.FRect = nil, angle: f64 = 0, flip_mode: sdl.FlipMode = .NONE, center: ^sdl.FPoint = nil
+) {
     instance, ok := img_get_instance(img_tag)
     if !ok do return
 
-    sdl.RenderTexture(primatives.global_renderer, instance.texture, src, dest)
+    sdl.RenderTextureRotated(primatives.global_renderer, instance.texture, src, dest, angle * math.DEG_PER_RAD, center, flip_mode)
 }

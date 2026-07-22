@@ -26,7 +26,7 @@ Audio_Entry :: struct {
 // Note that this does NOT load the sound in.
 @(private)
 audio_entry_create :: proc(tag: Data_Tag, path_prefix: string, type: Audio_Type = .SOUND) {
-    log.infof("Creating audio entry for tag %v", tag)
+    log.debugf("Creating audio entry for tag %v", tag)
 
     global_manager.audio_master.data_map[tag] = {}
     entry := &global_manager.audio_master.data_map[tag]
@@ -45,7 +45,7 @@ audio_entry_create :: proc(tag: Data_Tag, path_prefix: string, type: Audio_Type 
 // To unload data to save memory, use audio_entry_unload
 @(private)
 audio_entry_destroy :: proc(entry: ^Audio_Entry) {
-    log.infof("Destroying audio entry for tag %v", entry.tag)
+    log.debugf("Destroying audio entry for tag %v", entry.tag)
 
     if entry.state == .LOADED do audio_entry_unload(entry.tag)
 

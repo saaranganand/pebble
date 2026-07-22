@@ -57,7 +57,7 @@ effect_definitions_load :: proc() {
     pre_path := "data/effect/definitions/"
     assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
 
-    num_definitions := len(file_paths) + 1
+    num_definitions := len(file_paths)
     global_effect_manager.unique_definition_ids = cast(u32) num_definitions
     global_effect_manager.definitions = make([]Effect_Definition, num_definitions)
     definition_id_counter: Effect_Definition_ID = 0

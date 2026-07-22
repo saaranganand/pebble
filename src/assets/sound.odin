@@ -47,7 +47,8 @@ sound_play_from_audio_entry :: proc(entry: ^Audio_Entry) {
     ma.sound_start(copy)
 }
 
-
+// TODO: allow setting and removing loop functionality for SFX.
+// This is useful for things like charging sounds that need to play continuously for a variable amount of time
 sound_play :: proc(tag: Data_Tag) {
     entry, success := sound_get_entry(tag)
     if !success do return

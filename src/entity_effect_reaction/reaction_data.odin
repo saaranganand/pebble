@@ -23,7 +23,7 @@ REACTION_ANIMATION_SOURCE: assets.Data_Tag: "animations/reactions.yaml"
 
 Reaction_Data_Tag :: string
 
-reaction_data_tag_create :: proc(team: entity.Entity_Team, category: entity.Entity_Category) -> (tag: Reaction_Data_Tag) {
+reaction_data_tag_create :: proc(team: entity.Team, category: entity.Category) -> (tag: Reaction_Data_Tag) {
     return fmt.aprint(team, category, sep = ",")
 }
 

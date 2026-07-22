@@ -33,8 +33,15 @@ data_tag_resursive_grab_and_process_precursors :: proc(unique_path: string, exte
         defer sdl.free(all_files)
 
         inner_strings := all_files[:num_files]
+
         for data in inner_strings {
             file_name := cstring(data)
+            file_name_str := string(file_name)
+
+            // Skip nested entries — only handle immediate children here
+            if strings.contains(file_name_str, "/") {
+                continue
+            }
                         
             // Here we look for full path strings of subfolders in our original folder.
             // We want these as cstrings (for the get path info SDL function),
@@ -62,6 +69,9 @@ data_tag_resursive_grab_and_process_precursors :: proc(unique_path: string, exte
     // Grab all matching files
     data_tag_precursors = sdl.GlobDirectory(total_path, extension, flags, &num_precursors)
     defer sdl.free(data_tag_precursors)
+
+
+    inner_strings_test := data_tag_precursors[:num_precursors]
 
     // Process precursors into data tags
     data_tag_process_precursors(&data_tag_precursors, num_precursors, unique_path, tags)
