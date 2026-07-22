@@ -6,18 +6,18 @@ animations:
     looping: false
     scale: 1.0
     frames:
-      - source: { x: 0.0, y: 0.0, w: 75.0, h: 39.0 }
+      - source: { x: 0.0, y: 0.0, w: 75.0, h: 64.0 }
 
   fire:
     fps: 0
     looping: false
     scale: 1.0
     frames:
-      - source: { x: 0.0, y: 0.0, w: 75.0, h: 39.0 }
+      - source: { x: 0.0, y: 0.0, w: 75.0, h: 64.0 }
   
   shoot:
     fps: 0.2
     looping: false
     scale: 1.0
     frames:
-      - source: { x: 0.0, y: 39.0, w: 75.0, h: 39.0 }
+      - source: { x: 0.0, y: 64.0, w: 75.0, h: 64.0 }

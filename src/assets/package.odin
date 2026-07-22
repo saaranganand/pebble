@@ -30,10 +30,13 @@ debug_all_load :: proc() {
 
     img_load("img/player/move.png")
     img_load("img/weapon/ranged.png")
+    img_load("img/projectile/bullet.png")
 
     animation_instance_load("animations/entity/player.yaml")
 
     animation_instance_load("animations/weapon/bit_pistol.yaml")
+
+    animation_instance_load("animations/projectile/bullet.yaml")
 }
 
 global_init :: proc() {

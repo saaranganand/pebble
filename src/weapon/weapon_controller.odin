@@ -75,9 +75,11 @@ weapon_controller_update :: proc(controller: ^Weapon_Controller, controller_inpu
         weapon_state_update(&weapon)
     }
 
+    shoot_position := controller_position + { math.cos(controller.aim_angle), math.sin(controller.aim_angle) } * controller.draw_distance
+
     // Update active weapon
     active_state := &controller.weapons[controller.active_weapon]
-    weapon_state_active_update(controller, active_state, controller_input)
+    weapon_state_active_update(controller, active_state, controller_input, shoot_position)
 }
 
 weapon_controller_draw :: proc(controller: ^Weapon_Controller, controller_position: sdl.FPoint) {

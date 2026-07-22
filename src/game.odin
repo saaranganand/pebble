@@ -7,6 +7,7 @@ import primatives "sdl_primatives"
 import entity "entity"
 import effect "entity_effect"
 import reaction "entity_effect_reaction"
+import projectile "projectile"
 import color "color"
 import horde "enemy/horde"
 import camera "camera"
@@ -33,6 +34,7 @@ game := struct {
     entity_manager: ^entity.Entity_Manager,
     reaction_manager: ^reaction.Reaction_Manager,
     weapon_manager: ^weapon.Weapon_Manager,
+    projectile_manager: ^projectile.Projectile_Manager,
     hud: HUD,
 }{}
 
@@ -83,6 +85,8 @@ game_create :: proc() {
     game.weapon_manager = weapon.weapon_manager_create()
     weapon.weapon_manager_load()
 
+    game.projectile_manager = projectile.projectile_manager_create()
+
     game.player = player_init()
 
     game.horde = horde.create(&game.player.tracking_position)
@@ -100,6 +104,8 @@ game_destroy :: proc() {
     horde.destroy(&game.horde)
 
     player_destroy(&game.player)
+
+    projectile.projectile_manager_destroy()
 
     camera.global_camera_destroy()
 
@@ -162,6 +168,8 @@ game_update :: proc() {
     //detect_collision()
     //detect_bullet_collision()
 
+    projectile.projectile_manager_update()
+
     camera.camera_update()
 
     if game.player.ping.is_active {
@@ -205,6 +213,8 @@ game_draw :: proc() {
     draw_background()
 
     draw_player()
+
+    projectile.projectile_manager_draw()
 
     horde.draw(&game.horde)
 
