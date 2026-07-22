@@ -36,6 +36,7 @@ debug_all_load :: proc() {
     animation_instance_load("animations/entity/player.yaml")
 
     animation_instance_load("animations/weapon/bit_pistol.yaml")
+    animation_instance_load("animations/weapon/bit_rifle.yaml")
 
     animation_instance_load("animations/projectile/bullet.yaml")
 

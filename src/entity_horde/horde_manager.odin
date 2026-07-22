@@ -12,7 +12,7 @@ Horde_Manager :: struct {
     followers_per_leader: int,
 }
 
-DEFAULT_FOLLOWERS_PER_LEADER :: 50
+DEFAULT_FOLLOWERS_PER_LEADER :: 100
 
 horde_manager_create :: proc() -> ^Horde_Manager {
     global_horde_manager.hordes = make([dynamic]Horde)

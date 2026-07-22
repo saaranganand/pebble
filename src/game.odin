@@ -10,6 +10,7 @@ import reaction "entity_effect_reaction"
 import projectile "projectile"
 import color "color"
 import horde "entity_horde"
+import collision "collision"
 
 import camera "camera"
 import assets "assets" 
@@ -149,13 +150,23 @@ game_update :: proc() {
     apply_movement_penalty()
 
     update_player()
-    update_bullets()
-
-    effect.effect_manager_update()
+    update_bullets()    
 
     horde.horde_manager_update()
 
+    entity.entity_manager_update()
+
+    update_waves()
+
+    projectile.projectile_manager_update()
+
+    camera.camera_update()
+
+    //horde.update(&game.horde, &game.player.allied_damage_areas)
+    collision.resolve_collisions(game.projectile_manager, game.entity_manager, game.effect_manager)
+
     // Since reactions are explicitly reactions to effects, must update this after effects.
+    effect.effect_manager_update()
     reaction.reaction_manager_update(game.effect_manager)
 
     /*
@@ -168,7 +179,7 @@ game_update :: proc() {
     }
     */
 
-    update_waves()
+    
     //update_ping(&player.ping, &waves, player.x, player.y, input, is_ping_selected, dt)
     //update_daemon(&player.daemon, &bullets, &enemies, player.x, player.y, is_daemon_selected, input, dt)
 
@@ -177,19 +188,17 @@ game_update :: proc() {
     //detect_collision()
     //detect_bullet_collision()
 
-    projectile.projectile_manager_update()
+    
 
-    camera.camera_update()
-
-    if game.player.ping.is_active {
+    //if game.player.ping.is_active {
         //detect_ping_damage()
-    }
+    //}
     
     //if game.player.hp <=0 {
       //  game.game_over = true
     //}
 
-    //horde.update(&game.horde, &game.player.allied_damage_areas)
+    
 }
 
 draw_background :: proc() {
@@ -221,10 +230,11 @@ game_draw :: proc() {
     camera.camera_draw_grid()
     draw_background()
 
-    horde.horde_manager_draw()
+    //horde.horde_manager_draw()
+
+    entity.entity_manager_draw()
 
     draw_player()
-
 
     projectile.projectile_manager_draw()
 

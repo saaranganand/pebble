@@ -33,6 +33,7 @@ process_input :: proc() -> Input {
             inp.direction.x += 1
         }
         if keyboard[sdl.Scancode._1] do inp.select = 1
+        if keyboard[sdl.Scancode._2] do inp.select = 2
         
         inp.direction = geo.normalize_point(inp.direction)
     }

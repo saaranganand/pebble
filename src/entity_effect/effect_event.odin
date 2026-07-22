@@ -14,6 +14,7 @@ Effect_Event_Type :: enum { APPLY, TRIGGER, REMOVE }
 Effect_Event :: struct {
     type: Effect_Event_Type,
     target: handle.Entity_Handle,
+    target_team: entity.Team,
     definition_id: Effect_Definition_ID,
     // Kind of a catch all value.
     // Can be used to display damage amount as floating text,

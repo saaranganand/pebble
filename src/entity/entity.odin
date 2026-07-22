@@ -2,6 +2,8 @@ package entity
 
 import sdl "vendor:sdl3"
 
+import primatives "../sdl_primatives"
+import camera "../camera"
 import handle "../handle"
 import assets "../assets"
 
@@ -19,8 +21,10 @@ Team :: enum { ALLY, NEUTRAL, ENEMY }
 Category :: enum { PLAYER, BULLET, NPC, VIP }
 
 Entity :: struct {
+    own_handle: handle.Entity_Handle,
     position: sdl.FPoint,
-    move_velocity: sdl.FPoint,
+    col_radius: f32,
+    move_direction: sdl.FPoint,
     base_move_speed, move_speed: f32,
     health: f32,
     max_health: f32,
@@ -34,13 +38,14 @@ Entity :: struct {
 
 // Is used to allow outside sources to create an entity
 entity_make_data :: proc(
-    position: sdl.FPoint, base_move_speed, max_health: f32, team: Team, category: Category,
+    position: sdl.FPoint, base_move_speed, max_health: f32, col_radius: f32, team: Team, category: Category,
     animation_source_tag: assets.Data_Tag
 ) -> (data: Entity) {
     data.position = position
-    data.move_velocity = {0.0,0.0}
+    data.move_direction = {0.0,0.0}
     data.base_move_speed = base_move_speed
     data.move_speed = base_move_speed
+    data.col_radius = col_radius
     data.health = max_health
     data.max_health = max_health
     data.active = true
@@ -69,4 +74,25 @@ entity_destroy :: proc(entity: ^Entity) {
 entity_deal_damage :: proc(entity: ^Entity, damage: f32) {
     // TODO
     entity.health -= damage
+}
+
+entity_set_animation :: proc(entity: ^Entity, new_animation: assets.Animation_Tag) {
+    entity.animation_controller.current_animation = new_animation
+}
+
+entity_update :: proc(entity: ^Entity) {
+    if !entity.active do return
+    entity.position += entity.move_direction * entity.move_speed * primatives.dt
+
+    entity.move_speed = entity.base_move_speed
+
+    if entity.health <= 0 {
+        entity_manager_remove_entity(entity.own_handle, entity.team)
+        entity.active = false
+    }
+}
+
+entity_draw :: proc(entity: ^Entity) {
+    if !entity.active do return
+    camera.camera_draw_animation(&entity.animation_controller, entity.position)
 }

@@ -45,7 +45,7 @@ horde_populate :: proc(horde: ^Horde, horde_position: sdl.FPoint) {
     
     for i in 0..<horde.num_followers {
         follow_handle := entity.entity_manager_add_entity(entity.entity_make_data(
-            horde_position + horde_rand_offset, 80, 20, .ENEMY, .PLAYER, "animations/entity/horde_follower.yaml"
+            horde_position + horde_rand_offset, 80 + rand.float32_range(-20, 20), 20, 16, .ENEMY, .PLAYER, "animations/entity/horde_follower.yaml"
         ))
 
         horde.followers[i] = follow_handle
@@ -53,17 +53,17 @@ horde_populate :: proc(horde: ^Horde, horde_position: sdl.FPoint) {
     }
 
     leader_handle := entity.entity_manager_add_entity(entity.entity_make_data(
-        horde_position + horde_rand_offset, 90, 100, .ENEMY, .PLAYER, "animations/entity/horde_leader.yaml"
+        horde_position + horde_rand_offset, 90, 100, 32, .ENEMY, .PLAYER, "animations/entity/horde_leader.yaml"
     ))
 
     horde.leader = leader_handle
 }
 
 horde_update :: proc(horde: ^Horde) {
-    leader_entity, leader_ok := entity.entity_get(horde.leader)
+    leader_entity, leader_ok := entity.entity_get(horde.leader, HORDE_TEAM)
     if !leader_ok do return
 
-    target_entity, target_ok := entity.entity_get(horde.target)
+    target_entity, target_ok := entity.entity_get(horde.target, .ALLY)
     if !target_ok do return
 
     if leader_entity.active do leader_entity.position += leader_entity.move_speed * primatives.dt * geo.normalize_point(
@@ -75,14 +75,14 @@ horde_update :: proc(horde: ^Horde) {
 
 horde_draw :: proc(horde: Horde) {
     for follower_handle in horde.followers {
-        follower_entity, follower_ok := entity.entity_get(follower_handle)
+        follower_entity, follower_ok := entity.entity_get(follower_handle, HORDE_TEAM)
         if !follower_ok do continue
         if !follower_entity.active do continue
 
         camera.camera_draw_animation(&follower_entity.animation_controller, follower_entity.position)
     }
 
-    leader_entity, leader_ok := entity.entity_get(horde.leader)
+    leader_entity, leader_ok := entity.entity_get(horde.leader, HORDE_TEAM)
     if !leader_ok do return
     if !leader_entity.active do return
 

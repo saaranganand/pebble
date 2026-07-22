@@ -41,7 +41,7 @@ spatial_grid_build :: proc(grid: ^Spatial_Grid, followers: []handle.Entity_Handl
     clear(&grid.cells)
 
     for &follower in followers {
-        follower_entity, ok := entity.entity_get(follower)
+        follower_entity, ok := entity.entity_get(follower, HORDE_TEAM)
         if !ok do continue
         if !follower_entity.active do continue
 
@@ -69,7 +69,7 @@ spatial_grid_get_nearby_followers :: proc(grid: ^Spatial_Grid, searcher: handle.
             for neighbour_handle in grid.cells[cell] {
                 if neighbour_handle == searcher do continue
 
-                neighbour, ok := entity.entity_get(neighbour_handle)
+                neighbour, ok := entity.entity_get(neighbour_handle, HORDE_TEAM)
                 if !ok do continue
                 if !neighbour.active do continue
 

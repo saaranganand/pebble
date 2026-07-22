@@ -2,6 +2,7 @@ package effect
 
 import primatives "../sdl_primatives"
 import handle "../handle"
+import entity "../entity"
 
 import log "core:log"
 
@@ -9,14 +10,16 @@ import log "core:log"
 Effect_Application_Data :: struct {
     instance: ^Effect_Instance,
     callback_data: Effect_Callback_Data,
-    source, target: handle.Entity_Handle
+    source, target: handle.Entity_Handle,
+    target_team: entity.Team,
 }
 
 effect_application_data_from_tag :: proc(
-    instance_tag: Effect_Instance_Tag, source, target: handle.Entity_Handle
+    instance_tag: Effect_Instance_Tag, source, target: handle.Entity_Handle, target_team: entity.Team
 ) -> (data: Effect_Application_Data) {
     data.source = source
     data.target = target
+    data.target_team = target_team
 
     id, ok := global_effect_manager.instance_tag_to_id[instance_tag]
     if !ok {

@@ -96,6 +96,6 @@ weapon_shoot :: proc(controller: ^Weapon_Controller, state: ^Weapon_State, shoot
 
     // shoot callback
 
-    projectile.projectile_manager_spawn(state.definition.projectile_shell, shoot_position, controller.aim_angle, 1.0)
+    projectile.projectile_manager_spawn(state.definition.projectile_shell, shoot_position, controller.aim_angle, state.definition.damage)
     sound_set_play(&state.definition.sounds, .SHOOT)
 }

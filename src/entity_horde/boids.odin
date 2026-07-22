@@ -18,6 +18,8 @@ FOLLOWER_LEADER_SEEK_WEIGHT :: 1.4
 FOLLOWER_MAX_STEER_FORCE    :: 400.0
 FOLLOWER_LEADER_MIN_DISTANCE :: 40
 
+HORDE_TEAM :: entity.Team.ENEMY
+
 horde_boid_update :: proc(horde: ^Horde) {
     grid := &horde.grid
     followers := horde.followers
@@ -25,11 +27,11 @@ horde_boid_update :: proc(horde: ^Horde) {
 
     spatial_grid_build(grid, followers)
 
-    leader_entity, leader_ok := entity.entity_get(leader)
+    leader_entity, leader_ok := entity.entity_get(leader, HORDE_TEAM)
     if !leader_ok do return
 
     for follower_handle in followers {
-        follower_entity, follower_ok := entity.entity_get(follower_handle)
+        follower_entity, follower_ok := entity.entity_get(follower_handle, HORDE_TEAM)
         if !follower_ok do continue
         if !follower_entity.active do continue
 
@@ -37,9 +39,10 @@ horde_boid_update :: proc(horde: ^Horde) {
 
         separation, alignment, cohesion: sdl.FPoint
         neighbour_count := 0
+        move_direction := sdl.FPoint{}
 
         for neighbour_handle in grid.grid_neighbours {
-            neighbour, n_ok := entity.entity_get(neighbour_handle)
+            neighbour, n_ok := entity.entity_get(neighbour_handle, HORDE_TEAM)
             if !n_ok do continue
 
             delta_pos := follower_entity.position - neighbour.position
@@ -49,14 +52,16 @@ horde_boid_update :: proc(horde: ^Horde) {
                 separation += delta_pos * inv_dist
             }
 
-            alignment += neighbour.move_velocity
+            
+
+            alignment += move_direction
             cohesion += neighbour.position
             neighbour_count += 1
         }
 
         if neighbour_count > 0 {
             n := f32(neighbour_count)
-            alignment = (alignment / n) - follower_entity.move_velocity
+            alignment = (alignment / n) - move_direction
             cohesion  = (cohesion  / n) - follower_entity.position
         }
 
@@ -82,11 +87,12 @@ horde_boid_update :: proc(horde: ^Horde) {
 
         steer = clamp_magnitude(steer, FOLLOWER_MAX_STEER_FORCE)
 
-        rand_steer := geo.normalize_point(sdl.FPoint{ rand.float32_range(-1, 1), rand.float32_range(-1, 1) }) * rand.float32_range(0, 20)
+        rand_steer := geo.normalize_point(sdl.FPoint{ rand.float32_range(-1, 1), rand.float32_range(-1, 1) }) * rand.float32_range(0.1, 2)
 
-        follower_entity.move_velocity += steer + rand_steer
-        follower_entity.move_velocity = clamp_magnitude(follower_entity.move_velocity, follower_entity.move_speed)
-        follower_entity.position += follower_entity.move_velocity * primatives.dt
+        move_direction += steer + rand_steer
+        follower_entity.move_direction = geo.normalize_point(move_direction)
+        //follower_entity.move_velocity = clamp_magnitude(follower_entity.move_velocity, follower_entity.move_speed)
+        //follower_entity.position += follower_entity.move_velocity * primatives.dt
     }
     
 }
