@@ -117,7 +117,7 @@ reaction_data_load :: proc(
     pre_path, file_path: string, effect_definition_tag_to_id: effect.Effect_Definition_Tag_To_ID_Map,
     arena_allocator: runtime.Allocator
 ) {
-    full_path := fmt.aprint(assets.DATA_TAG_DEFAULT_ASSET_FOLDER, file_path, sep = "")
+    full_path := strings.clone(file_path)
     defer delete(full_path)
     data_map, map_ok := yaml_parse.get_yaml_mapping(full_path, arena_allocator)
     if !map_ok {

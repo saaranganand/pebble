@@ -67,7 +67,7 @@ weapon_manager_load :: proc() {
     defer delete(file_paths)
 
     pre_path := "data/weapon/"
-    assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
+    assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths, "")
 
     num_definitions := len(file_paths)
     global_weapon_manager.unique_definition_ids = cast(u32) num_definitions

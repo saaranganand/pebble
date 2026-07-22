@@ -47,7 +47,7 @@ effect_instances_load :: proc() {
     defer delete(file_paths)
 
     pre_path := "data/effect/instances/"
-    assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
+    assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths, "")
 
     num_instances := len(file_paths) + 1
     global_effect_manager.unique_instance_ids = cast(u32) num_instances
@@ -67,7 +67,7 @@ effect_instance_load :: proc(
 
     log.debugf("Loading effect instance %v", file_path)
 
-    full_path := fmt.aprint(assets.DATA_TAG_DEFAULT_ASSET_FOLDER, file_path, sep = "")
+    full_path := strings.clone(file_path)
     defer delete(full_path)
     data_map, map_ok := yaml_parse.get_yaml_mapping(full_path, arena_allocator)
     if !map_ok {

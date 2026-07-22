@@ -59,7 +59,7 @@ reaction_manager_load :: proc(effect_definition_tag_to_id: effect.Effect_Definit
     defer delete(file_paths)
 
     pre_path := "data/effect/reactions/"
-    assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
+    assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths, "")
 
     for path in file_paths {
         reaction_data_load(pre_path, path, effect_definition_tag_to_id, arena_alloc)
