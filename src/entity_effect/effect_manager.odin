@@ -152,12 +152,13 @@ effect_manager_update :: proc() {
         current_handle := handle.pool_read_handle_with_index(&global_effect_manager.pool, i)
 
         // Find the target entity
-        target_entity, entity_ok := entity.entity_get(effect.target)
+        target_entity, entity_ok := entity.entity_get(effect.target, effect.target_team)
         if !entity_ok {
-            log.errorf("Error in accessing target entity of handle %v while updaing effect of handle %v", effect.target, current_handle)
+            //log.errorf("Error in accessing target entity of handle %v while updaing effect of handle %v", effect.target, current_handle)
 
             // remove the effect
-            append(&global_effect_manager.removal_queue, current_handle)
+            effect.active = false
+            effect_manager_queue_remove(current_handle)
             effect_manager_wipe_entity_active_effect_key(effect.target)
 
             continue
@@ -167,9 +168,12 @@ effect_manager_update :: proc() {
         should_remove := effect_state_update(&effect, target_entity)
 
         if should_remove {
-            append(&global_effect_manager.removal_queue, current_handle)            
+            effect.active = false
+            effect_manager_queue_remove(current_handle)
             effect_manager_remove_entity_active_effect(effect.target, effect.instance.definition.unique_id, current_handle)
         }
+
+        
 
     }
     // do removals
@@ -182,6 +186,7 @@ effect_manager_update :: proc() {
 
         effect_manager_queue_event(Effect_Event{
             type = .REMOVE, target = removal_effect.target,
+            target_team = removal_effect.target_team,
             definition_id = removal_effect.instance.definition.unique_id,
             magnitude = effect_fn_data_get_reaction_magnitude(removal_effect.callback_data.data)
         }) 
@@ -189,6 +194,7 @@ effect_manager_update :: proc() {
 
     // do applications
     for len(global_effect_manager.application_queue) > 0 {
+        //log.errorf("app queue len = %v", len(global_effect_manager.application_queue))
         application_data := pop(&global_effect_manager.application_queue)
         effect_manager_apply_effect(application_data)
     }
@@ -199,6 +205,7 @@ effect_manager_update :: proc() {
 effect_manager_stack_on_apply :: proc(
     instance: ^Effect_Instance, target: handle.Entity_Handle
 ) -> (should_apply: bool) {
+    if instance.definition.stack_behaviour == .STACK do return true
     //maybe_existing_effect := entity_get_active_effect_by_ID(target_entity, instance.definition.unique_id)
     //is_existing_effect := maybe_existing_effect != nil
 
@@ -250,6 +257,7 @@ effect_manager_apply_effect :: proc(
     // Queue event that will cause reaction
     effect_manager_queue_event(Effect_Event{
         type = .APPLY, target = application_data.target,
+        target_team = application_data.target_team,
         definition_id = application_data.instance.definition.unique_id,
         magnitude = effect_fn_data_get_reaction_magnitude(application_data.callback_data.data)
     })

@@ -30,12 +30,12 @@ Weapon_Definition :: struct {
     //shoot_callback: Shoot_Callback,
     start_charge_callback: Start_Charge_Callback,
     
-    // Projectile info ----------
     projectile_shell: projectile.Projectile_State,
 
     gcd_interval: f32,
     cooldown: f32,
     uses_before_cooldown: int,
+    damage: f32,
 
     max_charge_time: f32,
 
@@ -95,6 +95,7 @@ weapon_definition_load :: proc(
 
     new_definition.uses_before_cooldown = cast(int) yaml_parse.read_value_from_map(data_map, "uses_before_cooldown", i64, default = 0)
     new_definition.max_charge_time =      cast(f32) yaml_parse.read_value_from_map(data_map, "max_charge_time", f64, default = 0)
+    new_definition.damage = cast(f32) yaml_parse.read_value_from_map(data_map, "damage", f64, default = 0)
 
     new_definition.animation_source = cast(assets.Data_Tag) strings.clone(
         yaml_parse.read_value_from_map(data_map, "animation_source", string, default = "")
@@ -108,7 +109,6 @@ weapon_definition_load :: proc(
 
     global_weapon_manager.definition_tag_to_id[new_definition.unique_tag] = new_definition.unique_id
 
-    log.warnf("%v", new_definition.projectile_shell)
     log.debugf("Loaded weapon definition %v", file_path)
 }
 

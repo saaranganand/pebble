@@ -110,6 +110,10 @@ reaction_set_destroy :: proc(set: ^Reaction_Set) {
         delete(key)
         reaction_data_destroy(&data)
     }
+
+    default_reaction_data, ok := &set.default_reaction_data.(Reaction_Data)
+    if ok do reaction_data_destroy(default_reaction_data)
+
     delete(set.reaction_data_map)
 }
 

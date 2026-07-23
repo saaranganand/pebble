@@ -13,6 +13,7 @@ Effect_State :: struct {
     instance: ^Effect_Instance,
 
     source, target: handle.Entity_Handle,
+    target_team: entity.Team,
 
     active: bool,
 
@@ -33,6 +34,7 @@ effect_state_create :: proc(
 
     state.source = application_data.source
     state.target = application_data.target
+    state.target_team = application_data.target_team
 
     state.active = true
 
@@ -106,6 +108,7 @@ effect_state_update :: proc(state: ^Effect_State, target_entity: ^entity.Entity)
 
         effect_manager_queue_event(Effect_Event{
             type = .TRIGGER, target = state.target,
+            target_team = state.target_team,
             definition_id = state.instance.definition.unique_id,
             magnitude = effect_fn_data_get_reaction_magnitude(state.callback_data.data)
         })

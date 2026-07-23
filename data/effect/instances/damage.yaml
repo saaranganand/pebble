@@ -1,0 +1,3 @@
+definition: "damage"
+callback_type: "damage"
+damage: 1.0

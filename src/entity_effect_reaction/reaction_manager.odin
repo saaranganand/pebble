@@ -102,8 +102,8 @@ reaction_manager_get_data_from_enums :: proc(
 
 reaction_manager_update :: proc(effect_manager: ^effect.Effect_Manager) {
     for event in effect_manager.events {
-        // Get entity
-        target_entity, entity_ok := entity.entity_get(event.target)
+        // Get t
+        target_entity, entity_ok := entity.entity_get(event.target, event.target_team)
         if !entity_ok do continue
 
         data, data_ok := reaction_manager_get_data_from_enums(target_entity.team, target_entity.category, event.definition_id)

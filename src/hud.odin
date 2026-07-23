@@ -51,7 +51,7 @@ draw_hud :: proc() {
     input := game.input
     hud := game.hud
 
-    player_entity, ok := entity.entity_get(player.entity)
+    player_entity, ok := entity.entity_get(player.entity, .ALLY)
     if !ok do return
 
 
