@@ -37,6 +37,8 @@ Player :: struct {
     allied_damage_areas: [dynamic]geo.Circle,
 }
 
+PLAYER_SPEED :: 400
+
 player_init :: proc() -> (player: Player) {
     entity_data := entity.entity_make_data({0.0,0.0}, PLAYER_SPEED, game_config.player.max_hp, 10, .ALLY, .PLAYER, "animations/entity/player.yaml")
     player.entity = entity.entity_manager_add_entity(entity_data)

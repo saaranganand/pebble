@@ -1,4 +1,5 @@
-package horde
+package dep_horde
+
 import sdl "vendor:sdl3"
 import math "core:math"
 import rand "core:math/rand"

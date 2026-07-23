@@ -109,7 +109,7 @@ game_destroy :: proc() {
     destroy_hud(&game.hud)
     program_system_destroy()
 
-    data.global_manager_destroy()
+    //data.global_manager_destroy()
 
     horde.horde_manager_destroy()
 

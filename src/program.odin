@@ -25,7 +25,24 @@ program_system_create :: proc() {
 }
 
 program_system_destroy :: proc() {
+    for def in game_config.programs {
+        delete(def.id)
+
+        for buff in def.buffs {
+            delete(buff.stat)
+        }
+        delete(def.buffs)
+
+        for applies in def.applies {
+            delete(applies.effect)
+        }
+        delete(def.applies)
+    }
+    delete(game_config.programs)
+
     delete(equipped_programs)
+
+    
     delete(active_applications)
 }
 

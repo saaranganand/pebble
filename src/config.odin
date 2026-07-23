@@ -7,7 +7,7 @@ import fmt "core:fmt"
 import mem "core:mem"
 import strings "core:strings"
 
-import horde "enemy/horde"
+//import horde "enemy/horde"
 
 
 // Weapon
@@ -68,7 +68,7 @@ WeaponConfig :: struct {
 EnemyConfig :: struct {
     spawn_rate: f32, // s b/w spawns
     spawn_dist: f32, // pixels from player
-    horde: horde.Config, // leader/follower stuff, passed to horde.create
+    //horde: horde.Config, // leader/follower stuff, passed to horde.create
 }
 
 // Player
@@ -146,7 +146,8 @@ load_configs :: proc() -> bool {
     mem.arena_init(&config_arena, arena_memory)
     arena_alloc := mem.arena_allocator(&config_arena)
 
-    if !load_player(arena_alloc) || !load_weapons(arena_alloc) || !load_enemies(arena_alloc) || !load_programs(arena_alloc) || !load_levels(arena_alloc) {
+    //!load_enemies(arena_alloc) || 
+    if !load_player(arena_alloc) || !load_weapons(arena_alloc) || !load_programs(arena_alloc) || !load_levels(arena_alloc) {
         return false
     }
     return true
@@ -235,7 +236,7 @@ load_weapons :: proc(allocator: mem.Allocator) -> bool {
     }
     return true
 }
-
+/*
 @(private)
 load_horde_entity :: proc(m: yaml.Mapping, key: string) -> horde.Entity_Config {
     em, ok := m[key].(yaml.Mapping)
@@ -269,7 +270,7 @@ load_enemies :: proc(allocator: mem.Allocator) -> bool {
     
 
     return true
-}
+}*/
 
 @(private)
 load_programs :: proc(allocator: mem.Allocator) -> bool {

@@ -1,4 +1,4 @@
-package horde
+package dep_horde
 
 import sdl "vendor:sdl3"
 
