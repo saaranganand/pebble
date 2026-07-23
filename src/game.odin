@@ -17,10 +17,8 @@ import assets "assets"
 import weapon "weapon"
 import input "input"
 
-PLAYER_SIZE :: 100
 AIM_DIST :: 50
 AIM_SIZE :: 8
-PLAYER_SPEED :: 300
 
 TILE_SIZE :: 64
 
@@ -90,6 +88,8 @@ game_create :: proc() {
 
     game.projectile_manager = projectile.projectile_manager_create()
 
+    program_system_create()
+
     game.player = player_init()
 
     game.horde_manager = horde.horde_manager_create()
@@ -107,6 +107,9 @@ game_create :: proc() {
 
 game_destroy :: proc() {
     destroy_hud(&game.hud)
+    program_system_destroy()
+
+    data.global_manager_destroy()
 
     horde.horde_manager_destroy()
 

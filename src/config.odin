@@ -5,6 +5,9 @@ package main
 import yaml "../libs/odin-yaml"
 import fmt "core:fmt"
 import mem "core:mem"
+import strings "core:strings"
+
+import horde "enemy/horde"
 
 
 // Weapon
@@ -62,27 +65,18 @@ WeaponConfig :: struct {
 
 // Enemy
 
-EnemyTypeConfig :: struct {
-    health: f32,
-    speed: f32,
-    size: f32,
-    damage: f32,
-    spawn_weight: f32, // relative spawn probability across all types
-}
-
 EnemyConfig :: struct {
     spawn_rate: f32, // s b/w spawns
     spawn_dist: f32, // pixels from player
-    small: EnemyTypeConfig,
-    regular: EnemyTypeConfig,
-    large: EnemyTypeConfig,
-    // add more enemies here
+    horde: horde.Config, // leader/follower stuff, passed to horde.create
 }
 
 // Player
 
 PlayerConfig :: struct {
     max_hp: f32,
+    speed: f32, // pixels/s
+    size: f32, // pixels, hitbox
 }
 
 LevelConfig :: struct {
@@ -93,19 +87,24 @@ LevelConfig :: struct {
 
 // Programs
 
-// effects a program can apply on an enemy
-ProgramEffect :: enum {
-    FireBullets, // bullets ignite enemies
-    IceWaves, // ping slows enemies
-    // add more effects here
+// one stat multiplier
+StatBuff :: struct {
+    stat: string,
+    multiplier: f32,
 }
-ProgramEffects :: bit_set[ProgramEffect]
+
+// one status effect this program makes your hits apply
+// effect is a tag matching an effect definition ("burn", "frost_slow", ...)
+EffectApplication :: struct {
+    effect: string,
+    damage: f32,
+    duration: f32,
+}
 
 ProgramDef :: struct {
     id: string,
-    stat: string,
-    value: f32,
-    effects: ProgramEffects,
+    buffs: [dynamic]StatBuff,
+    applies: [dynamic]EffectApplication,
 }
 
 // ---
@@ -117,10 +116,8 @@ GameConfig :: struct {
     enemies: EnemyConfig,
     programs: [dynamic]ProgramDef,
     levels: LevelConfig,
-    active_effects: ProgramEffects, // union of all equipped program effects
 }
 
-// read only after load_configs() returns
 game_config: GameConfig
 
 // yaml value to f32
@@ -139,17 +136,6 @@ yf :: proc(m: yaml.Mapping, key: string) -> f32 {
     return 0
 }
 
-// maps effect name string from yaml to enum; logs unknown names
-@(private)
-parse_effect :: proc(s: string) -> (ProgramEffect, bool) {
-    switch s {
-    case "fire_bullets": return .FireBullets, true
-    case "ice_waves":    return .IceWaves, true
-    }
-    fmt.eprintfln("config: unknown effect '%s'", s)
-    return {}, false
-}
-
 // call before game loop
 load_configs :: proc() -> bool {
     // trying out arena allocation for config
@@ -162,11 +148,6 @@ load_configs :: proc() -> bool {
 
     if !load_player(arena_alloc) || !load_weapons(arena_alloc) || !load_enemies(arena_alloc) || !load_programs(arena_alloc) || !load_levels(arena_alloc) {
         return false
-    }
-    
-    // build active_effects as union of all loaded programs
-    for p in game_config.programs {
-        game_config.active_effects |= p.effects
     }
     return true
 }
@@ -186,10 +167,9 @@ load_player :: proc(allocator: mem.Allocator) -> bool {
     if !ok { return true }
     game_config.player = {
         max_hp = yf(m, "max_hp"),
+        speed = yf(m, "speed"),
+        size = yf(m, "size"),
     }
-
-    
-
     return true
 }
 
@@ -253,21 +233,17 @@ load_weapons :: proc(allocator: mem.Allocator) -> bool {
         duration = yf(dm, "duration"),
         cone_angle = yf(dm, "cone_angle"),
     }
-
-
     return true
 }
 
 @(private)
-load_enemy_type :: proc(m: yaml.Mapping, key: string) -> EnemyTypeConfig {
+load_horde_entity :: proc(m: yaml.Mapping, key: string) -> horde.Entity_Config {
     em, ok := m[key].(yaml.Mapping)
     if !ok { return {} }
     return {
         health = yf(em, "health"),
         speed = yf(em, "speed"),
         size = yf(em, "size"),
-        damage = yf(em, "damage"),
-        spawn_weight = yf(em, "spawn_weight"),
     }
 }
 
@@ -284,10 +260,11 @@ load_enemies :: proc(allocator: mem.Allocator) -> bool {
     game_config.enemies = {
         spawn_rate = yf(m, "spawn_rate"),
         spawn_dist = yf(m, "spawn_dist"),
-        small = load_enemy_type(m, "small"),
-        regular = load_enemy_type(m, "regular"),
-        large = load_enemy_type(m, "large"),
-        // add more here
+        horde = {
+            leader = load_horde_entity(m, "leader"),
+            follower = load_horde_entity(m, "follower"),
+            followers_per_leader = int(yf(m, "followers_per_leader")),
+        },
     }
     
 
@@ -309,26 +286,40 @@ load_programs :: proc(allocator: mem.Allocator) -> bool {
 
     for item in seq {
         pm := item.(yaml.Mapping)
-        def := ProgramDef{
-            id    = pm["id"].(string),
-            stat  = pm["stat"].(string),
-            value = yf(pm, "value"),
-        }
-        // optional effects list
-        if effects_val, has_effects := pm["effects"]; has_effects {
-            if effects_seq, is_seq := effects_val.(yaml.Sequence); is_seq {
-                for e in effects_seq {
-                    if name, is_str := e.(string); is_str {
-                        if effect, parsed := parse_effect(name); parsed {
-                            def.effects |= {effect}
-                        }
-                    }
+        def: ProgramDef
+        // yaml doc lives in a temp arena, so clone strings we keep
+        def.id = strings.clone(pm["id"].(string))
+
+        // optional stat buffs
+        if buffs_val, has_buffs := pm["buffs"]; has_buffs {
+            if buffs_seq, is_seq := buffs_val.(yaml.Sequence); is_seq {
+                for b in buffs_seq {
+                    bm := b.(yaml.Mapping)
+                    append(&def.buffs, StatBuff{
+                        stat = strings.clone(bm["stat"].(string)),
+                        multiplier = yf(bm, "multiplier"),
+                    })
                 }
             }
         }
+
+        // optional effect applications
+        if applies_val, has_applies := pm["applies"]; has_applies {
+            if applies_seq, is_seq := applies_val.(yaml.Sequence); is_seq {
+                for a in applies_seq {
+                    am := a.(yaml.Mapping)
+                    append(&def.applies, EffectApplication{
+                        effect = strings.clone(am["effect"].(string)),
+                        damage = yf(am, "damage"),
+                        duration = yf(am, "duration"),
+                    })
+                }
+            }
+        }
+
         append(&game_config.programs, def)
     }
-    
+
     return true
 }
 

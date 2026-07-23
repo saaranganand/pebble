@@ -1,4 +1,6 @@
 src/sdlquickref.cpp
 *.bin
 log/*
+*.docx
+*.pdf
 ols.json

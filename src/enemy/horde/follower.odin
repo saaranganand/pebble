@@ -7,11 +7,6 @@ import log "core:log"
 import primatives "../../sdl_primatives"
 import geo "../../geometry"
 
-FOLLOWER_SIZE :: 16
-FOLLOWER_SPEED :: 30
-
-FOLLOWER_STARTING_HEALTH :: 3
-
 @(private)
 follower_create :: proc(registry: ^Follower_Registry, follower_position: sdl.FPoint, follower_leader: Leader_Handle) -> Follower_Handle {
     new_follower := entity_init(.FOLLOWER)
@@ -23,7 +18,7 @@ follower_create :: proc(registry: ^Follower_Registry, follower_position: sdl.FPo
         state = .Following,
         leader = follower_leader,
     }
-    new_follower_collider := geo.Circle{ follower_position, FOLLOWER_SIZE }
+    new_follower_collider := geo.Circle{follower_position, config.follower.size}
     
     // If the array is full, append the new follower
     if len(registry.free_list) == 0 {

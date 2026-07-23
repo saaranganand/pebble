@@ -1,25 +1,16 @@
 # enemy base stats
 
-spawn_rate: 2 
-spawn_dist: 750
+spawn_rate: 2 # s b/w spawns
+spawn_dist: 750 # pixels from player
 
-small:
-  health: 30
-  speed: 160
-  size: 10
-  damage: 5
-  spawn_weight: 25
+followers_per_leader: 1
 
-regular:
-  health: 50
-  speed: 80
-  size: 20
-  damage: 10
-  spawn_weight: 60
+leader:
+  health: 10
+  speed: 90
+  size: 32
 
-large:
-  health: 70
+follower:
+  health: 3
   speed: 30
-  size: 40
-  damage: 20
-  spawn_weight: 15
+  size: 16
