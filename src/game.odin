@@ -94,6 +94,7 @@ game_create :: proc() {
 
     game.horde_manager = horde.horde_manager_create()
     horde.horde_manager_spawn_horde({0,0}, game.player.entity)
+    //horde.horde_manager_spawn_horde({500,0}, game.player.entity)
 
     //game.horde = horde.create(&game.player.tracking_position)
     //horde.leader_spawn(&game.horde, {200, 200})

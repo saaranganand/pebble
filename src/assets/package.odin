@@ -22,7 +22,7 @@ debug_all_load :: proc() {
     audio_entry_load("sounds/weapons/bit_pistol/select.wav")
 
     audio_entry_load("music/shanty.ogg")
-    music_play("music/shanty.ogg")
+    //music_play("music/shanty.ogg")
 
     font_load("fonts/ubuntu.ttf", 32)
     font_load("fonts/ubuntu.ttf", 24)
@@ -34,12 +34,9 @@ debug_all_load :: proc() {
     img_load("img/entity/horde.png")
 
     animation_instance_load("animations/entity/player.yaml")
-
     animation_instance_load("animations/weapon/bit_pistol.yaml")
     animation_instance_load("animations/weapon/bit_rifle.yaml")
-
     animation_instance_load("animations/projectile/bullet.yaml")
-
     animation_instance_load("animations/entity/horde_leader.yaml")
     animation_instance_load("animations/entity/horde_follower.yaml")
 }

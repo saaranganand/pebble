@@ -6,6 +6,7 @@ import entity "../entity"
 import handle "../handle"
 
 import math "core:math"
+import log "core:log"
 
 Grid_Cell :: [dynamic]handle.Entity_Handle
 
@@ -34,23 +35,29 @@ spatial_grid_get_cell_pos :: proc(world_pos: sdl.FPoint) -> (pos: sdl.Point) {
     return
 }
 
-spatial_grid_build :: proc(grid: ^Spatial_Grid, followers: []handle.Entity_Handle) {
+spatial_grid_build :: proc(grid: ^Spatial_Grid) {
     for key, cell in grid.cells {
         delete(cell)
     }
     clear(&grid.cells)
 
-    for &follower in followers {
-        follower_entity, ok := entity.entity_get(follower, HORDE_TEAM)
-        if !ok do continue
-        if !follower_entity.active do continue
+    grid_followers := &global_horde_manager.grid_followers
 
-        cell_pos := spatial_grid_get_cell_pos(follower_entity.position)
-        if cell_pos not_in grid.cells {
-            grid.cells[cell_pos] = make(Grid_Cell)
+    i := 0
+    for key, horde_followers in grid_followers {
+        for &follower in horde_followers {
+            defer i += 1
+            follower_entity, ok := entity.entity_get(follower, HORDE_TEAM)
+            if !ok do continue
+            if !follower_entity.active do continue
+
+            cell_pos := spatial_grid_get_cell_pos(follower_entity.position)
+            if cell_pos not_in grid.cells {
+                grid.cells[cell_pos] = make(Grid_Cell)
+            }
+
+            append(&grid.cells[cell_pos], follower)
         }
-
-        append(&grid.cells[cell_pos], follower)
     }
 }
 
