@@ -5,23 +5,83 @@ package main
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
+import fmt "core:fmt"
+
 import primatives "sdl_primatives"
 import color "color"
+import entity "entity"
+import assets "assets"
+
+HUD :: struct {
+    effect_duration_text: ^ttf.Text,
+}
+
+create_hud :: proc() -> (hud: HUD) {
+    hud.effect_duration_text = assets.font_create_text("fonts/ubuntu.ttf", 16, "0s")
+    color.sdl_set_text_color(hud.effect_duration_text, color.Default_Palette_Color.BLACK)
+
+    return
+}
+
+destroy_hud :: proc(hud: ^HUD) {
+    ttf.DestroyText(hud.effect_duration_text)
+}
 
 draw_hud :: proc() {
     player := game.player
     input := game.input
+    hud := game.hud
+
+    player_entity, ok := entity.entity_get(player.entity, .ALLY)
+    if !ok do return
+
 
     // top left player health bar
-    hp_ratio := player.hp / game_config.player.max_hp
-    bgRect := sdl.FRect{x = 10, y = 10, w = 200, h = 12}
-    fillRect := sdl.FRect{x = 10, y = 10, w = 200 * hp_ratio, h = 12}
+    hp_ratio := player_entity.health / player_entity.max_health
+    bgRect := sdl.FRect{x = 10, y = 10, w = 200, h = 20}
+    fillRect := sdl.FRect{x = 10, y = 10, w = 200 * hp_ratio, h = 20}
 
-    color.sdl_set_color(color.Default_Palette_Colors.DARK_GRAY)
+    color.sdl_set_color(color.Default_Palette_Color.DARK_GRAY)
     sdl.RenderFillRect(primatives.global_renderer, &bgRect)
 
-    color.sdl_set_color(color.Default_Palette_Colors.GRASS_GREEN)
+    color.sdl_set_color(color.Default_Palette_Color.GRASS_GREEN)
     sdl.RenderFillRect(primatives.global_renderer, &fillRect)
+
+    effect_rect := sdl.FRect{x = 10 + 200 + 10, y = 10, w = 20, h = 20}
+
+    /*
+    // top left player effects
+    for i in 0..<game.effect_manager.unique_definition_ids {
+        effect_maybe := entity.entity_get_active_effect_by_ID(player_entity, i)
+        effect_handle, effect_handle_ok := effect_maybe.(entity.Effect_Handle)
+        if !effect_handle_ok do continue
+
+        effect, effect_ok := entity.effect_manager_get_effect(effect_handle)
+        if !effect_ok do continue
+
+        effect_color := color.Default_Palette_Color.PINK
+        switch effect.instance.definition.unique_tag {
+        case "burn":
+            effect_color := color.Default_Palette_Color.RED
+        case "gravity":
+            effect_color := color.Default_Palette_Color.DARK_GREEN
+        case "knockback":
+            continue
+        case "slow":
+            effect_color := color.Default_Palette_Color.BABY_BLUE
+        }
+
+        color.sdl_set_color(effect_color)
+        sdl.RenderFillRect(primatives.global_renderer, &effect_rect)
+
+        duration_text := fmt.caprint(int(effect.duration - effect.elapsed), "s", sep = "")
+        defer delete(duration_text)
+
+        ttf.SetTextString(hud.effect_duration_text, duration_text, 0)
+        ttf.DrawRendererText(hud.effect_duration_text, effect_rect.x + 20 + 2, effect_rect.y + 2)
+
+        effect_rect.x += 40 + 5
+    }*/
     
     weapon_name : cstring
     switch player.active_category {
@@ -34,8 +94,8 @@ draw_hud :: proc() {
                   // scope charge meter - attached to player
                   if player.scope.is_charging {
                       bgRect := sdl.FRect{
-                          x = player.position.x - 30,
-                          y = player.position.y + game_config.player.size / 2 + 10,
+                          x = player_entity.position.x - 30,
+                          y = player_entity.position.y + game_config.player.size / 2 + 10,
                           w = 60,
                           h = 6
                       }

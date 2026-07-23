@@ -6,7 +6,10 @@ import sdl "vendor:sdl3"
 import "core:math"
 
 import primatives "sdl_primatives"
-import data "data"
+import assets "assets" 
+import entity "entity"
+import effect "entity_effect"
+import input "input"
 
 WeaponCategory :: enum {
     Manual,
@@ -45,8 +48,11 @@ update_bitpistol :: proc(bp: ^BitPistol, x: f32, y: f32, aimAngle: f32) {
         bp.cooldown -= primatives.dt
     }
     if input.fire && bp.cooldown <= 0 {
-        data.sound_play("sounds/silly/pirate_bell.wav")
-        spawn_bullet(pool, x, y, aimAngle, BulletType.BitPistol, cfg.damage, cfg.bullet_speed, cfg.bullet_size)
+        //effect_data := effect.effect_application_data_from_tag("burn_high", game.player.entity, game.player.entity)
+        //effect.effect_manager_queue_apply(effect_data)
+
+        //assets.sound_play("sounds/silly/pirate_bell.wav")
+        //spawn_bullet(pool, x, y, aimAngle, BulletType.BitPistol, cfg.damage, cfg.bullet_speed, cfg.bullet_size)
         bp.cooldown = 1.0 / cfg.fire_rate
     }
 }
@@ -129,7 +135,7 @@ update_bus :: proc(bus: ^Bus) {
     }
 }
 
-draw_bus :: proc(renderer: ^sdl.Renderer, bus: Bus, input: Input, x: f32, y: f32, aimAngle: f32) {
+draw_bus :: proc(renderer: ^sdl.Renderer, bus: Bus, input: input.Input, x: f32, y: f32, aimAngle: f32) {
     sdl.SetRenderDrawColor(renderer, 0, 200, 255, 255) // cyan
 
     if input.fire && !bus.is_overheated {
@@ -193,7 +199,7 @@ update_waves :: proc() {
     }
 }
 
-update_ping :: proc(ping: ^Ping, pool: ^PingWavePool, x, y: f32, input: Input, is_selected: bool) {
+update_ping :: proc(ping: ^Ping, pool: ^PingWavePool, x, y: f32, input: input.Input, is_selected: bool) {
     cfg := game_config.weapons.ping
 
     wave_interval := cfg.max_radius / cfg.expand_speed / f32(MAX_PING_WAVES)
@@ -249,7 +255,7 @@ draw_daemon :: proc(renderer: ^sdl.Renderer, d: Daemon) {
     sdl.RenderFillRect(renderer, &rect)
 }
 
-update_daemon :: proc(d: ^Daemon, pool: ^BulletPool, /*enemies: ^EnemyPool,*/ px, py: f32, is_selected: bool, input: Input) {
+update_daemon :: proc(d: ^Daemon, pool: ^BulletPool, /*enemies: ^EnemyPool,*/ px, py: f32, is_selected: bool, input: input.Input) {
     cfg := game_config.weapons.daemon
     if is_selected && input.fire && !d.is_active {
         d.is_active = true
