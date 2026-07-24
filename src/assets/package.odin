@@ -32,6 +32,7 @@ debug_all_load :: proc() {
     img_load("img/weapon/ranged.png")
     img_load("img/projectile/bullet.png")
     img_load("img/entity/horde.png")
+    img_load("img/program.png")
 
     animation_instance_load("animations/entity/player.yaml")
     animation_instance_load("animations/weapon/bit_pistol.yaml")

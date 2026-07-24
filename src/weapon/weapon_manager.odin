@@ -37,6 +37,15 @@ weapon_manager_destroy :: proc() {
     log.infof("Destroyed weapon manager")
 }
 
+weapon_manager_num_definitions :: proc() -> Weapon_Definition_ID {
+    return global_weapon_manager.unique_definition_ids
+}
+
+weapon_manager_get_definition_id :: proc(definition_tag: Weapon_Definition_Tag) -> (id: Weapon_Definition_ID, ok: bool) {
+    id, ok = global_weapon_manager.definition_tag_to_id[definition_tag]
+    return
+}
+
 weapon_manager_get_definition :: proc(definition_tag: Weapon_Definition_Tag) -> ^Weapon_Definition {
     definition_ID, def_ok := global_weapon_manager.definition_tag_to_id[definition_tag]
     if !def_ok {

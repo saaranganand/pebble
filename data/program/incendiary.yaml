@@ -1,0 +1,4 @@
+# set enemies on fire
+
+hit_effects:
+    - burn_high

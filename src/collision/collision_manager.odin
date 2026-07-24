@@ -42,6 +42,18 @@ resolve_collisions :: proc(
                             damage = check_projectile.damage
                         })
 
+                        // weapon's own on-hit effect
+                        if apply_tag, has_apply := check_projectile.apply_effect.(effect.Effect_Instance_Tag); has_apply {
+                            apply_data := effect.effect_application_data_from_tag(apply_tag, {}, entity_handle, check_entity.team)
+                            effect.effect_manager_queue_apply(apply_data)
+                        }
+
+                        // On-hit effects granted by the shooter's programs
+                        for i in 0..<check_projectile.num_extra_effects {
+                            extra_data := effect.effect_application_data_from_id(check_projectile.extra_effects[i], {}, entity_handle, check_entity.team)
+                            effect.effect_manager_queue_apply(extra_data)
+                        }
+
                         if check_projectile.piercing > 0 do check_projectile.piercing -= 1
                     }
                 }

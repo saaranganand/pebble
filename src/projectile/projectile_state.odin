@@ -11,6 +11,8 @@ import geo "../geometry"
 
 import log "core:log"
 
+MAX_EXTRA_EFFECTS :: 4
+
 Projectile_State :: struct {
     position: sdl.FPoint,
     shape: Shape,
@@ -22,6 +24,8 @@ Projectile_State :: struct {
     shoot_angle: f32,
     team: entity.Team,
     apply_effect: Maybe(effect.Effect_Instance_Tag),
+    extra_effects: [MAX_EXTRA_EFFECTS]effect.Effect_Instance_ID,
+    num_extra_effects: int,
     animation_controller: assets.Animation_Controller,
     active: bool,
 }

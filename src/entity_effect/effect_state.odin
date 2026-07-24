@@ -80,7 +80,9 @@ effect_state_update :: proc(state: ^Effect_State, target_entity: ^entity.Entity)
 
     defer state.elapsed += primatives.dt
 
-    is_ending := state.elapsed > state.duration
+    // Negative duration = permanent
+    // used by program self-effects. removed explicityl
+    is_ending := state.duration >= 0 && state.elapsed > state.duration
 
     switch state.instance.definition.type {
     case .PULSE:

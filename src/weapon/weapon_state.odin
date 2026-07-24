@@ -87,15 +87,32 @@ weapon_fire :: proc(controller: ^Weapon_Controller, state: ^Weapon_State, shoot_
 weapon_shoot :: proc(controller: ^Weapon_Controller, state: ^Weapon_State, shoot_position: sdl.FPoint) {
     state.animation_controller.current_animation = "shoot"
 
+    // weapon buffs from programs
+    mults := STAT_MULTS_IDENTITY
+    if controller.stat_mults != nil do mults = controller.stat_mults[state.definition.unique_id]
+
     // gcd
-    controller.gcd_counter = state.definition.gcd_interval
+    controller.gcd_counter = state.definition.gcd_interval * mults[.GCD_INTERVAL]
 
     // cooldown
     state.uses_since_cooldown += 1
-    if state.uses_since_cooldown >= state.definition.uses_before_cooldown do state.cooldown_counter = state.definition.cooldown
+    if state.uses_since_cooldown >= state.definition.uses_before_cooldown do state.cooldown_counter = state.definition.cooldown * mults[.COOLDOWN]
 
     // shoot callback
 
-    projectile.projectile_manager_spawn(state.definition.projectile_shell, shoot_position, controller.aim_angle, state.definition.damage)
+    shell := state.definition.projectile_shell
+    shell.speed *= mults[.PROJECTILE_SPEED]
+
+    // program hit effects are on the projectile
+    for instance_id in controller.hit_effects {
+        if shell.num_extra_effects >= projectile.MAX_EXTRA_EFFECTS {
+            log.errorf("Weapon %v dropped program hit effects past the projectile cap of %v", state.definition.unique_tag, projectile.MAX_EXTRA_EFFECTS)
+            break
+        }
+        shell.extra_effects[shell.num_extra_effects] = instance_id
+        shell.num_extra_effects += 1
+    }
+
+    projectile.projectile_manager_spawn(shell, shoot_position, controller.aim_angle, state.definition.damage * mults[.DAMAGE])
     sound_set_play(&state.definition.sounds, .SHOOT)
 }

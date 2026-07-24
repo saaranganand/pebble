@@ -10,6 +10,7 @@ import reaction "entity_effect_reaction"
 import projectile "projectile"
 import color "color"
 import horde "entity_horde"
+import program "program"
 import collision "collision"
 
 import camera "camera"
@@ -35,7 +36,10 @@ game := struct {
     entity_manager: ^entity.Entity_Manager,
     reaction_manager: ^reaction.Reaction_Manager,
     weapon_manager: ^weapon.Weapon_Manager,
+    program_manager: ^program.Program_Manager,
     projectile_manager: ^projectile.Projectile_Manager,
+    program_pickups: Program_Pickup_System,
+    floating_texts: Floating_Text_System,
     hud: HUD,
 }{}
 
@@ -48,26 +52,6 @@ game_loop :: proc() {
     game_draw()
 }
 
-/*
-main :: proc() {
-    
-
-    // scope crosshair
-    crosshair_surface := img.Load("assets/crosshair.png")
-    crosshair_cursor := sdl.CreateColorCursor(crosshair_surface, 32, 32)
-    sdl.DestroySurface(crosshair_surface)
-    _ =sdl.SetCursor(crosshair_cursor)
-    defer sdl.DestroyCursor(crosshair_cursor)
-
-    // trace missile
-    trace_tex := img.LoadTexture(primatives.global_renderer, "assets/trace.png")
-    defer sdl.DestroyTexture(trace_tex)
-
-    
-
-    // setup
-}
-    */
 game_create :: proc() {
     primatives.global_timer_init()
 
@@ -86,12 +70,24 @@ game_create :: proc() {
     game.weapon_manager = weapon.weapon_manager_create()
     weapon.weapon_manager_load()
 
+    // programs resolve weapon and effect tags to IDs at load, so this is after both of those
+    game.program_manager = program.program_manager_create()
+    program.program_manager_load()
+
     game.projectile_manager = projectile.projectile_manager_create()
 
     game.player = player_init()
 
+    program.program_loadout_create(&game.player.program_loadout, game.player.entity, .ALLY, &game.player.weapon_controller)
+
+    // program.program_loadout_equip(&game.player.program_loadout, "amplify")
+
+    game.floating_texts = floating_text_system_create()
+    game.program_pickups = program_pickup_system_create()
+
     game.horde_manager = horde.horde_manager_create()
-    horde.horde_manager_spawn_horde({0,0}, game.player.entity)
+
+    horde.horde_manager_spawn_horde({600,400}, game.player.entity)
     //horde.horde_manager_spawn_horde({500,0}, game.player.entity)
 
     //game.horde = horde.create(&game.player.tracking_position)
@@ -105,9 +101,9 @@ game_create :: proc() {
 
 game_destroy :: proc() {
     destroy_hud(&game.hud)
-    program_system_destroy()
 
-    //data.global_manager_destroy()
+    program_pickup_system_destroy(&game.program_pickups)
+    floating_text_system_destroy(&game.floating_texts)
 
     horde.horde_manager_destroy()
 
@@ -119,6 +115,7 @@ game_destroy :: proc() {
 
     camera.global_camera_destroy()
 
+    program.program_manager_destroy()
     weapon.weapon_manager_destroy()
 
     reaction.reaction_manager_destroy()
@@ -152,7 +149,10 @@ game_update :: proc() {
     apply_movement_penalty()
 
     update_player()
-    update_bullets()    
+    update_bullets()
+
+    program_pickup_system_update(&game.program_pickups)
+    floating_text_system_update(&game.floating_texts)
 
     horde.horde_manager_update()
 
@@ -170,37 +170,6 @@ game_update :: proc() {
     // Since reactions are explicitly reactions to effects, must update this after effects.
     effect.effect_manager_update()
     reaction.reaction_manager_update(game.effect_manager)
-
-    /*
-    is_ping_selected := player.active_category == .Auto && player.weaponAuto == .Ping
-    is_daemon_selected := player.active_category == .Auto && player.weaponAuto == .Daemon
-
-    if (is_ping_selected && input.fire && !player.ping.is_active) ||
-    (is_daemon_selected && input.fire && !player.daemon.is_active) {
-        reset_auto_weapons(&player, &waves)
-    }
-    */
-
-    
-    //update_ping(&player.ping, &waves, player.x, player.y, input, is_ping_selected, dt)
-    //update_daemon(&player.daemon, &bullets, &enemies, player.x, player.y, is_daemon_selected, input, dt)
-
-    //update_enemies(game.player.x, game.player.y)
-
-    //detect_collision()
-    //detect_bullet_collision()
-
-    
-
-    //if game.player.ping.is_active {
-        //detect_ping_damage()
-    //}
-    
-    //if game.player.hp <=0 {
-      //  game.game_over = true
-    //}
-
-    
 }
 
 draw_background :: proc() {
@@ -236,27 +205,19 @@ game_draw :: proc() {
 
     entity.entity_manager_draw()
 
+    program_pickup_system_draw(&game.program_pickups)
+
     draw_player()
 
     projectile.projectile_manager_draw()
 
     //horde.draw(&game.horde)
 
+    floating_text_system_draw(&game.floating_texts)
+
     draw_hud()
     draw_bullets()
     draw_ping_waves()
 
     camera.camera_draw_center_lines()
-    
-    
-    /*
-    if player.active_category == .Hold && player.weaponHold == .Bus {
-        detect_bus_damage(&enemies, player.bus, player.x, player.y, player.aimAngle, input, dt)
-        draw_bus(player.bus, input, player.x, player.y, player.aimAngle)
-    }
-    if player.daemon.is_active {
-        draw_daemon(player.daemon)
-    }*/
-
-    //draw_enemies()
 }

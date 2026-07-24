@@ -110,8 +110,8 @@ effect_instance_load :: proc(
         new_instance.callback_data.data = var_data
     case .SPEED:
         var_data := Effect_Speed_Fn_Data{}
-        var_data.add = cast(f32) yaml_parse.read_value_from_map(data_map, "damage", f64, default = 0.0)
-        var_data.mult = cast(f32) yaml_parse.read_value_from_map(data_map, "damage", f64, default = 0.0)
+        var_data.add = cast(f32) yaml_parse.read_value_from_map(data_map, "add", f64, default = 0.0)
+        var_data.mult = cast(f32) yaml_parse.read_value_from_map(data_map, "mult", f64, default = 1.0)
 
         new_instance.callback_data.data = var_data
     case .POSITION:

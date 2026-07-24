@@ -1,0 +1,4 @@
+# +30% move speed while equipped
+
+self_effects:
+    - program_ram

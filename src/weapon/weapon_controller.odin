@@ -3,6 +3,7 @@ package weapon
 import sdl "vendor:sdl3"
 
 import primatives "../sdl_primatives"
+import effect "../entity_effect"
 import input "../input"
 import camera "../camera"
 
@@ -20,6 +21,14 @@ Weapon_Controller :: struct {
     active_weapon: Weapon_Definition_Tag,
     gcd_counter: f32,
     draw_distance: f32,
+
+    stat_mults: Stat_Mult_Table,
+    hit_effects: []effect.Effect_Instance_ID,
+}
+
+weapon_controller_set_program_data :: proc(controller: ^Weapon_Controller, stat_mults: Stat_Mult_Table, hit_effects: []effect.Effect_Instance_ID) {
+    controller.stat_mults = stat_mults
+    controller.hit_effects = hit_effects
 }
 
 weapon_controller_create :: proc(controller: ^Weapon_Controller) {

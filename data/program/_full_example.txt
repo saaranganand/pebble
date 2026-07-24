@@ -1,0 +1,13 @@
+# all the below are otpional
+
+buffs: # weapon stat multipliers, active while equipped
+    - stat: DAMAGE | GCD_INTERVAL | COOLDOWN | PROJECTILE_SPEED | ...
+      weapon: ?bit_pistol # data/weapon/<tag>.yaml, omit -> all weapons
+      multiplier: 0.0...
+
+self_effects: # effect instance tags, applied to player while equipped
+    # use instances with duration: -1 (permanent), removed on unequip
+    - ?.data/effect/instances/item.yaml
+
+hit_effects: # effect instance tags, your projectiles apply on hit
+    - ?.data/effect/instances/item.yaml

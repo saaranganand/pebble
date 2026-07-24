@@ -5,7 +5,6 @@ package main
 import yaml "../libs/odin-yaml"
 import fmt "core:fmt"
 import mem "core:mem"
-import strings "core:strings"
 
 //import horde "enemy/horde"
 
@@ -85,37 +84,24 @@ LevelConfig :: struct {
     slots_per_level: int, // extra program slots per level
 }
 
-// Programs
+// Pickups (programs on the map)
+PickupConfig :: struct {
+    count: int, // capped at number of existing unique programs
+    radius: f32, // pickup collision radius, pixels
+    sprite_size: f32, // drawn size, pixels
 
-// one stat multiplier
-StatBuff :: struct {
-    stat: string,
-    multiplier: f32,
+    // programs spawn in radius around player
+    min_spawn_distance: f32,
+    max_spawn_distance: f32,
 }
-
-// one status effect this program makes your hits apply
-// effect is a tag matching an effect definition ("burn", "frost_slow", ...)
-EffectApplication :: struct {
-    effect: string,
-    damage: f32,
-    duration: f32,
-}
-
-ProgramDef :: struct {
-    id: string,
-    buffs: [dynamic]StatBuff,
-    applies: [dynamic]EffectApplication,
-}
-
-// ---
 
 // top level config used at startup
 GameConfig :: struct {
     player: PlayerConfig,
     weapons: WeaponConfig,
     enemies: EnemyConfig,
-    programs: [dynamic]ProgramDef,
     levels: LevelConfig,
+    pickup: PickupConfig,
 }
 
 game_config: GameConfig
@@ -146,8 +132,8 @@ load_configs :: proc() -> bool {
     mem.arena_init(&config_arena, arena_memory)
     arena_alloc := mem.arena_allocator(&config_arena)
 
-    //!load_enemies(arena_alloc) || 
-    if !load_player(arena_alloc) || !load_weapons(arena_alloc) || !load_programs(arena_alloc) || !load_levels(arena_alloc) {
+    //!load_enemies(arena_alloc) ||
+    if !load_player(arena_alloc) || !load_weapons(arena_alloc) || !load_levels(arena_alloc) || !load_pickup(arena_alloc) {
         return false
     }
     return true
@@ -170,6 +156,25 @@ load_player :: proc(allocator: mem.Allocator) -> bool {
         max_hp = yf(m, "max_hp"),
         speed = yf(m, "speed"),
         size = yf(m, "size"),
+    }
+    return true
+}
+
+@(private)
+load_pickup :: proc(allocator: mem.Allocator) -> bool {
+    doc, err := yaml.decode_from_file("data/pickup.yaml", allocator)
+    if err != nil {
+        fmt.eprintln("config: failed to load data/pickup.yaml")
+        return false
+    }
+    m, ok := doc.(yaml.Mapping)
+    if !ok { return true }
+    game_config.pickup = {
+        count = int(yf(m, "count")),
+        radius = yf(m, "radius"),
+        sprite_size = yf(m, "sprite_size"),
+        min_spawn_distance = yf(m, "min_spawn_distance"),
+        max_spawn_distance = yf(m, "max_spawn_distance"),
     }
     return true
 }
@@ -271,58 +276,6 @@ load_enemies :: proc(allocator: mem.Allocator) -> bool {
 
     return true
 }*/
-
-@(private)
-load_programs :: proc(allocator: mem.Allocator) -> bool {
-    doc, err := yaml.decode_from_file("data/programs.yaml", allocator)
-    
-    if err != nil {
-        fmt.eprintln("config: failed to load data/programs.yaml")
-        return false
-    }
-    seq, ok := doc.(yaml.Sequence)
-    if !ok {
-        return true
-    }
-
-    for item in seq {
-        pm := item.(yaml.Mapping)
-        def: ProgramDef
-        // yaml doc lives in a temp arena, so clone strings we keep
-        def.id = strings.clone(pm["id"].(string))
-
-        // optional stat buffs
-        if buffs_val, has_buffs := pm["buffs"]; has_buffs {
-            if buffs_seq, is_seq := buffs_val.(yaml.Sequence); is_seq {
-                for b in buffs_seq {
-                    bm := b.(yaml.Mapping)
-                    append(&def.buffs, StatBuff{
-                        stat = strings.clone(bm["stat"].(string)),
-                        multiplier = yf(bm, "multiplier"),
-                    })
-                }
-            }
-        }
-
-        // optional effect applications
-        if applies_val, has_applies := pm["applies"]; has_applies {
-            if applies_seq, is_seq := applies_val.(yaml.Sequence); is_seq {
-                for a in applies_seq {
-                    am := a.(yaml.Mapping)
-                    append(&def.applies, EffectApplication{
-                        effect = strings.clone(am["effect"].(string)),
-                        damage = yf(am, "damage"),
-                        duration = yf(am, "duration"),
-                    })
-                }
-            }
-        }
-
-        append(&game_config.programs, def)
-    }
-
-    return true
-}
 
 @(private)
 load_levels :: proc(allocator: mem.Allocator) -> bool {

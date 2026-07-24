@@ -44,6 +44,45 @@ Weapon_Definition :: struct {
     animation_default_angle: f32,
 }
 
+// same  as the definition fields above that a program is allowed to buff
+// Allows a program's yaml say which one to multiply ("DAMAGE") and lets multiplier table below be indexed by that
+Weapon_Stat :: enum {
+    DAMAGE,
+    GCD_INTERVAL,
+    COOLDOWN,
+    PROJECTILE_SPEED,
+}
+
+Stat_Mults :: [Weapon_Stat]f32
+
+// Apply it here - not on the definition-  because definitions are shared by every wielder of that weapon (not just player picking up the program)
+Stat_Mult_Table :: []Stat_Mults
+
+// Base stats come from the weapon's yaml
+// multiply by 1.0 means unchanged
+STAT_MULTS_IDENTITY :: Stat_Mults{
+    .DAMAGE = 1.0,
+    .GCD_INTERVAL = 1.0,
+    .COOLDOWN = 1.0,
+    .PROJECTILE_SPEED = 1.0,
+}
+
+weapon_stat_from_string :: proc(stat_string: string) -> (stat: Weapon_Stat) {
+    switch stat_string {
+    case "DAMAGE":
+        stat = .DAMAGE
+    case "GCD_INTERVAL":
+        stat = .GCD_INTERVAL
+    case "COOLDOWN":
+        stat = .COOLDOWN
+    case "PROJECTILE_SPEED":
+        stat = .PROJECTILE_SPEED
+    case:
+        log.panicf("No weapon stat parsable from string %v", stat_string)
+    }
+    return
+}
+
 weapon_definition_load :: proc(
     pre_path, file_path: string, counter: ^Weapon_Definition_ID, arena_allocator: runtime.Allocator
 ) {

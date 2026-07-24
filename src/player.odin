@@ -13,6 +13,7 @@ import color "color"
 import assets "assets" 
 import entity "entity"
 import weapon "weapon"
+import program "program"
 
 Player :: struct {
     entity: entity.Entity_Handle,
@@ -33,6 +34,7 @@ Player :: struct {
 
     weapon_controller: weapon.Weapon_Controller,
     weapon_select: int,
+    program_loadout: program.Program_Loadout,
 
     allied_damage_areas: [dynamic]geo.Circle,
 }
@@ -56,6 +58,7 @@ player_init :: proc() -> (player: Player) {
 
 player_destroy :: proc(player: ^Player) {
     delete(player.allied_damage_areas)
+    program.program_loadout_destroy(&player.program_loadout)
     weapon.weapon_controller_destroy(&player.weapon_controller)
 }
 
@@ -100,35 +103,11 @@ update_player :: proc() {
     // always centers player
     player_entity.move_direction = input.direction
 
+    // log.warnf("player dt=%v dir=%v speed=%v pos=%v", primatives.dt, input.direction, player_entity.move_speed, player_entity.position)
+
     player_view_position := camera.world_position_to_view(player_entity.position)
     player.aimAngle = math.atan2(input.mouseY - player_view_position.y, input.mouseX - player_view_position.x)
 
     weapon.weapon_controller_update(&player.weapon_controller, input^, player_entity.position)
-
-    /*switch player.active_category { 
-    case .Manual:
-        switch player.weaponManual {
-        case .BitPistol:
-            update_bitpistol(&player.bitPistol, player_entity.position.x, player_entity.position.y, player.aimAngle)
-        case .Scope:
-            update_scope(&player.scope, player_entity.position.x, player_entity.position.y, player.aimAngle)    
-        }
-
-    case .Hold:
-        switch player.weaponHold {
-        case .Bus:
-            update_bus(&player.bus)
-        case .Trace:
-            update_trace(&player.trace, entity.position.x, entity.position.y, player.aimAngle)
-        }
-
-    case .Auto:
-        #partial switch player.weaponAuto {
-        // case .Ping:
-        //     update_ping(&player.ping, waves, player.position.x, player.position.y, input, is_selected, dt)
-        // case .Daemon:
-        //     update_daemon(&player.daemon, is_selected, input, dt)
-        }
-    }*/
 
 }

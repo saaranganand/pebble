@@ -140,6 +140,33 @@ effect_manager_queue_remove :: proc(to_remove: Effect_Handle) {
     append(&global_effect_manager.removal_queue, to_remove)
 }
 
+// Explicitly strip an active effect of the given definition from an entity.
+// Since player self-effects applied by programs are permanent and dont expire on their own (unless we want that, which makes it a consumable atp),
+// this is what will be used to remove said effect from an entity
+effect_manager_remove_effect_from_entity :: proc(target: handle.Entity_Handle, definition_id: Effect_Definition_ID) -> bool {
+    effect_handle, ok := effect_manager_get_entity_active_effect(target, definition_id)
+    if !ok do return false // entity has no such effect
+
+    if state, state_ok := effect_manager_get_effect(effect_handle); state_ok do state.active = false
+    effect_manager_queue_remove(effect_handle)
+    effect_manager_remove_entity_active_effect(target, definition_id, effect_handle)
+
+    return true
+}
+
+effect_manager_get_instance_id :: proc(instance_tag: Effect_Instance_Tag) -> (id: Effect_Instance_ID, ok: bool) {
+    id, ok = global_effect_manager.instance_tag_to_id[instance_tag]
+    return
+}
+
+effect_manager_get_instance :: proc(instance_id: Effect_Instance_ID) -> ^Effect_Instance {
+    if instance_id >= global_effect_manager.unique_instance_ids {
+        log.errorf("Attempted to get effect instance with out of range ID %v", instance_id)
+        return nil
+    }
+    return &global_effect_manager.instances[instance_id]
+}
+
 effect_manager_update :: proc() {
     //update effects
     i: u32 = 0
