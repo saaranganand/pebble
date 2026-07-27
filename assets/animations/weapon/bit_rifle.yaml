@@ -23,3 +23,8 @@ animations:
       - source: { x: 75.0, y: 0.0, w: 75.0, h: 64.0 }
       - source: { x: 75.0, y: 64.0, w: 75.0, h: 64.0 }
       - source: { x: 75.0, y: 0.0, w: 75.0, h: 64.0 }
+  
+  hud_display:
+    scale: 1.0
+    frames:
+      - source: { x: 75.0, y: 128.0, w: 50.0, h: 50.0 }

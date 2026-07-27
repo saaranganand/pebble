@@ -1,0 +1,24 @@
+category: CHARGE
+
+gcd_interval: 0.5
+max_charge_time: 4.0
+
+animation_source: animations/weapon/energy_charge.yaml
+animation_default_angle_deg: 0.0
+
+custom_charge_callback: energy_charge
+
+damage: 100.0
+
+projectile_data:
+  category: BULLET
+  piercing: 20
+  speed: 4000.0
+  lifetime: 3.0
+  shape_radius: 20.0
+  animation_source: animations/projectile/bullet.yaml
+
+sounds:
+  select: sounds/weapons/bit_pistol/select.wav
+  charge: sounds/weapons/bit_pistol/charge.wav
+  shoot: sounds/weapons/bit_pistol/shoot.wav

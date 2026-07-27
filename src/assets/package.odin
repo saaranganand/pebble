@@ -20,6 +20,9 @@ debug_all_load :: proc() {
 
     audio_entry_load("sounds/weapons/bit_pistol/shoot.wav")
     audio_entry_load("sounds/weapons/bit_pistol/select.wav")
+    audio_entry_load("sounds/weapons/bit_pistol/charge.wav")
+    audio_entry_load("sounds/weapons/bit_pistol/bow_draw.wav")
+    audio_entry_load("sounds/weapons/bit_pistol/bow_shoot.wav")
 
     audio_entry_load("music/shanty.ogg")
     //music_play("music/shanty.ogg")
@@ -30,13 +33,21 @@ debug_all_load :: proc() {
 
     img_load("img/player/move.png")
     img_load("img/weapon/ranged.png")
-    img_load("img/projectile/bullet.png")
+    img_load("img/projectile/player_bullet.png")
+    img_load("img/projectile/player_arrow.png")
     img_load("img/entity/horde.png")
 
     animation_instance_load("animations/entity/player.yaml")
     animation_instance_load("animations/weapon/bit_pistol.yaml")
     animation_instance_load("animations/weapon/bit_rifle.yaml")
+    animation_instance_load("animations/weapon/bit_scope.yaml")
+    animation_instance_load("animations/weapon/energy_charge.yaml")
+    animation_instance_load("animations/weapon/tracking_bow.yaml")
+
     animation_instance_load("animations/projectile/bullet.yaml")
+    animation_instance_load("animations/projectile/arrow.yaml")
+    animation_instance_load("animations/projectile/ray.yaml")
+
     animation_instance_load("animations/entity/horde_leader.yaml")
     animation_instance_load("animations/entity/horde_follower.yaml")
 }

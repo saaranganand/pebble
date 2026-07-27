@@ -53,8 +53,7 @@ entity_make_data :: proc(
     data.team = team
     data.category = category
 
-    data.animation_controller.data_tag = animation_source_tag
-    data.animation_controller.current_animation = "idle"
+    data.animation_controller = assets.animation_controller_create(animation_source_tag)
 
     return
 }

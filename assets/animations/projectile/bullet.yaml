@@ -1,4 +1,4 @@
-img_tag: img/projectile/bullet.png
+img_tag: img/projectile/player_bullet.png
 
 animations:
   idle:

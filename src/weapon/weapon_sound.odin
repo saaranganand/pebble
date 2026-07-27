@@ -54,3 +54,21 @@ sound_set_play :: proc(set: ^Sound_Set, play_event: Weapon_Sound_Event) {
         if has_play_sound do assets.sound_play(play_sound)
     }
 }
+
+sound_stop_loop :: proc(set: ^Sound_Set, play_event: Weapon_Sound_Event) {
+    for sound_event in Weapon_Sound_Event {
+        if sound_event != play_event do continue
+        
+        play_sound, has_play_sound := set[play_event].(assets.Data_Tag)
+        if has_play_sound do assets.sound_stop_loop(play_sound)
+    }
+}
+
+sound_set_play_and_loop :: proc(set: ^Sound_Set, play_event: Weapon_Sound_Event) {
+    for sound_event in Weapon_Sound_Event {
+        if sound_event != play_event do continue
+        
+        play_sound, has_play_sound := set[play_event].(assets.Data_Tag)
+        if has_play_sound do assets.sound_play(play_sound, true)
+    }
+}

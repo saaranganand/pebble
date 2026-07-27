@@ -1,24 +1,29 @@
-// hud elements like meters, text, hotbars and things
-
-package main
+package HUD
 
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
-import fmt "core:fmt"
+import primatives "../sdl_primatives"
+import color "../color"
+import entity "../entity"
+import assets "../assets"
+import player "../player"
+import input "../input"
+import weapon "../weapon"
 
-import primatives "sdl_primatives"
-import color "color"
-import entity "entity"
-import assets "assets"
+import log "core:log"
 
 HUD :: struct {
+    top_left, bottom_right: sdl.FPoint,
     effect_duration_text: ^ttf.Text,
 }
 
-create_hud :: proc() -> (hud: HUD) {
+create_hud :: proc(top_left, bottom_right: sdl.FPoint) -> (hud: HUD) {
     hud.effect_duration_text = assets.font_create_text("fonts/ubuntu.ttf", 16, "0s")
     color.sdl_set_text_color(hud.effect_duration_text, color.Default_Palette_Color.BLACK)
+
+    hud.top_left = top_left
+    hud.bottom_right = bottom_right
 
     return
 }
@@ -27,28 +32,16 @@ destroy_hud :: proc(hud: ^HUD) {
     ttf.DestroyText(hud.effect_duration_text)
 }
 
-draw_hud :: proc() {
-    player := game.player
-    input := game.input
-    hud := game.hud
+draw_hud :: proc(hud: ^HUD, player_character: ^player.Player_Character, player_input: input.Input) {
 
-    player_entity, ok := entity.entity_get(player.entity, .ALLY)
+    player_entity, ok := entity.entity_get(player_character.entity, .ALLY)
     if !ok do return
 
 
     // top left player health bar
-    hp_ratio := player_entity.health / player_entity.max_health
-    bgRect := sdl.FRect{x = 10, y = 10, w = 200, h = 20}
-    fillRect := sdl.FRect{x = 10, y = 10, w = 200 * hp_ratio, h = 20}
-
-    color.sdl_set_color(color.Default_Palette_Color.DARK_GRAY)
-    sdl.RenderFillRect(primatives.global_renderer, &bgRect)
-
-    color.sdl_set_color(color.Default_Palette_Color.GRASS_GREEN)
-    sdl.RenderFillRect(primatives.global_renderer, &fillRect)
-
-    effect_rect := sdl.FRect{x = 10 + 200 + 10, y = 10, w = 20, h = 20}
-
+    draw_hud_health_bar(player_entity.health, player_entity.max_health)
+    
+    draw_hud_weapon_select(hud, player_character.weapon_controller)
     /*
     // top left player effects
     for i in 0..<game.effect_manager.unique_definition_ids {
@@ -83,6 +76,7 @@ draw_hud :: proc() {
         effect_rect.x += 40 + 5
     }*/
     
+    /*
     weapon_name : cstring
     switch player.active_category {
         case .Manual:
@@ -178,10 +172,11 @@ draw_hud :: proc() {
                 weapon_name = "Daemon"
             }
         }
+   
 
     if any_auto_expiring(player) {
         //draw_expiry_exclamation(app.font)
-    }
+    } */
 
     // weapon name on bottom left
     /*surf := ttf.RenderText_Blended(app.font, weapon_name, 0, sdl.Color{0, 0, 0, 255})
@@ -194,35 +189,4 @@ draw_hud :: proc() {
     dst := sdl.FRect{x = 10, y = f32(app.window_height) - h - 10, w = w, h = h}
     sdl.RenderTexture(primatives.global_renderer, texture, nil, &dst)
     sdl.DestroyTexture(texture)*/
-}
-
-any_auto_expiring :: proc(player: Player) -> bool {
-    return (player.ping.is_active && player.ping.timer <= 3.0) || (player.daemon.is_active && player.daemon.timer <= 3.0)
-}
-
-update_cursor :: proc(player: Player, crosshair: ^sdl.Cursor) {
-    if player.active_category == .Manual && player.weaponManual == .Scope {
-        _ = sdl.SetCursor(crosshair)
-    }
-    else {
-        _ =sdl.SetCursor(sdl.GetDefaultCursor())
-    }
-}
-
-draw_expiry_exclamation :: proc(font: ^ttf.Font) {
-    // display exclamation when ping about to end
-    surf := ttf.RenderText_Blended(font, "!", 0, sdl.Color{0, 0, 0, 255})
-    texture := sdl.CreateTextureFromSurface(primatives.global_renderer, surf)
-    sdl.DestroySurface(surf)
-
-    w, h: f32
-    sdl.GetTextureSize(texture, &w, &h)
-    dst := sdl.FRect{
-        x = f32(app.window_width) / 2 - w / 2,
-        y = f32(app.window_height) / 2,
-        w = w,
-        h = h
-    }
-    sdl.RenderTexture(primatives.global_renderer, texture, nil, &dst)
-    sdl.DestroyTexture(texture)
 }

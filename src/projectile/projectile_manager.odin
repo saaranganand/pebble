@@ -32,9 +32,9 @@ projectile_manager_destroy :: proc() {
     }
 }
 
-projectile_manager_spawn :: proc(shell: Projectile_State, position: sdl.FPoint, shoot_angle: f32, damage: f32) {
+projectile_manager_spawn :: proc(shell: Projectile_State, position: sdl.FPoint, shoot_angle: f32) {
     shell := shell
-    projectile_state_init(&shell, position, shoot_angle, damage)
+    projectile_state_init(&shell, position, shoot_angle)
 
     if len(global_projectile_manager.free_lists[shell.team][shell.category]) > 0 {
         insert := pop(&global_projectile_manager.free_lists[shell.team][shell.category])
@@ -49,6 +49,7 @@ projectile_manager_remove :: proc(index: u32, team: entity.Team, category: Categ
     state := &global_projectile_manager.lists[team][category][index]
 
     state.active = false
+    tracking_line, tracking_line_ok := state.shape.(Tracking_Line)
 
     append(&global_projectile_manager.free_lists[team][category], index)
 }

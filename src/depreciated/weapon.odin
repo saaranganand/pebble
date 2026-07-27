@@ -1,10 +1,10 @@
 // weapon definitions and behaviours
 
-package main
+package depreciated
 
 import sdl "vendor:sdl3"
 import "core:math"
-
+/*
 import primatives "sdl_primatives"
 import assets "assets" 
 import entity "entity"
@@ -290,3 +290,4 @@ update_daemon :: proc(d: ^Daemon, pool: ^BulletPool, /*enemies: ^EnemyPool,*/ px
     d.y = py + math.sin(d.orbit_angle) * cfg.orbit_radius
     d.orbit_angle += cfg.orbit_speed * primatives.dt
 }
+    */

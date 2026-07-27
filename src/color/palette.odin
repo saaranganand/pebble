@@ -86,6 +86,16 @@ default_color_palette := [Default_Palette_Color]sdl.Color {
     .PALE        = {0xf5, 0xf0, 0xd0, 0xff},
 }
 
+sdl_fcolor_from_color_palette :: proc(pcolor: Default_Palette_Color) -> sdl.FColor {
+    color := default_color_palette[pcolor]
+    return {
+        f32(color.r) / 255,
+        f32(color.g) / 255,
+        f32(color.b) / 255,
+        f32(color.a) / 255
+    }
+}
+
 sdl_set_default_color_palette :: proc(pcolor: Default_Palette_Color) {
     color := default_color_palette[pcolor]
     sdl.SetRenderDrawColor(primatives.global_renderer, color.r, color.g, color.b, color.a)

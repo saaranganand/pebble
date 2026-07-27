@@ -16,9 +16,6 @@ import log "core:log"
 import fmt "core:fmt"
 import mem "core:mem"
 
-Shoot_Callback :: proc(weapon: ^Weapon_State, owner: handle.Entity_Handle)
-Start_Charge_Callback :: proc(weapon: ^Weapon_State, owner: handle.Entity_Handle)
-
 Weapon_Definition_Tag :: string
 Weapon_Definition_ID :: u32
 
@@ -28,7 +25,7 @@ Weapon_Definition :: struct {
     category: Category,
 
     //shoot_callback: Shoot_Callback,
-    start_charge_callback: Start_Charge_Callback,
+    charge_callback: Charge_Callback,
     
     projectile_shell: projectile.Projectile_State,
 
@@ -69,9 +66,6 @@ weapon_definition_load :: proc(
     new_category := yaml_parse.read_value_from_map(data_map, "category", string, default = "")
     new_definition.category = weapon_category_from_string(new_category)
 
-
-    // TODO determine callbacks from weapon/projectile category
-
     // PROJECTILE INFO -----------------------------------
     projectile_map := yaml_parse.read_value_from_map(data_map, "projectile_data", yaml.Mapping, default = nil)
 
@@ -79,15 +73,20 @@ weapon_definition_load :: proc(
     new_definition.projectile_shell.category = projectile.projectile_category_from_string(new_projectile_category)
     new_definition.projectile_shell.piercing = cast(int) yaml_parse.read_value_from_map(projectile_map, "piercing", i64, default = 0)
 
+    new_definition.projectile_shell.shots = cast(int) yaml_parse.read_value_from_map(projectile_map, "shots", i64, default = 1)
+
     new_apply_effect := yaml_parse.read_value_from_map(projectile_map, "apply_effect", string, default = "")
     if new_apply_effect != "" do new_definition.projectile_shell.apply_effect = strings.clone(new_apply_effect)
 
     new_definition.projectile_shell.speed = cast(f32) yaml_parse.read_value_from_map(projectile_map, "speed", f64, default = 0)
     new_definition.projectile_shell.lifetime = cast(f32) yaml_parse.read_value_from_map(projectile_map, "lifetime", f64, default = 0)
-    new_definition.projectile_shell.animation_controller.data_tag = cast(assets.Data_Tag) strings.clone(
+    new_definition.projectile_shell.total_lifetime = new_definition.projectile_shell.lifetime
+    
+    new_data_tag := cast(assets.Data_Tag) strings.clone(
         yaml_parse.read_value_from_map(projectile_map, "animation_source", string, default = "")
     )
-    new_definition.projectile_shell.shape = projectile.projectile_shape_from_category(new_definition.projectile_shell.category, projectile_map)
+    new_definition.projectile_shell.animation_controller = assets.animation_controller_create(new_data_tag)
+    new_definition.projectile_shell.shape = projectile.projectile_shape_from_category(new_definition.projectile_shell.category, new_definition.projectile_shell.team, projectile_map)
     // PROJECTILE INFO -----------------------------------
 
     new_definition.gcd_interval = cast(f32) yaml_parse.read_value_from_map(data_map, "gcd_interval", f64, default = 0)
@@ -96,6 +95,12 @@ weapon_definition_load :: proc(
     new_definition.uses_before_cooldown = cast(int) yaml_parse.read_value_from_map(data_map, "uses_before_cooldown", i64, default = 0)
     new_definition.max_charge_time =      cast(f32) yaml_parse.read_value_from_map(data_map, "max_charge_time", f64, default = 0)
     new_definition.damage = cast(f32) yaml_parse.read_value_from_map(data_map, "damage", f64, default = 0)
+
+    // TODO determine callbacks from weapon/projectile category
+    custom_charge_callback := yaml_parse.read_value_from_map(data_map, "custom_charge_callback", string, default = "")
+    if custom_charge_callback != "" {
+        new_definition.charge_callback = weapon_charge_callback_get(custom_charge_callback)
+    }
 
     new_definition.animation_source = cast(assets.Data_Tag) strings.clone(
         yaml_parse.read_value_from_map(data_map, "animation_source", string, default = "")

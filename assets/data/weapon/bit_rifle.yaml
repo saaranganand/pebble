@@ -1,11 +1,11 @@
 category: RANGED
 
-gcd_interval: 0.1
+gcd_interval: 0.2
 
 animation_source: animations/weapon/bit_rifle.yaml
 animation_default_angle_deg: 0.0
 
-damage: 6.0
+damage: 12.0
 
 projectile_data:
   category: BULLET

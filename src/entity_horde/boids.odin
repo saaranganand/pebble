@@ -133,7 +133,6 @@ horde_boid_update :: proc() {
             //log.warnf("move_speed %v\nmove_direction %v\n", follower_entity.move_speed, follower_entity.move_direction)
         }
     }
-    log.warnf("\n\n")
 }
 
 clamp_magnitude :: proc(v: sdl.FPoint, max_len: f32) -> sdl.FPoint {

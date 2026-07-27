@@ -266,8 +266,8 @@ animation_draw :: proc(
 
     frame := anim.frames[frame_index]
 
-    dest_w := frame.source.w * anim.scale * frame.dest_scale.x
-    dest_h := frame.source.h * anim.scale * frame.dest_scale.y
+    dest_w := frame.source.w * anim.scale * frame.dest_scale.x * controller.scale
+    dest_h := frame.source.h * anim.scale * frame.dest_scale.y * controller.scale
 
     dest := sdl.FRect{
         x = dest_center.x - dest_w * 0.5,
@@ -293,4 +293,14 @@ Animation_Controller :: struct {
     data_tag: Data_Tag,
     current_animation: Animation_Tag,
     frame_count: f32,
+    scale: f32,
+}
+
+animation_controller_create :: proc(data_tag: Data_Tag, scale: f32 = 1.0) -> (controller: Animation_Controller) {
+    controller.data_tag = data_tag
+    controller.current_animation = "idle"
+    controller.frame_count = 0
+    controller.scale = scale
+
+    return
 }

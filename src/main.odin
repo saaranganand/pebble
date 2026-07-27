@@ -65,11 +65,3 @@ main_fini :: proc() {
 
     when ODIN_DEBUG do util.destroy_tracking_alloc()
 }
-
-reset_auto_weapons :: proc(player: ^Player, pool: ^PingWavePool) {
-    player.ping.is_active = false
-    for &w in pool.waves {
-        w.alive = false
-    }
-    player.daemon.is_active = false
-}

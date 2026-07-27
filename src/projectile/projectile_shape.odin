@@ -3,14 +3,31 @@ package projectile
 import yaml "../../libs/odin-yaml"
 
 import yaml_parse "../assets/yaml_parse"
+import entity "../entity"
+import handle "../handle"
 
-Shape :: union #no_nil { Circle, Ray, Line, }
+import rand "core:math/rand"
+
+Shape :: union #no_nil { Circle, Ray, Line, Tracking_Line }
 
 Circle :: struct { radius: f32, }
 Ray :: struct {}
 Line :: struct { length: f32 }
+Tracking_Line :: struct {
+    length: f32,
+    tracking: handle.Entity_Handle,
+    tracking_team: entity.Team,
+    turn_speed: f32,
+}
 
-projectile_shape_from_category :: proc(category: Category, shape_data: yaml.Mapping) -> (shape: Shape) {
+projectile_Shape_tracking_line_init :: proc(state: ^Projectile_State, tline: ^Tracking_Line) {
+    tline.tracking = entity.entity_manager_get_random_handle(tline.tracking_team)
+
+    RANDOM_SPAWN_RANGE :: 10
+    state.position += { rand.float32_range(-RANDOM_SPAWN_RANGE, RANDOM_SPAWN_RANGE), rand.float32_range(-RANDOM_SPAWN_RANGE, RANDOM_SPAWN_RANGE) }
+}
+
+projectile_shape_from_category :: proc(category: Category, team: entity.Team, shape_data: yaml.Mapping) -> (shape: Shape) {
     switch category {
     case .BULLET:
         fallthrough
@@ -24,6 +41,16 @@ projectile_shape_from_category :: proc(category: Category, shape_data: yaml.Mapp
 	case .LINE:
         length := yaml_parse.read_value_from_map(shape_data, "shape_length", f64, default = 0.0)
         return Line{ length = f32(length) }
+    case .TRACKING_ARROW:
+        ret := Tracking_Line{}
+
+        ret.length = cast(f32) yaml_parse.read_value_from_map(shape_data, "shape_length", f64, default = 0.0)
+        ret.turn_speed = cast(f32) yaml_parse.read_value_from_map(shape_data, "turn_speed", f64, default = 0.0)
+
+        ret.tracking_team = entity.Team.ENEMY
+        if team == .ENEMY do ret.tracking_team = .ALLY
+
+        return ret
     }
 
     return Circle{}

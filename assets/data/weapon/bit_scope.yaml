@@ -1,0 +1,18 @@
+category: RANGED
+
+gcd_interval: 1.5
+
+animation_source: animations/weapon/bit_scope.yaml
+animation_default_angle_deg: 0.0
+
+damage: 30.0
+
+projectile_data:
+  category: RAY
+  piercing: 1
+  lifetime: 3.0
+  animation_source: animations/projectile/ray.yaml
+
+sounds:
+  select: sounds/weapons/bit_pistol/select.wav
+  shoot: sounds/weapons/bit_pistol/shoot.wav

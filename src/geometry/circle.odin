@@ -15,6 +15,54 @@ are_circles_colliding :: proc(a, b: Circle) -> bool {
     return math.pow(a.radius + b.radius, 2) >= get_point_distance_squared(a.position, b.position)
 }
 
+line_circle_colliding :: proc(a_pos: sdl.FPoint, a_angle: f32, b: Circle) -> bool {
+    dir := sdl.FPoint{math.cos(a_angle), math.sin(a_angle)}
+    to_circle := b.position - a_pos
+
+    // project to_circle onto dir to find closest point on ray
+    t := to_circle.x * dir.x + to_circle.y * dir.y
+    t = max(t, 0) // clamp so we don't check behind the ray's start
+
+    closest := a_pos + dir * t
+    diff := b.position - closest
+    dist_sq := diff.x * diff.x + diff.y * diff.y
+
+    return dist_sq <= b.radius * b.radius
+}
+
+line_angle_segment_circle_colliding :: proc(a_pos: sdl.FPoint, a_length: f32, a_angle: f32, b: Circle) -> bool {
+    dir := sdl.FPoint{math.cos(a_angle), math.sin(a_angle)}
+    to_circle := b.position - a_pos
+
+    t := to_circle.x * dir.x + to_circle.y * dir.y
+    t = clamp(t, 0, a_length) // clamp to segment length
+
+    closest := a_pos + dir * t
+    diff := b.position - closest
+    dist_sq := diff.x * diff.x + diff.y * diff.y
+
+    return dist_sq <= b.radius * b.radius
+}
+
+line_segment_circle_colliding :: proc(a_start_pos: sdl.FPoint, a_end_pos: sdl.FPoint, b: Circle) -> bool {
+    seg := a_end_pos - a_start_pos
+    to_circle := b.position - a_start_pos
+
+    // project to_circle onto dir to find closest point on ray
+    seg_len_sq := seg.x * seg.x + seg.y * seg.y
+    t: f32 = 0
+    if seg_len_sq > 0 {
+        t = (to_circle.x * seg.x + to_circle.y * seg.y) / seg_len_sq
+        t = clamp(t, 0, 1) // clamp to segment, not infinite line
+    }
+
+    closest := a_start_pos + seg * t
+    diff := b.position - closest
+    dist_sq := diff.x * diff.x + diff.y * diff.y
+
+    return dist_sq <= b.radius * b.radius
+}
+
 // midpoint algorithm
 draw_circle :: proc(c: Circle) {
     point_buffer_size := (int(c.radius) + 1) * 8

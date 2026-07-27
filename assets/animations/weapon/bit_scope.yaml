@@ -1,0 +1,30 @@
+img_tag: img/weapon/ranged.png
+
+animations:
+  idle:
+    fps: 0
+    looping: false
+    scale: 1.0
+    frames:
+      - source: { x: 150.0, y: 0.0, w: 75.0, h: 64.0 }
+
+  fire:
+    fps: 0
+    looping: false
+    scale: 1.0
+    frames:
+      - source: { x: 150.0, y: 0.0, w: 75.0, h: 64.0 }
+  
+  shoot:
+    fps: 0.2
+    looping: false
+    scale: 1.0
+    frames:
+      - source: { x: 150.0, y: 0.0, w: 75.0, h: 64.0 }
+      - source: { x: 150.0, y: 64.0, w: 75.0, h: 64.0 }
+      - source: { x: 150.0, y: 0.0, w: 75.0, h: 64.0 }
+  
+  hud_display:
+    scale: 1.0
+    frames:
+      - source: { x: 150.0, y: 128.0, w: 50.0, h: 50.0 }
