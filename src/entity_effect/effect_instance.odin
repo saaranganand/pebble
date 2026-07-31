@@ -136,6 +136,13 @@ effect_instance_load :: proc(
         var_data.decay_rate = cast(f32) yaml_parse.read_value_from_map(data_map, "decay_rate", f64, default = 0.0)
 
         new_instance.callback_data.data = var_data
+        
+    case .HEAL:
+        var_data := Effect_Heal_Fn_Data{}
+        var_data.amount = cast(f32) yaml_parse.read_value_from_map(data_map, "amount", f64, default = 0.0)
+
+        new_instance.callback_data.data = var_data
+
     }
 
     global_effect_manager.instance_tag_to_id[new_instance.unique_tag] = new_instance.unique_id

@@ -76,6 +76,10 @@ entity_deal_damage :: proc(entity: ^Entity, damage: f32) {
     entity.health -= damage
 }
 
+entity_heal :: proc(entity: ^Entity, amount: f32) {
+    entity.health = min(entity.health + amount, entity.max_health)
+}
+
 entity_set_animation :: proc(entity: ^Entity, new_animation: assets.Animation_Tag) {
     entity.animation_controller.current_animation = new_animation
 }

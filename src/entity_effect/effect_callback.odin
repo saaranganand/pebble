@@ -26,6 +26,7 @@ Odin_Effect_Callback :: enum {
     SPEED,
     POSITION,
     FORCE,
+    HEAL
 }
 
 effect_callback_from_string :: proc(call_string: Effect_Callback_String) -> (callback: Effect_Callback) {
@@ -47,6 +48,8 @@ effect_callback_from_string :: proc(call_string: Effect_Callback_String) -> (cal
         callback = .POSITION
     case "force":
         callback = .FORCE
+    case "heal":
+        callback = .HEAL
     case:
         log.errorf("Error in creating effect callback from call string %v", call_string)
         callback = nil
@@ -60,6 +63,7 @@ Effect_Fn_Data :: union {
     Effect_Speed_Fn_Data,
     Effect_Position_Fn_Data,
     Effect_Force_Fn_Data,
+    Effect_Heal_Fn_Data,
 }
 
 effect_fn_data_to_type :: proc(fn_data: Effect_Fn_Data) -> (type: Odin_Effect_Callback) {
@@ -72,6 +76,8 @@ effect_fn_data_to_type :: proc(fn_data: Effect_Fn_Data) -> (type: Odin_Effect_Ca
         return .POSITION
 	case Effect_Force_Fn_Data:
         return .FORCE
+    case Effect_Heal_Fn_Data:
+        return .HEAL
     }
 
     return .DAMAGE
@@ -87,6 +93,8 @@ effect_fn_data_get_reaction_magnitude :: proc(fn_data: Effect_Fn_Data) -> (magni
         return d.speed
 	case Effect_Force_Fn_Data:
         return d.force
+    case Effect_Heal_Fn_Data:
+        return d.amount
     }
 
     return 0
@@ -111,6 +119,10 @@ Effect_Position_Fn_Data :: struct {
     speed: f32,
 }
 
+Effect_Heal_Fn_Data :: struct {
+    amount: f32,
+}
+
 Effect_Force_Fn_Data :: entity.Force
 
 effect_damage_fn   :: proc(data: Effect_Damage_Fn_Data, target_entity: entity.Entity) -> (damage: f32) {
@@ -124,6 +136,10 @@ effect_speed_fn    :: proc(data: Effect_Speed_Fn_Data, target_entity: entity.Ent
 }
 effect_position_fn :: proc(data: Effect_Position_Fn_Data, target_entity: entity.Entity) -> (new_pos: sdl.FPoint) {
     new_pos = target_entity.position + data.direction * data.speed * primatives.dt
+    return
+}
+effect_heal_fn :: proc(data: Effect_Heal_Fn_Data, target_entity: entity.Entity) -> (heal: f32) {
+    heal = data.amount
     return
 }
 
@@ -156,6 +172,11 @@ effect_callback_trigger :: proc(state: ^Effect_State, target_entity: ^entity.Ent
     case .FORCE:
         data := state.callback_data.data.(Effect_Force_Fn_Data)
         append(&target_entity.forces, data)
+
+    case .HEAL:
+        data := state.callback_data.data.(Effect_Heal_Fn_Data)
+        entity.entity_heal(target_entity, effect_heal_fn(data, target_entity^))
+
     }
 
 }

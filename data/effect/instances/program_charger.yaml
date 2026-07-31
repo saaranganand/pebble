@@ -1,0 +1,6 @@
+definition: "heal"
+duration: -1.0
+interval: 1.0
+callback_type: "heal"
+# data
+amount: 5.0

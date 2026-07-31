@@ -1,0 +1,4 @@
+# +5 hp/sec
+
+self_effects:
+    - charger
