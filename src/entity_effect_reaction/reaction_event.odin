@@ -16,6 +16,9 @@ import log "core:log"
 import fmt "core:fmt"
 import mem "core:mem"
 
+Number_Popup_Proc :: proc(world_position: sdl.FPoint, value: f32, popup_color: color.Default_Palette_Color)
+number_popup_callback: Number_Popup_Proc
+
 reaction_event_trigger :: proc(event: effect.Effect_Event, data: Reaction_Data, target_entity: ^entity.Entity) {
     switch event.type {
     case .APPLY:
@@ -40,6 +43,13 @@ reaction_event_trigger :: proc(event: effect.Effect_Event, data: Reaction_Data, 
 
         // apply internal animation
         // entity_queue_animation(data.entity_animation_tag)
+
+        if data.show_damage_number && number_popup_callback != nil {
+            popup_color := color.Default_Palette_Color.WHITE
+            if c, ok := data.show_damage_number_color.(color.Default_Palette_Color); ok do popup_color = c
+            number_popup_callback(target_entity.position, event.magnitude, popup_color)
+        }
+        
     case .REMOVE:
         sound, sound_ok := data.remove_sound.(assets.Data_Tag)
         if sound_ok do assets.sound_play(sound)

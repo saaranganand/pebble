@@ -11,6 +11,7 @@ import assets "assets"
 import color "color"
 
 import log "core:log"
+import fmt "core:fmt"
 
 FLOATING_TEXT_LIFETIME :: 2.5
 FLOATING_TEXT_RISE_SPEED :: 40.0
@@ -86,4 +87,11 @@ floating_text_system_draw :: proc(system: ^Floating_Text_System) {
         ttf.GetTextSize(floating.text, &w, &h)
         ttf.DrawRendererText(floating.text, view_position.x - f32(w) / 2, view_position.y - f32(h) / 2)
     }
+}
+
+// part of reaction systme
+reaction_number_popup :: proc(world_position: sdl.FPoint, value: f32, popup_color: color.Default_Palette_Color) {
+    label := fmt.caprint(int(value))
+    defer delete(label)
+    floating_text_spawn(&game.floating_texts, label, world_position + {0, -30}, popup_color)
 }
