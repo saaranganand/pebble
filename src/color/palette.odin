@@ -20,7 +20,7 @@ Default_Palette_Color :: enum {
     WHITE = 0, LIGHT_GRAY, GRAY, DARK_GRAY, BLACK,
     BLUE, SKY_BLUE, BABY_BLUE,
     DARK_GREEN, GREEN, GRASS_GREEN,
-    RED, PINK, BROWN, YELLOW, PALE,
+    RED, PINK, BROWN, YELLOW, ORANGE, PALE,
 }
 
 default_palette_color_from_string :: proc(color_name: string) -> Maybe(Default_Palette_Color) {
@@ -55,6 +55,8 @@ default_palette_color_from_string :: proc(color_name: string) -> Maybe(Default_P
         return .BROWN
     case "YELLOW":
         return .YELLOW
+    case "ORANGE":
+        return .ORANGE
     case "PALE":
         return .PALE
     }
@@ -83,6 +85,7 @@ default_color_palette := [Default_Palette_Color]sdl.Color {
     .PINK        = {0xf3, 0xa3, 0xc0, 0xff},
     .BROWN       = {0xb9, 0x8f, 0x7b, 0xff},
     .YELLOW      = {0xeb, 0xcb, 0x71, 0xff},
+    .ORANGE      = {0xe8, 0x8a, 0x36, 0xff},
     .PALE        = {0xf5, 0xf0, 0xd0, 0xff},
 }
 

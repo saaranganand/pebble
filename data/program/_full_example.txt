@@ -3,6 +3,8 @@
 # passive STAT changes -> buffs/ entity_buffs
 # active effects -> self_effects / hit_effects (using effect sytsem)
 
+sprite: ?img/program/<name>.png   # defaults to img/program/program.png if no specific sprite proviuded
+
 buffs: # weapon stat multipliers, active while equipped
     
     - stat: DAMAGE | GCD_INTERVAL | COOLDOWN | PROJECTILE_SPEED

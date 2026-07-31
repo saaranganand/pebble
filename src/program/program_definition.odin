@@ -2,6 +2,7 @@ package program
 
 import yaml "../../libs/odin-yaml"
 
+import assets "../assets"
 import yaml_parse "../assets/yaml_parse"
 import entity "../entity"
 import effect "../entity_effect"
@@ -38,6 +39,7 @@ Self_Effect :: struct {
 Program_Definition :: struct {
     unique_tag: Program_Definition_Tag,
     unique_id: Program_Definition_ID,
+    sprite: assets.Data_Tag,
 
     buffs: []Stat_Buff,
     entity_buffs: []Entity_Stat_Buff,
@@ -65,6 +67,11 @@ program_definition_load :: proc(
 
     new_definition.unique_id = counter^
     new_definition.unique_tag = strings.clone(strings.trim_prefix(strings.trim_suffix(file_path, ".yaml"), pre_path))
+
+    // SPRITE --------------------------------------------
+    sprite_tag := yaml_parse.read_value_from_map(data_map, "sprite", string, default = "img/program/program.png")
+    new_definition.sprite = cast(assets.Data_Tag) strings.clone(sprite_tag)
+    assets.img_load(new_definition.sprite)
 
     // BUFFS ---------------------------------------------
     buffs_seq := yaml_parse.read_value_from_map(data_map, "buffs", yaml.Sequence, default = nil)
@@ -150,6 +157,7 @@ program_definition_load :: proc(
 
 program_definition_unload :: proc(definition: ^Program_Definition) {
     delete(definition.unique_tag)
+    delete(cast(string) definition.sprite)
     delete(definition.buffs)
     delete(definition.self_effects)
     delete(definition.hit_effects)

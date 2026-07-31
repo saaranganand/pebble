@@ -14,9 +14,9 @@ import entity "entity"
 import program "program"
 import geo "geometry"
 
-// tuning is in data/pickup.yaml (game_config.pickup)
-// 1 sprite (for now)
-PROGRAM_PICKUP_IMG :: "img/program.png"
+// // tuning is in data/pickup.yaml (game_config.pickup)
+// // 1 sprite (for now)
+// PROGRAM_PICKUP_IMG :: "img/program.png"
 
 Program_Pickup :: struct {
     world_position: sdl.FPoint,
@@ -113,8 +113,10 @@ program_pickup_collect :: proc(pickup: ^Program_Pickup, player_position: sdl.FPo
 }
 
 program_pickup_system_draw :: proc(system: ^Program_Pickup_System) {
-    for &pickup in system.pickups {
+        for &pickup in system.pickups {
         if !pickup.active do continue
+        definition := program.program_manager_get_definition_by_id(pickup.program_id)
+        if definition == nil do continue
 
         size := game_config.pickup.sprite_size
         dest := sdl.FRect{
@@ -123,6 +125,6 @@ program_pickup_system_draw :: proc(system: ^Program_Pickup_System) {
             w = size,
             h = size,
         }
-        camera.camera_draw_img(PROGRAM_PICKUP_IMG, dest)
+        camera.camera_draw_img(definition.sprite, dest)
     }
 }

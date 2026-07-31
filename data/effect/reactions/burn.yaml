@@ -11,7 +11,9 @@ reaction_data_list:
   flash_duration: 0.25
   external_animation_tag: animations/effects/flame_small
   show_damage_number: true
-  damage_number_color: RED
+  damage_number_color: ORANGE
 
 - tag: ANY,NPC
   external_animation_tag: animations/effects/flame_small
+  show_damage_number: true
+  damage_number_color: ORANGE
