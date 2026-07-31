@@ -1,4 +1,5 @@
 # +30% move speed while equipped
 
-self_effects:
-    - program_ram
+entity_buffs:
+    - stat: MOVE_SPEED
+      multiplier: 1.3

@@ -3,6 +3,7 @@ package program
 import yaml "../../libs/odin-yaml"
 
 import yaml_parse "../assets/yaml_parse"
+import entity "../entity"
 import effect "../entity_effect"
 import weapon "../weapon"
 
@@ -20,6 +21,11 @@ Stat_Buff :: struct {
     multiplier: f32,
 }
 
+Entity_Stat_Buff :: struct {
+    stat: entity.Entity_Stat,
+    multiplier: f32
+}
+
 // effect instance applied to wielder
 Self_Effect :: struct {
     instance_id: effect.Effect_Instance_ID,
@@ -34,6 +40,7 @@ Program_Definition :: struct {
     unique_id: Program_Definition_ID,
 
     buffs: []Stat_Buff,
+    entity_buffs: []Entity_Stat_Buff,
     self_effects: []Self_Effect,
     hit_effects: []effect.Effect_Instance_ID,
 }
@@ -83,6 +90,24 @@ program_definition_load :: proc(
         new_definition.buffs[i] = new_buff
     }
 
+    // ENTITY BUFFS ---------------------------------------------
+    entity_buffs_seq := yaml_parse.read_value_from_map(data_map, "entity_buffs", yaml.Sequence, default = nil)
+    new_definition.entity_buffs = make([]Entity_Stat_Buff, len(entity_buffs_seq))
+    for item, i in entity_buffs_seq {
+        buff_map, buff_ok := item.(yaml.Mapping)
+        if !buff_ok {
+            log.errorf("Program %v entity_buff %v is not a mapping", new_definition.unique_tag, i)
+            continue
+        }
+
+        new_buff: Entity_Stat_Buff
+        new_buff.stat = entity.entity_stat_from_string(yaml_parse.read_value_from_map(buff_map, "stat", string, default = ""))
+        new_buff.multiplier = cast(f32) yaml_parse.read_value_from_map(buff_map, "multiplier", f64, default = 1)
+
+        new_definition.entity_buffs[i] = new_buff
+    }
+
+
     // SELF EFFECTS
     self_seq := yaml_parse.read_value_from_map(data_map, "self_effects", yaml.Sequence, default = nil)
     new_definition.self_effects = make([]Self_Effect, len(self_seq))
@@ -128,4 +153,5 @@ program_definition_unload :: proc(definition: ^Program_Definition) {
     delete(definition.buffs)
     delete(definition.self_effects)
     delete(definition.hit_effects)
+    delete(definition.entity_buffs)
 }

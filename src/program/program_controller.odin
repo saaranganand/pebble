@@ -17,6 +17,7 @@ Program_Loadout :: struct {
     equipped: [dynamic]^Program_Definition,
 
     stat_mults: weapon.Stat_Mult_Table,
+    entity_stat_mults: entity.Entity_Stat_Mults,
     hit_effects: [dynamic]effect.Effect_Instance_ID,
 }
 
@@ -96,6 +97,8 @@ program_loadout_recompute :: proc(loadout: ^Program_Loadout) {
     }
     clear(&loadout.hit_effects)
 
+    entity_mults := entity.ENTITY_STAT_MULTS_IDENTITY
+
     for definition in loadout.equipped {
         for buff in definition.buffs {
             if weapon_id, targeted := buff.weapon_id.(weapon.Weapon_Definition_ID); targeted {
@@ -106,10 +109,21 @@ program_loadout_recompute :: proc(loadout: ^Program_Loadout) {
                 }
             }
         }
+        for buff in definition.entity_buffs {
+            entity_mults[buff.stat] *= buff.multiplier
+        }
 
         for instance_id in definition.hit_effects {
             append(&loadout.hit_effects, instance_id)
         }
+    }
+
+    loadout.entity_stat_mults = entity_mults
+    if owner, ok := entity.entity_get(loadout.owner, loadout.owner_team); ok {
+        owner.max_health = owner.base_max_health * entity_mults[.MAX_HEALTH]
+        owner.damage_taken_mult = entity_mults[.DAMAGE_TAKEN]
+        owner.health = min(owner.health, owner.max_health)
+        owner.move_speed_mult = entity_mults[.MOVE_SPEED]
     }
 
     // hit_effects maybe realloced, refresh

@@ -1,0 +1,5 @@
+# +20% max HP while equipped
+
+entity_buffs:
+    - stat: MAX_HEALTH
+      multiplier: 1.2

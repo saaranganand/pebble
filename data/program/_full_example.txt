@@ -1,13 +1,26 @@
 # all the below are otpional
 
+# passive STAT changes -> buffs/ entity_buffs
+# active effects -> self_effects / hit_effects (using effect sytsem)
+
 buffs: # weapon stat multipliers, active while equipped
-    - stat: DAMAGE | GCD_INTERVAL | COOLDOWN | PROJECTILE_SPEED | ...
+    
+    - stat: DAMAGE | GCD_INTERVAL | COOLDOWN | PROJECTILE_SPEED
       weapon: ?bit_pistol # data/weapon/<tag>.yaml, omit -> all weapons
-      multiplier: 0.0...
+      multiplier: 0.0...  # >1 raises, <1 lowers
 
-self_effects: # effect instance tags, applied to player while equipped
-    # use instances with duration: -1 (permanent), removed on unequip
-    - ?.data/effect/instances/item.yaml
+entity_buffs: # player stat multipliers, active while equipped
+    
+    - stat: MAX_HEALTH | DAMAGE_TAKEN | MOVE_SPEED
+      multiplier: 0.0...  # MAX_HEALTH/MOVE_SPEED: >1 raises. DAMAGE_TAKEN: <1 implies less dmg taken
 
-hit_effects: # effect instance tags, your projectiles apply on hit
-    - ?.data/effect/instances/item.yaml
+self_effects: # action that happens to you repeatedly in a fixed schedule
+    
+    # use these for things that, for example, tick over time (regen). not for static stat change (use entity_buffs instead)
+    # for permanent-while-equipped effects use an instance with duration: -1 (removed on unequip)
+    
+    - ?program_<name> # data/effect/instances/program_<name>.yaml
+
+hit_effects: # effect instance tags your projectiles apply to whatever they hit
+    
+    - ?<effect_instance_tag> # data/effect/instances/<tag>.yaml

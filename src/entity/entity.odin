@@ -19,6 +19,13 @@ Force :: struct {
 
 Team :: enum { ALLY, NEUTRAL, ENEMY }
 Category :: enum { PLAYER, BULLET, NPC, VIP }
+Entity_Stat :: enum { MAX_HEALTH, DAMAGE_TAKEN, MOVE_SPEED }
+Entity_Stat_Mults :: [Entity_Stat]f32
+ENTITY_STAT_MULTS_IDENTITY :: Entity_Stat_Mults {
+    .MAX_HEALTH = 1.0,
+    .DAMAGE_TAKEN = 1.0,
+    .MOVE_SPEED = 1.0
+}
 
 Entity :: struct {
     own_handle: handle.Entity_Handle,
@@ -27,7 +34,9 @@ Entity :: struct {
     move_direction: sdl.FPoint,
     base_move_speed, move_speed: f32,
     health: f32,
-    max_health: f32,
+    base_max_health, max_health: f32,
+    move_speed_mult: f32,
+    damage_taken_mult: f32, // 1.0 = takes full dmg. A program like Firewall lowers this
     forces: [dynamic]Force,
     active: bool,
     animation_controller: assets.Animation_Controller,
@@ -47,7 +56,10 @@ entity_make_data :: proc(
     data.move_speed = base_move_speed
     data.col_radius = col_radius
     data.health = max_health
+    data.base_max_health = max_health
     data.max_health = max_health
+    data.damage_taken_mult = 1.0
+    data.move_speed_mult = 1.0
     data.active = true
 
     data.team = team
@@ -56,6 +68,20 @@ entity_make_data :: proc(
     data.animation_controller.data_tag = animation_source_tag
     data.animation_controller.current_animation = "idle"
 
+    return
+}
+
+entity_stat_from_string :: proc(stat_string: string) -> (stat: Entity_Stat) {
+    switch stat_string {
+        case "MAX_HEALTH":
+            stat= .MAX_HEALTH
+        case "DAMAGE_TAKEN":
+            stat= .DAMAGE_TAKEN
+        case "MOVE_SPEED":
+            stat = .MOVE_SPEED
+        case: 
+            log.panicf("no entity stat parsable from string %v", stat_string)
+    }
     return
 }
 
@@ -72,8 +98,7 @@ entity_destroy :: proc(entity: ^Entity) {
 }
 
 entity_deal_damage :: proc(entity: ^Entity, damage: f32) {
-    // TODO
-    entity.health -= damage
+    entity.health -= damage * entity.damage_taken_mult
 }
 
 entity_heal :: proc(entity: ^Entity, amount: f32) {
@@ -88,7 +113,7 @@ entity_update :: proc(entity: ^Entity) {
     if !entity.active do return
     entity.position += entity.move_direction * entity.move_speed * primatives.dt
 
-    entity.move_speed = entity.base_move_speed
+    entity.move_speed = entity.base_move_speed * entity.move_speed_mult
 
     if entity.health <= 0 {
         entity_manager_remove_entity(entity.own_handle, entity.team)
