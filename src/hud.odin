@@ -55,10 +55,13 @@ draw_hud :: proc() {
     if !ok do return
 
 
-    // top left player health bar
+    // top left player health bar - scales with max hp
+    hp_scale := player_entity.max_health / player_entity.base_max_health
+    bar_width := 200 * hp_scale
+    
     hp_ratio := player_entity.health / player_entity.max_health
-    bgRect := sdl.FRect{x = 10, y = 10, w = 200, h = 20}
-    fillRect := sdl.FRect{x = 10, y = 10, w = 200 * hp_ratio, h = 20}
+    bgRect := sdl.FRect{x = 10, y = 10, w = bar_width, h = 20}
+    fillRect := sdl.FRect{x = 10, y = 10, w = bar_width * hp_ratio, h = 20}
 
     color.sdl_set_color(color.Default_Palette_Color.DARK_GRAY)
     sdl.RenderFillRect(primatives.global_renderer, &bgRect)

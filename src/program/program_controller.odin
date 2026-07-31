@@ -89,7 +89,8 @@ program_loadout_unequip :: proc(loadout: ^Program_Loadout, definition_tag: Progr
     return false
 }
 
-// Rebuilds the folded aggregates from scratch in equip order for the weapon controller
+// recalculates the player's total program bonuses from scratch and applies them
+// runs on every pickup (and eventual drop)
 @(private)
 program_loadout_recompute :: proc(loadout: ^Program_Loadout) {
     for &mults in loadout.stat_mults {
@@ -120,9 +121,11 @@ program_loadout_recompute :: proc(loadout: ^Program_Loadout) {
 
     loadout.entity_stat_mults = entity_mults
     if owner, ok := entity.entity_get(loadout.owner, loadout.owner_team); ok {
+        old_max_health := owner.max_health
         owner.max_health = owner.base_max_health * entity_mults[.MAX_HEALTH]
-        owner.damage_taken_mult = entity_mults[.DAMAGE_TAKEN]
+        if old_max_health > 0 do owner.health *= owner.max_health / old_max_health
         owner.health = min(owner.health, owner.max_health)
+        owner.damage_taken_mult = entity_mults[.DAMAGE_TAKEN]
         owner.move_speed_mult = entity_mults[.MOVE_SPEED]
     }
 
