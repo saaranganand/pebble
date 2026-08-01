@@ -79,6 +79,18 @@ entity_manager_update :: proc() {
     }
 }
 
+// deals damage to every entity of `team` whose center is within `radius` of `center`.
+// used by aoe
+entity_damage_in_radius :: proc(center: sdl.FPoint, radius: f32, team: Team, amount: f32) {
+    pool := &global_entity_manager.pools[team]
+    for &e in pool.data {
+        if !e.active do continue
+        dx := e.position.x - center.x
+        dy := e.position.y - center.y
+        if dx*dx + dy*dy <= radius*radius do entity_deal_damage(&e, amount)
+    }
+}
+
 entity_manager_draw :: proc() {
     pool := &global_entity_manager.pools[.ENEMY]
     for &entity in pool.data {

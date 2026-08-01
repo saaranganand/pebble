@@ -5,6 +5,7 @@ import sdl "vendor:sdl3"
 import primatives "../sdl_primatives"
 import assets "../assets"
 import entity "../entity"
+import script "../script"
 
 import strings "core:strings"
 import log "core:log"
@@ -33,7 +34,7 @@ effect_callback_from_string :: proc(call_string: Effect_Callback_String) -> (cal
     pre_comma, _, post_comma := strings.partition(call_string, ",")
 
     if pre_comma == "lua" {
-        callback = Lua_Effect_Callback{ name = post_comma }
+        callback = Lua_Effect_Callback{ name = strings.clone(post_comma) }
         return
     }
 
@@ -144,8 +145,8 @@ effect_heal_fn :: proc(data: Effect_Heal_Fn_Data, target_entity: entity.Entity) 
 }
 
 effect_callback_trigger :: proc(state: ^Effect_State, target_entity: ^entity.Entity) {
-    if _, ok := state.instance.definition.callback.(Lua_Effect_Callback); ok {
-        // TODO
+    if lua_cb, ok := state.instance.definition.callback.(Lua_Effect_Callback); ok {
+        script.script_run_effect_callback(lua_cb.name, target_entity, state.instance.lua_params)
         return
     }
 

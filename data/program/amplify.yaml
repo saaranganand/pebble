@@ -2,4 +2,4 @@
 
 buffs:
     - stat: DAMAGE
-      multiplier: 1.25
+      multiplier: 1.10

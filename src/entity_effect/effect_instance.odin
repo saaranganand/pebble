@@ -26,7 +26,8 @@ Effect_Instance :: struct {
     duration: f32,
     interval: f32,
 
-    callback_data: Effect_Callback_Data,
+    callback_data: Effect_Callback_Data, // odin callbacks
+    lua_params: map[string]f32, // lua callbacks
 }
 
 effect_instances_load :: proc() {
@@ -96,9 +97,24 @@ effect_instance_load :: proc(
     new_instance.duration = cast(f32) yaml_parse.read_value_from_map(data_map, "duration", f64, default = 0.0)
     new_instance.interval = cast(f32) yaml_parse.read_value_from_map(data_map, "interval", f64, default = 0.0)
 
+    // for lua effects to be findable
+    global_effect_manager.instance_tag_to_id[new_instance.unique_tag] = new_instance.unique_id
+
     // Loading variable data
     callback_type, odin_callback := new_instance.definition.callback.(Odin_Effect_Callback)
-    if !odin_callback do return
+    if !odin_callback {
+        // lua effect: get every numeric yaml field
+        new_instance.lua_params = make(map[string]f32)
+        for key, value in data_map {
+            #partial switch v in value {
+            case f64:
+                new_instance.lua_params[strings.clone(key)] = f32(v)
+            case i64:
+                new_instance.lua_params[strings.clone(key)] = f32(v)
+            }
+        }
+        return
+    }
 
     new_instance.callback_data.type = callback_type
 
@@ -145,8 +161,6 @@ effect_instance_load :: proc(
 
     }
 
-    global_effect_manager.instance_tag_to_id[new_instance.unique_tag] = new_instance.unique_id
-
     log.debugf("Loaded effect instance %v", file_path)
 }
 
@@ -155,6 +169,8 @@ effect_instances_unload :: proc() {
 
     for &instance in &global_effect_manager.instances {
         delete(instance.unique_tag)
+        for key in instance.lua_params do delete(key)
+        delete(instance.lua_params)
     }
     defer delete(global_effect_manager.instances)
 }

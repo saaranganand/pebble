@@ -12,6 +12,7 @@ import color "color"
 import horde "entity_horde"
 import program "program"
 import collision "collision"
+import script "script"
 
 import camera "camera"
 import assets "assets" 
@@ -56,6 +57,10 @@ game_create :: proc() {
     primatives.global_timer_init()
 
     assets.global_init()
+
+    // lua scrupts
+    script.script_create()
+    script.script_load()
 
     // Effect manager must be created and loaded before other entity processes.
     // This is because the number of total effect definitions is important for the ability to use
@@ -122,6 +127,8 @@ game_destroy :: proc() {
     reaction.reaction_manager_destroy()
     entity.entity_manager_destroy()
     effect.effect_manager_destroy()
+
+    script.script_destroy()
 
     assets.global_destroy()
 }
