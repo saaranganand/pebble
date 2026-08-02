@@ -2,6 +2,8 @@ package assets
 
 import ma "vendor:miniaudio"
 
+import util "../util"
+
 import log "core:log"
 import fmt "core:fmt"
 
@@ -12,7 +14,7 @@ Audio_Entry :: struct {
     // This base should never be played on its own.
     source_audio: ^ma.sound,
     type: Audio_Type,
-    state: Data_Load_State,
+    state: util.Data_Load_State,
     tag: Data_Tag,
     path_prefix: string,
     // Only SFX uses the pool

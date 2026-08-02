@@ -18,7 +18,7 @@ import mem "core:mem"
 
 // For example, if an entity with an active burn effect should draw an animation of flames around them,
 // said animation will be accessed from this data source.
-REACTION_ANIMATION_SOURCE: assets.Data_Tag: "animations/reactions.yaml"
+REACTION_ANIMATION_SOURCE: assets.Data_Tag: "reactions.animation"
 
 
 Reaction_Data_Tag :: string

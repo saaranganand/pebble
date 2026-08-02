@@ -1,10 +1,6 @@
 package assets
 
-import sdl "vendor:sdl3"
-
-import strings "core:strings"
 import log "core:log"
-import fmt "core:fmt"
 
 // Here is more or less the way we load data in our game:
 // The asset folder is scraped for all files recursively, with files being categorized by folder.
@@ -20,16 +16,12 @@ global_manager: Data_Manager
 Data_Manager :: struct {
     audio_master: Audio_Master,
     font_master: Font_Master,
-    img_master: Img_Master,
-    animation_master: Animation_Master,
+    //img_master: Img_Master,
+    //animation_master: Animation_Master,
 }
 
 // TODO: Add loading state to allow loading daata asynchronously with threads
-Data_Load_State :: enum {
-    UNLOADED,
-    LOADED,
-    FAILED,
-}
+
 
 global_manager_create :: proc() {
     log.infof("Creating data manager")
@@ -40,11 +32,10 @@ global_manager_create :: proc() {
     font_master_create(&global_manager.font_master)
     font_master_scrape_data(&global_manager.font_master)
 
-    img_master_create(&global_manager.img_master)
-    img_master_scrape_data(&global_manager.img_master)
+    //img_master_create(&global_manager.img_master)
+    //img_master_scrape_data(&global_manager.img_master)
 
-    animation_master_create(&global_manager.animation_master)
-    animation_master_scrape_data(&global_manager.animation_master)
+    //animation_master_create(&global_manager.animation_master)
 
     //data_create()
 
@@ -56,7 +47,7 @@ global_manager_destroy :: proc() {
 
     audio_master_destroy(&global_manager.audio_master)
     font_master_destroy(&global_manager.font_master)
-    img_master_destroy(&global_manager.img_master)
-    animation_master_destroy(&global_manager.animation_master)
+    //img_master_destroy(&global_manager.img_master)
+    //animation_master_destroy(&global_manager.animation_master)
     //data_destroy()
 }

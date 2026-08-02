@@ -2,7 +2,7 @@ category: RANGED
 
 gcd_interval: 0.5
 
-animation_source: animations/weapon/tracking_bow.yaml
+animation_source: tracking_bow.animation
 animation_default_angle_deg: 0.0
 
 custom_shoot_callback: tracking_bow_shoot
@@ -17,7 +17,7 @@ projectile_data:
   shape_length: 40.0
   turn_speed: 3.0
   shots: 6
-  animation_source: animations/projectile/arrow.yaml
+  animation_source: arrow.animation
 
 sounds:
   select: sounds/weapons/bit_pistol/bow_draw.wav

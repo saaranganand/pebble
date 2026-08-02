@@ -1,5 +1,7 @@
 package item_api
 
+import util "../util"
+
 import os "core:os"
 import log "core:log"
 import fmt "core:fmt"
@@ -16,7 +18,7 @@ implementation_load :: proc(
 
     item_results := make([dynamic]string)
 
-    scrape_files(master_folder, full_extension, &item_results)
+    util.scrape_files(master_folder, full_extension, &item_results)
 
     num_items := len(item_results)
     master_list = make([]Implement_Type, num_items)
@@ -52,17 +54,4 @@ implementation_item_load :: proc($Implement_Type: typeid, path: string) -> (item
 	}
 
     return
-}
-
-@(private)
-scrape_files :: proc(master_folder, extension: string, results: ^[dynamic]string) {
-    entries, read_err := os.read_directory_by_path(master_folder, -1, context.allocator)
-	if read_err != os.ERROR_NONE do return
-	defer os.file_info_slice_delete(entries, context.allocator)
-
-    for entry in entries {
-		if entry.type == .Directory do scrape_files(entry.fullpath, extension, results)
-			
-		else if strings.has_suffix(entry.fullpath, extension) do append(results, strings.clone(entry.fullpath))
-	}
 }

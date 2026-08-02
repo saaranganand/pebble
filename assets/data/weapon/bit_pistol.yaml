@@ -2,7 +2,7 @@ category: RANGED
 
 gcd_interval: 0.5
 
-animation_source: animations/weapon/bit_pistol.yaml
+animation_source: bit_pistol.animation
 animation_default_angle_deg: 0.0
 
 damage: 20.0
@@ -12,7 +12,7 @@ projectile_data:
   piercing: 1
   speed: 1500.0
   lifetime: 3.0
-  animation_source: animations/projectile/bullet.yaml
+  animation_source: bullet.animation
   shape_radius: 5.0
 
 sounds:

@@ -1,5 +1,7 @@
 package assets
 
+import img "img"
+
 import fmt "core:fmt"
 
 Load_Group_Proc :: struct {
@@ -13,7 +15,7 @@ Load_Group :: enum{ DEBUG_ALL }
 load_group_procs := [Load_Group]Load_Group_Proc{
     .DEBUG_ALL = { load = debug_all_load }
 }
-// tag IB tag surendra
+
 debug_all_load :: proc() {
     audio_entry_load("sounds/silly/pirate_bell.wav")
     audio_entry_load("sounds/effects/burn_tick.wav")
@@ -31,25 +33,11 @@ debug_all_load :: proc() {
     font_load("fonts/ubuntu.ttf", 24)
     font_load("fonts/ubuntu.ttf", 16)
 
-    img_load("img/player/move.png")
-    img_load("img/weapon/ranged.png")
-    img_load("img/projectile/player_bullet.png")
-    img_load("img/projectile/player_arrow.png")
-    img_load("img/entity/horde.png")
-
-    animation_instance_load("animations/entity/player.yaml")
-    animation_instance_load("animations/weapon/bit_pistol.yaml")
-    animation_instance_load("animations/weapon/bit_rifle.yaml")
-    animation_instance_load("animations/weapon/bit_scope.yaml")
-    animation_instance_load("animations/weapon/energy_charge.yaml")
-    animation_instance_load("animations/weapon/tracking_bow.yaml")
-
-    animation_instance_load("animations/projectile/bullet.yaml")
-    animation_instance_load("animations/projectile/arrow.yaml")
-    animation_instance_load("animations/projectile/ray.yaml")
-
-    animation_instance_load("animations/entity/horde_leader.yaml")
-    animation_instance_load("animations/entity/horde_follower.yaml")
+    img.img_load("player.png")
+    img.img_load("weapons.png")
+    img.img_load("player_bullet.png")
+    img.img_load("player_arrow.png")
+    img.img_load("enemy_horde.png")
 }
 
 global_init :: proc() {

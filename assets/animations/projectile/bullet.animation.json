@@ -1,0 +1,11 @@
+source_img_tag: "img/projectile/player_bullet.png"
+animations: {
+  idle: {
+    fps: 0
+    looping: false
+    scale: 1
+    frames: [
+      { source: { x: 0, y: 0, w: 10, h: 10 }, hang_frames: 1, dest_scale: [1, 1] }
+    ]
+  }
+}

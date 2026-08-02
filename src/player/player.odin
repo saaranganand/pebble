@@ -30,7 +30,7 @@ MAX_HP :: 100
 AIM_DIST :: 50
 
 player_init :: proc() -> (player: Player_Character) {
-    entity_data := entity.entity_make_data({0.0,0.0}, PLAYER_SPEED, MAX_HP, 10, .ALLY, .PLAYER, "animations/entity/player.yaml")
+    entity_data := entity.entity_make_data({0.0,0.0}, PLAYER_SPEED, MAX_HP, 10, .ALLY, .PLAYER, "player.animation")
     player.entity = entity.entity_manager_add_entity(entity_data)
 
     weapon.weapon_controller_create(&player.weapon_controller)

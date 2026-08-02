@@ -12,12 +12,12 @@ reaction_data_list:
     remove_sound: sounds/effects/burn_extinguish
     flash_color: red
     flash_duration: 1.0
-    external_animation_tag: animations/effects/flame_small
+    external_animation_tag: flame_small.animation
     screen_shake_magnitude: 1.5
     show_damage_number: true
 
   - tag: ANY,NPC: # use any to make the reaction for each of a specific team/category
-    external_animation_tag: animations/effects/flame_small
+    external_animation_tag: flame_small.animation
 
   - tag: ENEMY,VIP:
     apply_sound: sounds/effects/burn_apply_boss
@@ -26,7 +26,7 @@ reaction_data_list:
     flash_color: red
     flash_duration: 1.0
     entity_animation_tag: fire_damage
-    external_animation_tag: animations/effects/flame_medium
+    external_animation_tag: flame_medium.animation
     show_damage_number: true
 
   - tag: NEUTRAL,BULLET:

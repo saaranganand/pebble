@@ -6,7 +6,7 @@ import strings "core:strings"
 import log "core:log"
 import fmt "core:fmt"
 
-Data_Tag :: distinct string
+Data_Tag :: string
 
 // Given a unqiue path in the assets folder, and a desired extension,
 // compiles a list of filenames that are to be turned into data tags
