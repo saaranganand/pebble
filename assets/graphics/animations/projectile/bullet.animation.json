@@ -1,4 +1,4 @@
-source_img_tag: "img/projectile/player_bullet.png"
+source_img_tag: "player_bullet"
 animations: {
   idle: {
     fps: 0

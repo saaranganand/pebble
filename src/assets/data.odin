@@ -14,7 +14,7 @@ import log "core:log"
 global_manager: Data_Manager
 
 Data_Manager :: struct {
-    audio_master: Audio_Master,
+    //audio_master: Audio_Master,
     font_master: Font_Master,
     //img_master: Img_Master,
     //animation_master: Animation_Master,
@@ -26,8 +26,8 @@ Data_Manager :: struct {
 global_manager_create :: proc() {
     log.infof("Creating data manager")
 
-    audio_master_create(&global_manager.audio_master)
-    audio_master_scrape_data()
+    //audio_master_create(&global_manager.audio_master)
+    //audio_master_scrape_data()
 
     font_master_create(&global_manager.font_master)
     font_master_scrape_data(&global_manager.font_master)
@@ -45,7 +45,7 @@ global_manager_create :: proc() {
 global_manager_destroy :: proc() {
     log.infof("Destroying data manager")
 
-    audio_master_destroy(&global_manager.audio_master)
+    //audio_master_destroy(&global_manager.audio_master)
     font_master_destroy(&global_manager.font_master)
     //img_master_destroy(&global_manager.img_master)
     //animation_master_destroy(&global_manager.animation_master)

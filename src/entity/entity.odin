@@ -2,6 +2,7 @@ package entity
 
 import sdl "vendor:sdl3"
 
+import animation "../assets/animation"
 import primatives "../sdl_primatives"
 import camera "../camera"
 import handle "../handle"
@@ -30,7 +31,7 @@ Entity :: struct {
     max_health: f32,
     forces: [dynamic]Force,
     active: bool,
-    animation_controller: assets.Animation_Controller,
+    animation_controller: animation.Animation_Controller,
 
     team: Team,
     category: Category,
@@ -53,7 +54,7 @@ entity_make_data :: proc(
     data.team = team
     data.category = category
 
-    data.animation_controller = assets.animation_controller_create(animation_source_tag)
+    data.animation_controller = animation.animation_controller_create(animation_source_tag)
 
     return
 }
@@ -75,7 +76,7 @@ entity_deal_damage :: proc(entity: ^Entity, damage: f32) {
     entity.health -= damage
 }
 
-entity_set_animation :: proc(entity: ^Entity, new_animation: assets.Animation_Tag) {
+entity_set_animation :: proc(entity: ^Entity, new_animation: string) {
     entity.animation_controller.current_animation = new_animation
 }
 

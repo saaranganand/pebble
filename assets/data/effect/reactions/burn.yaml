@@ -6,7 +6,7 @@ default_reaction_data:
 
 reaction_data_list:
 - tag: ALLY,PLAYER
-  trigger_sound: sounds/effects/burn_tick.wav
+  trigger_sound: burn_tick.wav
   flash_color: RED
   flash_duration: 0.25
   external_animation_tag: flame_small.animation

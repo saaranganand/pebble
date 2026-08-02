@@ -70,8 +70,6 @@ entity_manager_add_entity :: proc(entity_data: Entity) -> (new_handle: Entity_Ha
     }
     entity_give_handle.own_handle = new_handle
     
-    log.debugf("Adding entity with handle %v", new_handle)
-
     return 
 }
 

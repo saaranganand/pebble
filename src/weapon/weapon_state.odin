@@ -3,6 +3,7 @@ package weapon
 import sdl "vendor:sdl3"
 import primatives "../sdl_primatives"
 
+import animation "../assets/animation"
 import projectile "../projectile"
 import assets "../assets"
 import camera "../camera"
@@ -21,7 +22,7 @@ Weapon_State :: struct {
     charging: bool,
     time_since_charge_start: f32,
     animated: bool,
-    animation_controller: assets.Animation_Controller,
+    animation_controller: animation.Animation_Controller,
 }
 
 weapon_state_create :: proc(definition_tag: Weapon_Definition_Tag, team: entity.Team, animated: bool = false) -> (state: Weapon_State) {
@@ -36,7 +37,7 @@ weapon_state_create :: proc(definition_tag: Weapon_Definition_Tag, team: entity.
     state.definition.projectile_shell.team = team
 
     state.animated = animated
-    state.animation_controller = assets.animation_controller_create(state.definition.animation_source)
+    state.animation_controller = animation.animation_controller_create(state.definition.animation_source)
 
     return
 }

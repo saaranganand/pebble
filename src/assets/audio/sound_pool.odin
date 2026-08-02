@@ -1,29 +1,24 @@
-package assets
+package audio
 
 import ma "vendor:miniaudio"
 
 import log "core:log"
-import fmt "core:fmt"
 
-Sound_Pool :: distinct [dynamic]^ma.sound
+Sound_Pool :: [dynamic]^ma.sound
 
 @(private)
 audio_entry_create_pool :: proc(entry: ^Audio_Entry) {
-    log.debugf("Creating sound pool for audio tag %v", entry.tag)
     entry.pool = make(Sound_Pool)
 }
 
 @(private)
-audio_entry_destroy_pool :: proc(entry: ^Audio_Entry) {
-    log.debugf("Destroying sound pool for audio tag %v", entry.tag)
-    
+audio_entry_destroy_pool :: proc(entry: ^Audio_Entry) {    
     audio_entry_clear_pool(entry)
     delete(entry.pool)
 }
 
+@(private)
 audio_entry_clear_pool :: proc(entry: ^Audio_Entry) {
-    log.debugf("Clearing pool copies for %v", entry.tag)
-
     for copy in entry.pool {
         ma.sound_uninit(copy)
         free(copy)
@@ -41,7 +36,7 @@ audio_entry_play_sound_from_pool :: proc(entry: ^Audio_Entry) -> bool {
         // Starts the sound 
         result := ma.sound_seek_to_pcm_frame(copy, 0)
         if result != .SUCCESS {
-            log.errorf("Miniaudio error when playing sound with tag %v: %v", entry.tag, ma.result_description(result))
+            log.errorf("Miniaudio error when playing sound with tag %v: %v", entry.tag_copy, ma.result_description(result))
             continue
         }
 
@@ -54,11 +49,11 @@ audio_entry_play_sound_from_pool :: proc(entry: ^Audio_Entry) -> bool {
 @(private)
 audio_entry_add_to_pool :: proc(entry: ^Audio_Entry) -> (copy: ^ma.sound) {
     copy = new(ma.sound)
-    result := ma.sound_init_copy(&global_manager.audio_master.audio_engine, entry.source_audio, sound_get_miniaudio_flags(), nil, copy)
+    result := ma.sound_init_copy(&global_audio_manager.audio_engine, entry.source_audio, sound_get_miniaudio_flags(), nil, copy)
 
     if result != .SUCCESS {
         free(copy)
-        log.errorf("Miniaudio error when adding sound copy to pool with tag %v: %v", entry.tag, ma.result_description(result))
+        log.errorf("Miniaudio error when adding sound copy to pool with tag %v: %v", entry.tag_copy, ma.result_description(result))
         return
     }
 

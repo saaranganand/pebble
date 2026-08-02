@@ -14,5 +14,5 @@ projectile_data:
   animation_source: ray.animation
 
 sounds:
-  select: sounds/weapons/bit_pistol/select.wav
-  shoot: sounds/weapons/bit_pistol/shoot.wav
+  select: weapon_select.wav
+  shoot: weapon_shoot.wav

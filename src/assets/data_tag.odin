@@ -8,6 +8,8 @@ import fmt "core:fmt"
 
 Data_Tag :: string
 
+DATA_TAG_DEFAULT_ASSET_FOLDER :: "assets/"
+
 // Given a unqiue path in the assets folder, and a desired extension,
 // compiles a list of filenames that are to be turned into data tags
 data_tag_resursive_grab_and_process_precursors :: proc(unique_path: string, extension: cstring, tags: ^[dynamic]string) {

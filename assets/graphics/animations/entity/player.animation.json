@@ -1,4 +1,4 @@
-source_img_tag: "img/player/move.png"
+source_img_tag: "player"
 animations: {
   idle: {
     fps: 0

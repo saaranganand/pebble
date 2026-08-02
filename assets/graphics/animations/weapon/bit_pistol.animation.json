@@ -1,4 +1,4 @@
-source_img_tag: "img/weapon/ranged.png"
+source_img_tag: "weapons"
 animations: {
 	idle: {
 		fps: 0

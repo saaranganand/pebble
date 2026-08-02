@@ -16,5 +16,5 @@ projectile_data:
   shape_radius: 5.0
 
 sounds:
-  select: sounds/weapons/bit_pistol/select.wav
-  shoot: sounds/weapons/bit_pistol/shoot.wav
+  select: weapon_select.wav
+  shoot: weapon_shoot.wav

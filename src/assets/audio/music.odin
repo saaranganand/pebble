@@ -1,4 +1,4 @@
-package assets
+package audio
 
 import ma "vendor:miniaudio"
 
@@ -13,8 +13,8 @@ music_get_miniaudio_flags :: proc(looping: bool = true) -> (flags: ma.sound_flag
 }
 
 @(private)
-music_get_entry :: proc(tag: Data_Tag) -> (^Audio_Entry, bool) {
-    entry, ok := audio_entry_get(tag)
+music_get_entry :: proc(tag: string) -> (^Audio_Entry, bool) {
+    entry, ok := audio_entry_get(tag, .LOADED)
 
     if entry.type != .MUSIC {
         log.errorf("Tried to get non-existent music with tag %v.", tag)
@@ -25,21 +25,21 @@ music_get_entry :: proc(tag: Data_Tag) -> (^Audio_Entry, bool) {
     return entry, true
 }
 
-music_play :: proc(tag: Data_Tag) {
+music_play :: proc(tag: string) {
     entry, success := music_get_entry(tag)
     if !success do return
 
     ma.sound_start(entry.source_audio)
 }
 
-music_pause :: proc(tag: Data_Tag) {
+music_pause :: proc(tag: string) {
     entry, success := music_get_entry(tag)
     if !success do return
 
     ma.sound_stop(entry.source_audio)
 }
 
-music_reset :: proc(tag: Data_Tag) {
+music_reset :: proc(tag: string) {
     entry, success := music_get_entry(tag)
     if !success do return
 

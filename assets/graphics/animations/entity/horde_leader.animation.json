@@ -1,4 +1,4 @@
-source_img_tag: "img/entity/horde.png"
+source_img_tag: "enemy_horde"
 animations: {
   idle: {
     fps: 0

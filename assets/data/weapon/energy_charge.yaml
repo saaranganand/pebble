@@ -19,6 +19,6 @@ projectile_data:
   animation_source: bullet.animation
 
 sounds:
-  select: sounds/weapons/bit_pistol/select.wav
-  charge: sounds/weapons/bit_pistol/charge.wav
-  shoot: sounds/weapons/bit_pistol/shoot.wav
+  select: weapon_select.wav
+  charge: weapon_charge.wav
+  shoot: weapon_shoot.wav

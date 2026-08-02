@@ -5,7 +5,7 @@ import yaml "../../libs/odin-yaml"
 
 import yaml_parse "../assets/yaml_parse"
 import color "../color"
-import assets "../assets"
+import audio "../assets/audio"
 import handle "../handle"
 import entity "../entity"
 import effect "../entity_effect"
@@ -19,8 +19,8 @@ import mem "core:mem"
 reaction_event_trigger :: proc(event: effect.Effect_Event, data: Reaction_Data, target_entity: ^entity.Entity) {
     switch event.type {
     case .APPLY:
-        sound, sound_ok := data.apply_sound.(assets.Data_Tag)
-        if sound_ok do assets.sound_play(sound)
+        sound, sound_ok := data.apply_sound.(string)
+        if sound_ok do audio.sound_play(sound)
 
         // trigger flash in entity
         // entity_trigger_flash(target_entity, data.flash_duration, data.flash_color)
@@ -35,13 +35,13 @@ reaction_event_trigger :: proc(event: effect.Effect_Event, data: Reaction_Data, 
         // bruh idk data.external_animation_tag
     case .TRIGGER:
         
-        sound, sound_ok := data.trigger_sound.(assets.Data_Tag)
-        if sound_ok do assets.sound_play(sound)
+        sound, sound_ok := data.trigger_sound.(string)
+        if sound_ok do audio.sound_play(sound)
 
         // apply internal animation
         // entity_queue_animation(data.entity_animation_tag)
     case .REMOVE:
-        sound, sound_ok := data.remove_sound.(assets.Data_Tag)
-        if sound_ok do assets.sound_play(sound)
+        sound, sound_ok := data.remove_sound.(string)
+        if sound_ok do audio.sound_play(sound)
     }
 }

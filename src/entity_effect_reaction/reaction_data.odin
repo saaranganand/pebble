@@ -47,8 +47,8 @@ Reaction_Data :: struct {
     flash_color:    Maybe(color.Default_Palette_Color),
     flash_duration: f32,
 
-    entity_animation_tag:   Maybe(assets.Animation_Tag),
-    external_animation_tag: Maybe(assets.Animation_Tag),
+    entity_animation_tag:   Maybe(string),
+    external_animation_tag: Maybe(string),
 
     screen_shake_magnitude: f32,
 
@@ -85,10 +85,10 @@ reaction_data_destroy :: proc(data: ^Reaction_Data) {
     remove_sound, has_remove_sound := data.remove_sound.(assets.Data_Tag)
     if has_remove_sound do delete(cast(string) remove_sound)
 
-    entity_animation_tag, has_entity_animation_tag := data.entity_animation_tag.(assets.Animation_Tag)
+    entity_animation_tag, has_entity_animation_tag := data.entity_animation_tag.(string)
     if has_entity_animation_tag do delete(cast(string) entity_animation_tag)
 
-    external_animation_tag, has_external_animation_tag := data.external_animation_tag.(assets.Animation_Tag)
+    external_animation_tag, has_external_animation_tag := data.external_animation_tag.(string)
     if has_external_animation_tag do delete(cast(string) external_animation_tag)
 }
 
@@ -176,10 +176,10 @@ reaction_data_read_yaml_map :: proc(yaml_map: yaml.Mapping) -> (data: Reaction_D
     data.flash_duration = cast(f32) yaml_parse.read_value_from_map(yaml_map, "flash_duration", f64, default = 0.0)
 
     entity_animation_tag := yaml_parse.read_value_from_map(yaml_map, "entity_animation_tag", string, default = "")
-    if entity_animation_tag != "" do data.entity_animation_tag = cast(assets.Animation_Tag) strings.clone(entity_animation_tag)
+    if entity_animation_tag != "" do data.entity_animation_tag = strings.clone(entity_animation_tag)
 
     external_animation_tag := yaml_parse.read_value_from_map(yaml_map, "external_animation_tag", string, default = "")
-    if external_animation_tag != "" do data.external_animation_tag = cast(assets.Animation_Tag) strings.clone(external_animation_tag)
+    if external_animation_tag != "" do data.external_animation_tag = strings.clone(external_animation_tag)
 
     data.screen_shake_magnitude = cast(f32) yaml_parse.read_value_from_map(yaml_map, "screen_shake_magnitude", f64, default = 0.0)
     data.show_damage_number = yaml_parse.read_value_from_map(yaml_map, "show_damage_number", bool, default = false)

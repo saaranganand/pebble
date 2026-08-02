@@ -1,4 +1,4 @@
-source_img_tag: "img/projectile/player_arrow.png"
+source_img_tag: "player_arrow"
 animations: {
   idle: {
     fps: 0

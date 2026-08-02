@@ -2,6 +2,7 @@ package projectile
 
 import sdl "vendor:sdl3"
 
+import animation "../assets/animation"
 import primatives "../sdl_primatives"
 import effect "../entity_effect"
 import entity "../entity"
@@ -23,7 +24,7 @@ Projectile_State :: struct {
     shoot_angle: f32,
     team: entity.Team,
     apply_effect: Maybe(effect.Effect_Instance_Tag),
-    animation_controller: assets.Animation_Controller,
+    animation_controller: animation.Animation_Controller,
     active: bool,
 }
 

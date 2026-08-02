@@ -1,16 +1,18 @@
 package camera
 
 import sdl "vendor:sdl3"
-import ttf "vendor:sdl3/ttf"
+import sdl_ttf "vendor:sdl3/ttf"
 
 import math "core:math"
 import log "core:log"
 import fmt "core:fmt"
 
+import animation "../assets/animation"
 import primatives "../sdl_primatives"
-import geo "../geometry"
-import color "../color"
+import img "../assets/img"
 import assets "../assets"
+import color "../color"
+import geo "../geometry"
 
 Camera_Mode :: enum { STATIONARY, FOLLOW }
 
@@ -28,7 +30,7 @@ Camera :: struct {
 	mode:   Camera_Mode,
 	follow: Camera_Follow,
 
-    coordinate_text: ^ttf.Text,
+    coordinate_text: ^sdl_ttf.Text,
 }
 
 // The way this package's procedures work,
@@ -67,7 +69,7 @@ camera_create :: proc(width, height: f32) -> (camera: ^Camera) {
 camera_destroy :: proc(camera: ^Camera) {
     log.infof("Destroying camera")
 
-    ttf.DestroyText(camera.coordinate_text)
+    sdl_ttf.DestroyText(camera.coordinate_text)
     free(camera)
 }
 
@@ -148,7 +150,7 @@ camera_draw_center_lines :: proc() {
 }
 
 camera_draw_img :: proc(
-    img_tag: assets.Data_Tag, dest: sdl.FRect, src: ^sdl.FRect = nil,
+    img_tag: string, dest: sdl.FRect, src: ^sdl.FRect = nil,
     angle: f64 = 0, flip_mode: sdl.FlipMode = .NONE, center: ^sdl.FPoint = nil
 ) {
     view_adjusted_pos := world_position_to_view({ dest.x, dest.y })
@@ -157,16 +159,16 @@ camera_draw_img :: proc(
     view_adjusted_dest.x = view_adjusted_pos.x
     view_adjusted_dest.y = view_adjusted_pos.y
 
-    assets.img_draw(img_tag, &view_adjusted_dest, src, angle, flip_mode, center)
+    img.img_draw(img_tag, &view_adjusted_dest, src, angle, flip_mode, center)
 }
 
 camera_draw_animation :: proc(
-    animation_controller: ^assets.Animation_Controller,
+    animation_controller: ^animation.Animation_Controller,
     dest_center: sdl.FPoint,
     angle: f64 = 0, flip_mode: sdl.FlipMode = .NONE, center: ^sdl.FPoint = nil
 ) {
     view_adjusted_pos := world_position_to_view(dest_center)
-    assets.animation_draw(animation_controller, view_adjusted_pos, angle, flip_mode, center)
+    animation.animation_draw(animation_controller, view_adjusted_pos, angle, flip_mode, center)
 }
 
 camera_draw_grid :: proc() {
@@ -227,6 +229,6 @@ draw_grid_label :: proc(world_x, world_y: int, view_pos: sdl.FPoint) {
     label := fmt.caprint(world_x, ",", world_y, sep = "")
     defer delete(label)
 
-    ttf.SetTextString(global_camera.coordinate_text, label, 0)
-    ttf.DrawRendererText(global_camera.coordinate_text, view_pos.x + 5, view_pos.y + 5)
+    sdl_ttf.SetTextString(global_camera.coordinate_text, label, 0)
+    sdl_ttf.DrawRendererText(global_camera.coordinate_text, view_pos.x + 5, view_pos.y + 5)
 }

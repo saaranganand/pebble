@@ -9,31 +9,31 @@ import log "core:log"
 Img_Manager :: map[string]Img_Instance
 global_img_manager: Img_Manager
 
-img_master_create :: proc() {
+img_manager_create :: proc() {
     log.infof("Creating img manager")
 
     global_img_manager = make(Img_Manager)
 
-    img_master_init_data("assets/")
+    img_manager_init_data()
 }
 
-img_master_destroy :: proc() {
+img_manager_destroy :: proc() {
     log.infof("Destroying img manager")
 
     for tag, instance in global_img_manager {
+        defer delete(tag)
+        defer delete(instance.path)
+
         if instance.state != .LOADED do continue
         img_unload(tag)
-
-        delete(tag)
-        delete(instance.path)
     }
 
     delete(global_img_manager)
 }
 
-// TODO: find some way to get multiple basic paths in here, to allow for mods to add their own asset folders to the load path
 @(private)
-img_master_init_data :: proc(master_folder: string) {
+IMG_MASTER_FOLDER :: "assets/"
+img_manager_init_data :: proc() {
     log.infof("Initializing img data")
 
     results := make([dynamic]string)
@@ -41,11 +41,10 @@ img_master_init_data :: proc(master_folder: string) {
         for result in results do delete(result)
         delete(results)
     }
-    util.scrape_files(master_folder, ".png", &results)
-    util.scrape_files(master_folder, ".jpg", &results)
+    util.scrape_files(IMG_MASTER_FOLDER, ".png", &results)
+    util.scrape_files(IMG_MASTER_FOLDER, ".jpg", &results)
 
     for path in results {
-        //
         tag := strings.clone(filepath.stem(path))
         global_img_manager[tag] = {}
         instance := &global_img_manager[tag]

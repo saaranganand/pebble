@@ -10,14 +10,14 @@ Animation_Manager :: map[string]Animation_Instance
 global_manager: Animation_Manager
 
 
-animation_master_create :: proc() {
+animation_manager_create :: proc() {
     log.infof("Creating animation manager")
     global_manager = make(Animation_Manager)
 
-    animation_master_load_data("assets/")
+    animation_manager_load_data()
 }
 
-animation_master_destroy :: proc() {
+animation_manager_destroy :: proc() {
     log.infof("Destroying animation manager")
 
     for tag, instance in global_manager {
@@ -29,9 +29,10 @@ animation_master_destroy :: proc() {
     delete(global_manager)
 }
 
+ANIMATION_MASTER_FOLDER :: "assets/"
 ANIMATION_DATA_EXTENSION :: ".animation.json"
 @(private)
-animation_master_load_data :: proc(master_folder: string) {
+animation_manager_load_data :: proc() {
     log.infof("Loading animations")
 
     results := make([dynamic]string)
@@ -39,7 +40,7 @@ animation_master_load_data :: proc(master_folder: string) {
         for result in results do delete(result)
         delete(results)
     }
-    util.scrape_files(master_folder, ANIMATION_DATA_EXTENSION, &results)
+    util.scrape_files(ANIMATION_MASTER_FOLDER, ANIMATION_DATA_EXTENSION, &results)
     
     for path in results {
         tag := strings.clone(filepath.stem(path))

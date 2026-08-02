@@ -20,5 +20,5 @@ projectile_data:
   animation_source: arrow.animation
 
 sounds:
-  select: sounds/weapons/bit_pistol/bow_draw.wav
-  shoot: sounds/weapons/bit_pistol/bow_shoot.wav
+  select: bow_draw.wav
+  shoot: bow_shoot.wav

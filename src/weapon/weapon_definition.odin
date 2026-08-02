@@ -1,12 +1,11 @@
 package weapon
 
-import sdl "vendor:sdl3"
 import yaml "../../libs/odin-yaml"
 
+import animation "../assets/animation"
 import effect "../entity_effect"
 import projectile "../projectile"
 import assets "../assets"
-import handle "../handle"
 import yaml_parse "../assets/yaml_parse"
 
 import runtime "base:runtime"
@@ -14,7 +13,6 @@ import strings "core:strings"
 import math "core:math"
 import log "core:log"
 import fmt "core:fmt"
-import mem "core:mem"
 
 Weapon_Definition_Tag :: string
 Weapon_Definition_ID :: u32
@@ -37,7 +35,7 @@ Weapon_Definition :: struct {
     max_charge_time: f32,
 
     sounds: Sound_Set,
-    animation_source: assets.Data_Tag,
+    animation_source: string,
     animation_default_angle: f32,
 }
 
@@ -85,7 +83,7 @@ weapon_definition_load :: proc(
     new_data_tag := cast(assets.Data_Tag) strings.clone(
         yaml_parse.read_value_from_map(projectile_map, "animation_source", string, default = "")
     )
-    new_definition.projectile_shell.animation_controller = assets.animation_controller_create(new_data_tag)
+    new_definition.projectile_shell.animation_controller = animation.animation_controller_create(new_data_tag)
     new_definition.projectile_shell.shape = projectile.projectile_shape_from_category(new_definition.projectile_shell.category, new_definition.projectile_shell.team, projectile_map)
     // PROJECTILE INFO -----------------------------------
 
@@ -119,8 +117,8 @@ weapon_definition_load :: proc(
 
 weapon_definition_unload :: proc(definition: ^Weapon_Definition) {
     delete(definition.unique_tag)
-    delete(cast(string) definition.animation_source)
-    delete(cast(string) definition.projectile_shell.animation_controller.data_tag)
+    delete(definition.animation_source)
+    delete(definition.projectile_shell.animation_controller.data_tag)
     if tag, ok := definition.projectile_shell.apply_effect.(effect.Effect_Instance_Tag); ok do delete(tag)
     sound_set_destroy(&definition.sounds)
 }

@@ -1,14 +1,10 @@
 package HUD
 
 import sdl "vendor:sdl3"
-import ttf "vendor:sdl3/ttf"
 
+import animation "../assets/animation"
 import primatives "../sdl_primatives"
 import color "../color"
-import entity "../entity"
-import assets "../assets"
-import player "../player"
-import input "../input"
 import weapon "../weapon"
 
 import math "core:math"
@@ -78,7 +74,7 @@ draw_hud_weapon_select :: proc(hud: ^HUD, weapon_controller: weapon.Weapon_Contr
         animation_controller.current_animation = "hud_display"
 
         draw_weapon_pos := sdl.FPoint{sprite_box_rect.x, sprite_box_rect.y} + sdl.FPoint{sprite_box_rect.w, sprite_box_rect.h} / 2
-        assets.animation_draw(&animation_controller, draw_weapon_pos)
+        animation.animation_draw(&animation_controller, draw_weapon_pos)
 
         sprite_box_rect.x += WEAPON_BOX_SIZE + WEAPON_BOX_MARGIN_SIZE
     }
