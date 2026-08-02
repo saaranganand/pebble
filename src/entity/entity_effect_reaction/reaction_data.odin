@@ -1,15 +1,13 @@
 package reaction
 
-import yaml "../../../libs/odin-yaml"
 
-import yaml_parse "src:data_load/yaml_parse"
 import color "src:util/color"
-import data_load "src:data_load"
 import entity "src:entity"
-import effect "src:entity/entity_effect"
 
-import runtime "base:runtime"
+import filepath "core:path/filepath"
+import json "core:encoding/json"
 import strings "core:strings"
+import os "core:os"
 import log "core:log"
 import fmt "core:fmt"
 
@@ -92,14 +90,15 @@ reaction_data_destroy :: proc(data: ^Reaction_Data) {
 // All reaction sets have at least a default data object.
 // For each necessary combination of team and category, a tag is created through the enum names in a comma seperated string
 Reaction_Set :: struct {
+    definition_tag: string,
     default_reaction_data: Maybe(Reaction_Data),
-    reaction_data_map: map[Reaction_Data_Tag]Reaction_Data,
+    reaction_data_map: map[string]Reaction_Data,
 }
 
 reaction_set_create :: proc(set: ^Reaction_Set, default_data: Maybe(Reaction_Data) = nil) {
     set.default_reaction_data = default_data
 
-    set.reaction_data_map = make(map[Reaction_Data_Tag]Reaction_Data)
+    set.reaction_data_map = make(map[string]Reaction_Data)
 }
 
 reaction_set_destroy :: proc(set: ^Reaction_Set) {
@@ -112,77 +111,20 @@ reaction_set_destroy :: proc(set: ^Reaction_Set) {
     if ok do reaction_data_destroy(default_reaction_data)
 
     delete(set.reaction_data_map)
+    delete(set.definition_tag)
 }
 
-reaction_data_load :: proc(
-    pre_path, file_path: string, effect_definition_tag_to_id: effect.Effect_Definition_Tag_To_ID_Map,
-    arena_allocator: runtime.Allocator
-) {
-    full_path := fmt.aprint(data_load.DATA_TAG_DEFAULT_ASSET_FOLDER, file_path, sep = "")
-    defer delete(full_path)
-    data_map, map_ok := yaml_parse.get_yaml_mapping(full_path, arena_allocator)
-    if !map_ok {
-        log.errorf("Failed in loading effect reaction from path %v", file_path)
+effect_reaction_load :: proc(set: ^Reaction_Set, path: string) {
+    data, err := os.read_entire_file(path, context.allocator)
+	if err != os.General_Error.None {
+        log.errorf("Failed to read effect reaction file %v: %v", path, err)
         return
     }
+	defer delete(data)
 
-    log.debugf("Loading effect reaction %v", file_path)
-
-    definition_tag := yaml_parse.read_value_from_map(data_map, "definition", string, default = "")
-    definition_id, id_ok := effect_definition_tag_to_id[definition_tag]
-    if !id_ok {
-        log.errorf("Effect reaction %v with definition %v could not resolve such definition", file_path, definition_tag)
-    }
-
-    default_data: Maybe(Reaction_Data) = nil
-    default_data_map := yaml_parse.read_value_from_map(data_map, "default_reaction_data", yaml.Mapping, default = nil)
-    if default_data_map != nil do default_data, _ = reaction_data_read_yaml_map(default_data_map)
-
-    new_reaction_set: Reaction_Set
-    reaction_set_create(&new_reaction_set, default_data)
-
-    special_reaction_datas := yaml_parse.read_value_from_map(data_map, "reaction_data_list", yaml.Sequence, default = nil)
-    if special_reaction_datas != nil {
-        num_combos := len(special_reaction_datas)
-        for i in 0..<num_combos {
-            // read source, hang frames, and dest scale here to pass through
-            combo_map := special_reaction_datas[i].(yaml.Mapping)
-            combo_data, combo_tag := reaction_data_read_yaml_map(combo_map)
-            if combo_tag != "" do new_reaction_set.reaction_data_map[combo_tag] = combo_data
-        }
-    }
-
-    global_reaction_manager.table[definition_id] = new_reaction_set
-}
-
-reaction_data_read_yaml_map :: proc(yaml_map: yaml.Mapping) -> (data: Reaction_Data, combo_name: Reaction_Data_Tag) {
-    data = reaction_data_empty_struct()
-    combo_name = strings.clone(yaml_parse.read_value_from_map(yaml_map, "tag", string, default = ""))
-
-    apply_sound := yaml_parse.read_value_from_map(yaml_map, "apply_sound", string, default = "")
-    if apply_sound != "" do data.apply_sound = cast(string) strings.clone(apply_sound)
-
-    trigger_sound := yaml_parse.read_value_from_map(yaml_map, "trigger_sound", string, default = "")
-    if trigger_sound != "" do data.trigger_sound = cast(string) strings.clone(trigger_sound)
-
-    remove_sound := yaml_parse.read_value_from_map(yaml_map, "remove_sound", string, default = "")
-    if remove_sound != "" do data.remove_sound = cast(string) strings.clone(remove_sound)
-
-    flash_color := yaml_parse.read_value_from_map(yaml_map, "flash_color", string, default = "")
-    data.flash_color = color.default_palette_color_from_string(flash_color)
-    data.flash_duration = cast(f32) yaml_parse.read_value_from_map(yaml_map, "flash_duration", f64, default = 0.0)
-
-    entity_animation_tag := yaml_parse.read_value_from_map(yaml_map, "entity_animation_tag", string, default = "")
-    if entity_animation_tag != "" do data.entity_animation_tag = strings.clone(entity_animation_tag)
-
-    external_animation_tag := yaml_parse.read_value_from_map(yaml_map, "external_animation_tag", string, default = "")
-    if external_animation_tag != "" do data.external_animation_tag = strings.clone(external_animation_tag)
-
-    data.screen_shake_magnitude = cast(f32) yaml_parse.read_value_from_map(yaml_map, "screen_shake_magnitude", f64, default = 0.0)
-    data.show_damage_number = yaml_parse.read_value_from_map(yaml_map, "show_damage_number", bool, default = false)
-
-    show_damage_number_color := yaml_parse.read_value_from_map(yaml_map, "damage_number_color", string, default = "")
-    data.show_damage_number_color = color.default_palette_color_from_string(show_damage_number_color)
-
-    return
+	json_err := json.unmarshal(data, set, spec = .MJSON)
+	if json_err != nil {
+		log.errorf("Failed to parse effect reaction json file %v: %v", path, json_err)
+		return
+	}
 }

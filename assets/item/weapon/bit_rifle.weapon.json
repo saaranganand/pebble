@@ -6,9 +6,7 @@ projectile_shell: {
   speed: 2000
   lifetime: 3
 
-  animation_controller: {
-    data_tag: "bullet.animation"
-  }
+  animation_source: "bullet.animation"
 
   shape_radius: 5
 }

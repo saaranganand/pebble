@@ -1,6 +1,0 @@
-definition: "burn"
-duration: 10.0
-interval: 0.5
-callback_type: "damage"
-# data
-damage: 1.0

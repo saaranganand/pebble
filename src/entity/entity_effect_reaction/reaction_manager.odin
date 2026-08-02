@@ -3,11 +3,11 @@ package reaction
 import data_load "src:data_load"
 import entity "src:entity"
 import effect "src:entity/entity_effect"
+import util "src:util"
 
-import runtime "base:runtime"
+
 import log "core:log"
 import fmt "core:fmt"
-import mem "core:mem"
 
 @(private)
 global_reaction_manager: Reaction_Manager
@@ -17,12 +17,16 @@ Reaction_Manager :: struct {
     table: []Reaction_Set,
 }
 
-reaction_manager_create :: proc(unique_effect_definition_ids: u32) -> (reaction_manager: ^Reaction_Manager) {
+reaction_manager_create :: proc(
+    unique_effect_definition_ids: uint, effect_definition_tag_to_id: effect.Effect_Definition_Tag_To_ID_Map
+) -> (reaction_manager: ^Reaction_Manager) {
     log.infof("Creating reaction manager")
 
     global_reaction_manager.table = make([]Reaction_Set, unique_effect_definition_ids)
 
     reaction_manager = &global_reaction_manager
+
+    reaction_manager_load(effect_definition_tag_to_id)
 
     return
 }
@@ -37,29 +41,26 @@ reaction_manager_destroy :: proc() {
     delete(global_reaction_manager.table)
 }
 
+EFFECT_REACTION_MASTER_FOLDER :: "assets/"
+EFFECT_REACTION_DATA_EXTENSION :: ".effect.reaction.json"
+@(private)
 reaction_manager_load :: proc(effect_definition_tag_to_id: effect.Effect_Definition_Tag_To_ID_Map) {
-    log.infof("Loading effect reaction manager")
+    log.infof("Loading effect reactions")
 
-    // Lib yaml binding requires use of arena allocator (good one)
-    arena_memory := make([]byte, 1*mem.Megabyte)
-    defer delete(arena_memory)
+    results := make([dynamic]string)
+    defer {
+        for result in results do delete(result)
+        delete(results)
+    }
+    util.scrape_files(EFFECT_REACTION_MASTER_FOLDER, EFFECT_REACTION_DATA_EXTENSION, &results)
+    
+    for path in results {
+        set: Reaction_Set
+        effect_reaction_load(&set, path)
 
-    // To be clear, only when explicitly using this new allocator is it used.
-    // It is not replacing the context allocator for this scope, since we need to allocate things here
-    // that will last until possibly shutdown.
-    config_arena: mem.Arena
-    mem.arena_init(&config_arena, arena_memory)
-    arena_alloc := mem.arena_allocator(&config_arena)
+        definition_id := effect_definition_tag_to_id[set.definition_tag]
 
-    file_paths := make([dynamic]string)
-    defer delete(file_paths)
-
-    pre_path := "data/effect/reactions/"
-    data_load.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
-
-    for path in file_paths {
-        reaction_data_load(pre_path, path, effect_definition_tag_to_id, arena_alloc)
-        delete(path)
+        global_reaction_manager.table[definition_id] = set
     }
 }
 

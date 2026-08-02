@@ -8,17 +8,17 @@ import log "core:log"
 @(private)
 global_effect_manager: Effect_Manager
 
-Effect_Instance_Tag_To_ID_Map :: map[Effect_Instance_Tag]Effect_Instance_ID
-Effect_Definition_Tag_To_ID_Map :: map[Effect_Definition_Tag]Effect_Definition_ID
+Effect_Instance_Tag_To_ID_Map :: map[Effect_Instance_Tag]uint
+Effect_Definition_Tag_To_ID_Map :: map[Effect_Definition_Tag]uint
 
 Effect_Manager :: struct {
     pool: handle.Pool(handle.Effect_Tag, Effect_State),
 
-    unique_definition_ids: Effect_Definition_ID,
+    unique_definition_ids: uint,
     definitions: []Effect_Definition,
     definition_tag_to_id: Effect_Definition_Tag_To_ID_Map,
 
-    unique_instance_ids: Effect_Instance_ID,
+    unique_instance_ids: uint,
     instances: []Effect_Instance,
     instance_tag_to_id: Effect_Instance_Tag_To_ID_Map,
 
@@ -42,8 +42,6 @@ Effect_Manager :: struct {
     entity_active_effects: Effect_Active_Entity_Effect_Map,
 
     events: [dynamic]Effect_Event,
-
-    loaded: bool,
 }
 
 effect_manager_create :: proc() -> (effect_manager: ^Effect_Manager) {
@@ -59,10 +57,10 @@ effect_manager_create :: proc() -> (effect_manager: ^Effect_Manager) {
 
     global_effect_manager.entity_active_effects = make(Effect_Active_Entity_Effect_Map)
     global_effect_manager.events = make([dynamic]Effect_Event)
-
-    global_effect_manager.loaded = false
     
     effect_manager = &global_effect_manager
+
+    effect_manager_load()
 
     return
 }
@@ -86,13 +84,7 @@ effect_manager_destroy :: proc() {
 
 // load definitions and instances
 effect_manager_load :: proc() {
-    if global_effect_manager.loaded {
-        log.errorf("Tried to load effect manager when already loaded")
-        return
-    }
-
     log.infof("Loading effect manager")
-    global_effect_manager.loaded = true
 
     effect_definitions_load()
     effect_instances_load()
@@ -100,10 +92,7 @@ effect_manager_load :: proc() {
 
 // unload definitions and instances
 effect_manager_unload :: proc() {
-    if !global_effect_manager.loaded do return
-
     log.infof("Unloading effect manager")
-    global_effect_manager.loaded = false
 
     effect_instances_unload()
     effect_definitions_unload()
@@ -118,7 +107,7 @@ effect_manager_get_effect :: proc(effect_handle: Effect_Handle) -> (state: ^Effe
     return 
 }
 
-effect_manager_queue_apply :: proc(data: Effect_Application_Data, override: Maybe(Effect_Fn_Data) = nil) {
+effect_manager_queue_apply :: proc(data: Effect_Application_Data, callback_override: ..Effect_Callback_Data_Override) {
     data := data
     // Effects by default use their instance's data
     data.callback_data = data.instance.callback_data
@@ -127,11 +116,15 @@ effect_manager_queue_apply :: proc(data: Effect_Application_Data, override: Mayb
     // For example, all damage is carried out through the effect system.
     // Player damage is dynamic, and for example, could be boosted by 30% due to an item.
     // Thus, when the player applies damage to another.
-    override_data, should_override := override.(Effect_Fn_Data)
+    for override in callback_override {
+        if override.tag not_in data.callback_data do data.callback_data[override.tag] = nil
+        data.callback_data[override.tag] = override.data
+    }
+    /*override_data, should_override := override.(Effect_Fn_Data)
     if should_override {
         success := effect_state_override_data(&data.callback_data, override_data)
         if !success do log.errorf("Tried to overrite effect state with wrong override data type for instance with tag %v", data.instance.unique_tag)
-    }
+    }*/
 
     append(&global_effect_manager.application_queue, data)
 }
@@ -188,7 +181,7 @@ effect_manager_update :: proc() {
             type = .REMOVE, target = removal_effect.target,
             target_team = removal_effect.target_team,
             definition_id = removal_effect.instance.definition.unique_id,
-            magnitude = effect_fn_data_get_reaction_magnitude(removal_effect.callback_data.data)
+            magnitude = effect_fn_data_get_reaction_magnitude(removal_effect.callback_data)
         }) 
     }
 
@@ -259,7 +252,7 @@ effect_manager_apply_effect :: proc(
         type = .APPLY, target = application_data.target,
         target_team = application_data.target_team,
         definition_id = application_data.instance.definition.unique_id,
-        magnitude = effect_fn_data_get_reaction_magnitude(application_data.callback_data.data)
+        magnitude = effect_fn_data_get_reaction_magnitude(application_data.callback_data)
     })
 
     new_effect_handle := handle.pool_add(&global_effect_manager.pool, state)

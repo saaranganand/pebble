@@ -28,11 +28,11 @@ player_init :: proc() -> (player: Player_Character) {
     player.entity = entity.entity_manager_add_entity(entity_data)
 
     weapon.weapon_controller_create(&player.weapon_controller)
-    weapon.weapon_controller_add_weapon(&player.weapon_controller, "bit_pistol", true)
-    weapon.weapon_controller_add_weapon(&player.weapon_controller, "bit_rifle", true)
-    weapon.weapon_controller_add_weapon(&player.weapon_controller, "bit_scope", true)
-    weapon.weapon_controller_add_weapon(&player.weapon_controller, "energy_charge", true)
-    weapon.weapon_controller_add_weapon(&player.weapon_controller, "tracking_bow", true)
+    weapon.weapon_controller_add_weapon(&player.weapon_controller, "bit_pistol.weapon", true)
+    weapon.weapon_controller_add_weapon(&player.weapon_controller, "bit_rifle.weapon", true)
+    weapon.weapon_controller_add_weapon(&player.weapon_controller, "bit_scope.weapon", true)
+    weapon.weapon_controller_add_weapon(&player.weapon_controller, "energy_charge.weapon", true)
+    weapon.weapon_controller_add_weapon(&player.weapon_controller, "tracking_bow.weapon", true)
     weapon.weapon_controller_init(&player.weapon_controller, AIM_DIST, .ALLY)
     player.weapon_select = 0
     return

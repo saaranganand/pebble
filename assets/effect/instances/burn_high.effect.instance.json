@@ -1,0 +1,8 @@
+definition_tag: "burn.effect.definition"
+
+duration: 10
+interval: 1
+
+callback_data: {
+  damage: 5
+}

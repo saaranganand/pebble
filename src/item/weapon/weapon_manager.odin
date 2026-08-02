@@ -78,7 +78,5 @@ weapon_manager_load :: proc() {
         
         definition.unique_tag = tag
         definition.unique_id = definition_id_counter
-
-        delete(path)
     }
 }

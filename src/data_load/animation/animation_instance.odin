@@ -14,7 +14,7 @@ animation_instance_get :: proc(tag: string) -> (instance: ^Animation_Instance, o
     instance, ok = &global_manager[tag]
 
     if !ok {
-        log.errorf("Tried to get non-existent animation instance with tag %v.", tag)
+        log.errorf("Tried to get non-existent animation instance with tag %v", tag)
         return nil, false
     }
 

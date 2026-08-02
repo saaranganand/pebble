@@ -5,9 +5,7 @@ projectile_shell: {
   piercing: 1
   lifetime: 3
 
-  animation_controller: {
-    data_tag: "ray.animation"
-  }
+  animation_source: "ray.animation"
 }
 
 gcd_interval: 1.5

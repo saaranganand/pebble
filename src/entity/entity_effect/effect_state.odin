@@ -47,6 +47,7 @@ effect_state_create :: proc(
     return
 }
 
+/*
 effect_state_override_data :: proc(callback_data: ^Effect_Callback_Data, override_data: Effect_Fn_Data) -> (success: bool) {
     exisiting_data_type := callback_data.type
     expected_data_type := effect_fn_data_to_type(override_data)
@@ -56,6 +57,7 @@ effect_state_override_data :: proc(callback_data: ^Effect_Callback_Data, overrid
     callback_data.data = override_data
     return true
 }
+*/
 
 // TODO:
 // In both cases of refresh and extend, we currently only deal with timing values of the state.
@@ -108,7 +110,7 @@ effect_state_update :: proc(state: ^Effect_State, target_entity: ^entity.Entity)
             type = .TRIGGER, target = state.target,
             target_team = state.target_team,
             definition_id = state.instance.definition.unique_id,
-            magnitude = effect_fn_data_get_reaction_magnitude(state.callback_data.data)
+            magnitude = effect_fn_data_get_reaction_magnitude(state.callback_data)
         })
     }
 

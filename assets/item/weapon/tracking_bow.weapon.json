@@ -9,9 +9,7 @@ projectile_shell: {
   lifetime: 10
   shots: 6
 
-  animation_controller: {
-    data_tag: "arrow.animation"
-  }
+  animation_source: "arrow.animation"
 
   shape_length: 40
   shape_turn_speed: 3

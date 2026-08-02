@@ -57,12 +57,10 @@ game_create :: proc() {
     // This is because the number of total effect definitions is important for the ability to use
     // malloced arrays instead of dynamic ones.
     game.effect_manager = effect.effect_manager_create()
-    effect.effect_manager_load()
 
     game.entity_manager = entity.entity_manager_create()
-    game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.unique_definition_ids)
-    reaction.reaction_manager_load(game.effect_manager.definition_tag_to_id)
-
+    game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.unique_definition_ids, game.effect_manager.definition_tag_to_id)
+    
     game.weapon_manager = weapon.weapon_manager_create()
 
     game.projectile_manager = projectile.projectile_manager_create()

@@ -1,10 +1,10 @@
 package animation
 
-import util "../../util"
+import util "src:util"
 
+import filepath "core:path/filepath"
 import strings "core:strings"
 import log "core:log"
-import filepath "core:path/filepath"
 
 Animation_Manager :: map[string]Animation_Instance
 global_manager: Animation_Manager

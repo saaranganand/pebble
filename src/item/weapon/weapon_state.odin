@@ -10,6 +10,8 @@ import entity "src:entity"
 import color "src:util/color"
 import geo "src:geometry"
 
+import log "core:log"
+
 Weapon_State :: struct {
     definition: ^Weapon_Definition,
 
@@ -135,6 +137,8 @@ weapon_shoot :: proc(controller: ^Weapon_Controller, state: ^Weapon_State, shoot
     }
 
     // shoot callback
+    log.infof("shooting %v shots", proj_shell.shots)
+
     for i in 0..<proj_shell.shots {
         projectile.projectile_manager_spawn(proj_shell, shoot_position, controller.aim_angle)
     }

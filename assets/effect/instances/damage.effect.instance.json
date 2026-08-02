@@ -1,0 +1,5 @@
+definition_tag: "damage.effect.definition"
+
+callback_data: {
+  damage: 1
+}

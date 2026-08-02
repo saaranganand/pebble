@@ -37,9 +37,10 @@ resolve_collisions :: proc(
                         )
                         if !collision do continue
 
-                        effect_data := effect.effect_application_data_from_tag("damage", {}, entity_handle, check_entity.team)
-                        effect.effect_manager_queue_apply(effect_data, override = effect.Effect_Damage_Fn_Data{
-                            damage = check_projectile.damage
+                        effect_data := effect.effect_application_data_from_tag("damage.effect.instance", {}, entity_handle, check_entity.team)
+
+                        effect.effect_manager_queue_apply(effect_data, effect.Effect_Callback_Data_Override{
+                            tag = "damage", data = check_projectile.damage
                         })
 
                         if check_projectile.piercing > 0 do check_projectile.piercing -= 1

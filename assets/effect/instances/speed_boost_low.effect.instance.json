@@ -1,0 +1,7 @@
+definition_tag: "slow.effect.definition"
+
+duration: 15
+
+callback_data: {
+  mult: 1.25
+}
