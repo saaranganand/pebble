@@ -1,7 +1,6 @@
 package main
 
 import sdl "vendor:sdl3"
-import ttf "vendor:sdl3/ttf"
 
 import primatives "sdl_primatives"
 import entity "entity"
@@ -13,11 +12,12 @@ import horde "entity_horde"
 import collision "collision"
 import player "player"
 import hud "HUD"
-
 import camera "camera"
 import assets "assets" 
 import weapon "weapon"
 import input "input"
+
+import log "core:log"
 
 AIM_SIZE :: 8
 
@@ -52,8 +52,7 @@ game_loop :: proc() {
 game_create :: proc() {
     primatives.global_timer_init()
 
-    assets.global_init()
-
+    log.infof("\n\n\n\n==================== GAME INITIALIZATION ====================")
     // Effect manager must be created and loaded before other entity processes.
     // This is because the number of total effect definitions is important for the ability to use
     // malloced arrays instead of dynamic ones.
@@ -84,9 +83,13 @@ game_create :: proc() {
     camera.camera_set_follow(&game.player.tracking_position, 1)//0.05)
 
     game.hud = hud.create_hud({0,0}, {f32(app.window_width), f32(app.window_height)})
+
+    log.infof("\n\n\n\n==================== ENTERING GAME ====================")
 }
 
 game_destroy :: proc() {
+    log.infof("\n\n\n\n==================== GAME DE-INITIALIZATION ====================")
+
     hud.destroy_hud(&game.hud)
     program_system_destroy()
 

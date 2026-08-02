@@ -41,7 +41,7 @@ audio_entry_create :: proc(entry: ^Audio_Entry, tag, path: string, type: Audio_T
 audio_entry_destroy :: proc(entry: ^Audio_Entry, tag: string) {
     delete(entry.path)
 
-    if entry.state == .LOADED do audio_entry_unload(tag)
+    if entry.state == .LOADED do audio_unload(tag)
 
     // Destruction of the pool MUST be done after unloading the entry
     // Unloading an audio entry clears the pool, since we may be unloading audio before destroying it
@@ -68,8 +68,8 @@ audio_entry_get :: proc(tag: string, expected_state: util.Data_Load_State) -> (^
     return entry, true
 }
 
-audio_entry_load :: proc(tag: string) {
-    log.infof("Loading audio data %v", tag)
+audio_load :: proc(tag: string) {
+    log.infof("Loading audio %v", tag)
 
     entry, ok := audio_entry_get(tag, .UNLOADED)
     if !ok do return
@@ -91,7 +91,7 @@ audio_entry_load :: proc(tag: string) {
     entry.state = .LOADED
 }
 
-audio_entry_unload :: proc(tag: string) {
+audio_unload :: proc(tag: string) {
     entry, ok := audio_entry_get(tag, .LOADED)
     if !ok do return
 

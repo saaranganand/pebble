@@ -10,7 +10,7 @@ import fmt "core:fmt"
 import animation "../assets/animation"
 import primatives "../sdl_primatives"
 import img "../assets/img"
-import assets "../assets"
+import font "../assets/font"
 import color "../color"
 import geo "../geometry"
 
@@ -60,7 +60,7 @@ camera_create :: proc(width, height: f32) -> (camera: ^Camera) {
     camera.height = height
     camera.mode = .STATIONARY
 
-    camera.coordinate_text = assets.font_create_text("fonts/ubuntu.ttf", 24, "0,0")
+    camera.coordinate_text = font.font_create_text("ubuntu", 24, "0,0")
     color.sdl_set_text_color(camera.coordinate_text, color.Default_Palette_Color.BLACK)
 
 	return

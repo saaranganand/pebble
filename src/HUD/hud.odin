@@ -3,15 +3,12 @@ package HUD
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
-import primatives "../sdl_primatives"
+import font "../assets/font"
 import color "../color"
 import entity "../entity"
-import assets "../assets"
 import player "../player"
 import input "../input"
 import weapon "../weapon"
-
-import log "core:log"
 
 HUD :: struct {
     top_left, bottom_right: sdl.FPoint,
@@ -19,7 +16,7 @@ HUD :: struct {
 }
 
 create_hud :: proc(top_left, bottom_right: sdl.FPoint) -> (hud: HUD) {
-    hud.effect_duration_text = assets.font_create_text("fonts/ubuntu.ttf", 16, "0s")
+    hud.effect_duration_text = font.font_create_text("ubuntu", 16, "0s")
     color.sdl_set_text_color(hud.effect_duration_text, color.Default_Palette_Color.BLACK)
 
     hud.top_left = top_left

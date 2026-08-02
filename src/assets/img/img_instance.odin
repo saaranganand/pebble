@@ -37,7 +37,7 @@ img_load :: proc(tag: string) {
     instance, ok := img_get_instance(tag, .UNLOADED)
     if !ok do return
 
-    log.infof("Loading texture %v", instance.path)
+    log.infof("Loading texture %v", tag)
 
     instance.texture = sdl_img.LoadTexture(primatives.global_renderer, strings.unsafe_string_to_cstring(instance.path))
     sdl.SetTextureBlendMode(instance.texture, {.BLEND})
