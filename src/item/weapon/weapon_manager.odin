@@ -2,14 +2,11 @@ package weapon
 
 import sdl "vendor:sdl3"
 
-import yaml_parse "../data_load/yaml_parse"
 import data_load "src:data_load"
-import handle "../handle"
+import handle "src:handle"
 
 import runtime "base:runtime"
-import strings "core:strings"
 import log "core:log"
-import fmt "core:fmt"
 import mem "core:mem"
 
 @(private)

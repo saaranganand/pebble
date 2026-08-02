@@ -4,7 +4,7 @@ import sdl "vendor:sdl3"
 
 import log "core:log"
 
-import geo "../../geometry"
+import geo "src:geometry"
 import camera "src:camera"
 
 Follower_Registry :: struct {

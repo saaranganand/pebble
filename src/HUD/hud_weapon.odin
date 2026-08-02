@@ -2,7 +2,7 @@ package HUD
 
 import sdl "vendor:sdl3"
 
-import animation "../data_load/animation"
+import animation "src:data_load/animation"
 import primatives "src:sdl_primatives"
 import color "src:util/color"
 import weapon "src:item/weapon"

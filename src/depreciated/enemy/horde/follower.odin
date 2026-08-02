@@ -6,7 +6,7 @@ import rand "core:math/rand"
 import log "core:log"
 
 import primatives "src:sdl_primatives"
-import geo "../../geometry"
+import geo "src:geometry"
 
 @(private)
 follower_create :: proc(registry: ^Follower_Registry, follower_position: sdl.FPoint, follower_leader: Leader_Handle) -> Follower_Handle {

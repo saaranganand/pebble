@@ -5,7 +5,7 @@ import math "core:math"
 import rand "core:math/rand"
 import log "core:log"
 
-import geo "../../geometry"
+import geo "src:geometry"
 import color "src:util/color"
 
 // The horde is a group of enemies, each enemy being either a leader or a follower (both entities)

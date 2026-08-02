@@ -4,9 +4,9 @@ import sdl "vendor:sdl3"
 
 import primatives "src:sdl_primatives"
 import camera "src:camera"
-import handle "../handle"
+import handle "src:handle"
 import entity "src:entity"
-import geo "../geometry"
+import geo "src:geometry"
 
 import rand "core:math/rand"
 import log "core:log"

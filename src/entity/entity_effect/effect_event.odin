@@ -3,7 +3,7 @@ package effect
 import sdl "vendor:sdl3"
 
 import data_load "src:data_load"
-import handle "../handle"
+import handle "src:handle"
 import entity "src:entity"
 
 import log "core:log"

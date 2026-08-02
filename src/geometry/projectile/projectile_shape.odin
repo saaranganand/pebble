@@ -2,9 +2,9 @@ package projectile
 
 import yaml "../../../libs/odin-yaml"
 
-import yaml_parse "../../data_load/yaml_parse"
+import yaml_parse "src:data_load/yaml_parse"
 import entity "src:entity"
-import handle "../../handle"
+import handle "src:handle"
 
 import rand "core:math/rand"
 

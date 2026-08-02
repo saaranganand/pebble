@@ -5,8 +5,8 @@ import sdl "vendor:sdl3"
 import entity "src:entity"
 import effect "src:entity/entity_effect"
 import projectile "src:geometry/projectile"
-import handle "../handle"
-import geo "../geometry"
+import handle "src:handle"
+import geo "src:geometry"
 
 import log "core:log"
 

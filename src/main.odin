@@ -1,5 +1,6 @@
 package main
 
+import sdl_ttf "vendor:sdl3/ttf"
 import sdl "vendor:sdl3"
 
 import util "src:util"
@@ -39,7 +40,7 @@ main_init :: proc() {
     crash := !sdl.Init({.VIDEO})
     if crash do log.errorf("SDL init fail: %v", sdl.GetError())
 
-    crash = !ttf.Init()
+    crash = !sdl_ttf.Init()
     if crash do log.errorf("SDL ttf fail: %v", sdl.GetError())
     
     
@@ -53,7 +54,7 @@ main_fini :: proc() {
     app_destroy()
 
     // DE-INITIALIZATION
-    ttf.Quit()
+    sdl_ttf.Quit()
     sdl.Quit()
 
     when ODIN_DEBUG {

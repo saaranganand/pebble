@@ -4,8 +4,8 @@ import sdl "vendor:sdl3"
 
 import primatives "src:sdl_primatives"
 import entity "src:entity"
-import handle "../handle"
-import geo "../geometry"
+import handle "src:handle"
+import geo "src:geometry"
 
 
 import rand "core:math/rand"

@@ -1,6 +1,6 @@
 package effect
 
-import handle "../../handle"
+import handle "src:handle"
 import entity "src:entity"
 
 import log "core:log"

@@ -3,12 +3,12 @@ package weapon
 import sdl "vendor:sdl3"
 import primatives "src:sdl_primatives"
 
-import animation "../../data_load/animation"
+import animation "src:data_load/animation"
 import projectile "src:geometry/projectile"
 import camera "src:camera"
 import entity "src:entity"
 import color "src:util/color"
-import geo "../../geometry"
+import geo "src:geometry"
 
 Weapon_State :: struct {
     definition: ^Weapon_Definition,

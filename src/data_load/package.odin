@@ -1,7 +1,7 @@
 package data_load
 
 import load_group "load_group"
-import animation "animation"
+import animation "src:data_load/animation"
 import audio "audio"
 import font "font"
 import img "img"

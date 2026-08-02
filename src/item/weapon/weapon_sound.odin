@@ -2,7 +2,7 @@ package weapon
 
 import yaml "../../../libs/odin-yaml"
 
-import yaml_parse "../../data_load/yaml_parse"
+import yaml_parse "src:data_load/yaml_parse"
 import audio "../../data_load/audio"
 
 import strings "core:strings"

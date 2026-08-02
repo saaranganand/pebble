@@ -1,7 +1,7 @@
 package effect
 
 import primatives "src:sdl_primatives"
-import handle "../../handle"
+import handle "src:handle"
 import entity "src:entity"
 
 // This both stores all the instance-specific data about the effect, as well as the effect's state (aka its progress)

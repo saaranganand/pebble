@@ -2,7 +2,7 @@ package entity
 
 import sdl "vendor:sdl3"
 
-import handle "../handle"
+import handle "src:handle"
 
 import slice "core:slice"
 import rand "core:math/rand"

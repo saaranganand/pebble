@@ -7,12 +7,12 @@ import math "core:math"
 import log "core:log"
 import fmt "core:fmt"
 
-import animation "../data_load/animation"
+import animation "src:data_load/animation"
 import primatives "src:sdl_primatives"
 import img "../data_load/img"
 import font "../data_load/font"
 import color "src:util/color"
-import geo "../geometry"
+import geo "src:geometry"
 
 Camera_Mode :: enum { STATIONARY, FOLLOW }
 

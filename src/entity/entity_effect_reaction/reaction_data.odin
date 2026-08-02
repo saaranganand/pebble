@@ -2,7 +2,7 @@ package reaction
 
 import yaml "../../../libs/odin-yaml"
 
-import yaml_parse "../../data_load/yaml_parse"
+import yaml_parse "src:data_load/yaml_parse"
 import color "src:util/color"
 import data_load "src:data_load"
 import entity "src:entity"

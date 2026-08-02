@@ -2,7 +2,7 @@ package horde
 
 import sdl "vendor:sdl3"
 
-import handle "../handle"
+import handle "src:handle"
 
 @(private)
 global_horde_manager: Horde_Manager

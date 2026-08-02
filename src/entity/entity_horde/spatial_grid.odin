@@ -3,7 +3,7 @@ package horde
 import sdl "vendor:sdl3"
 
 import entity "src:entity"
-import handle "../handle"
+import handle "src:handle"
 
 import math "core:math"
 import log "core:log"

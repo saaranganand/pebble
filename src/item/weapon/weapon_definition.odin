@@ -1,12 +1,12 @@
 package weapon
 
-import yaml "../../libs/odin-yaml"
+import yaml "../../../libs/odin-yaml"
 
-import animation "../../data_load/animation"
+import animation "src:data_load/animation"
 import effect "src:entity/entity_effect"
 import projectile "src:geometry/projectile"
 import data_load "src:data_load"
-import yaml_parse "../../data_load/yaml_parse"
+import yaml_parse "src:data_load/yaml_parse"
 
 import runtime "base:runtime"
 import strings "core:strings"

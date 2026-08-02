@@ -1,20 +1,8 @@
 package weapon
 
-import sdl "vendor:sdl3"
-import yaml "../../libs/odin-yaml"
+import handle "src:handle"
 
-import effect "src:entity/entity_effect"
-import projectile "src:geometry/projectile"
-import data_load "src:data_load"
-import handle "../handle"
-import yaml_parse "../data_load/yaml_parse"
-
-import runtime "base:runtime"
-import strings "core:strings"
-import math "core:math"
 import log "core:log"
-import fmt "core:fmt"
-import mem "core:mem"
 
 Shoot_Callback :: proc(weapon: ^Weapon_State, owner: handle.Entity_Handle)
 Charge_Callback :: proc(weapon: ^Weapon_State, owner: handle.Entity_Handle)
