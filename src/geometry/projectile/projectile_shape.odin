@@ -21,6 +21,8 @@ Tracking_Line :: struct {
 }
 
 projectile_Shape_tracking_line_init :: proc(state: ^Projectile_State, tline: ^Tracking_Line) {
+    tline.tracking_team = entity.Team.ALLY
+    if state.team == .ALLY do tline.tracking_team = .ENEMY
     tline.tracking = entity.entity_manager_get_random_handle(tline.tracking_team)
 
     RANDOM_SPAWN_RANGE :: 10

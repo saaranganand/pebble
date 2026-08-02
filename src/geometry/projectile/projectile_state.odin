@@ -29,6 +29,12 @@ Projectile_Shell :: struct {
     shape_turn_speed: f32,
 }
 
+projectile_shell_add_defaults :: proc(shell: ^Projectile_Shell, team: entity.Team) {
+    if shell.shots == 0 do shell.shots = 1
+    if shell.scale == 0 do shell.scale = 1
+    shell.team = team
+}
+
 Projectile_State :: struct {
     active: bool,
     position: sdl.FPoint,

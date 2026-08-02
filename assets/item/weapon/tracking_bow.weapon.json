@@ -12,7 +12,7 @@ projectile_shell: {
   animation_source: "arrow.animation"
 
   shape_length: 40
-  shape_turn_speed: 3
+  shape_turn_speed: 6
 }
 
 gcd_interval: 0.5
