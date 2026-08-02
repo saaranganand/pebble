@@ -1,0 +1,21 @@
+category: "RANGED"
+
+projectile_shell: {
+  category: "RAY"
+  piercing: 1
+  lifetime: 3
+
+  animation_controller: {
+    data_tag: "ray.animation"
+  }
+}
+
+gcd_interval: 1.5
+damage: 30
+
+sounds: {
+  SELECT: "weapon_select.wav"
+  SHOOT: "weapon_shoot.wav"
+}
+animation_source: "bit_scope.animation"
+animation_default_angle: 0.0

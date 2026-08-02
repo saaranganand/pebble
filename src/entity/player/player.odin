@@ -2,13 +2,11 @@ package player_character
 
 import sdl "vendor:sdl3"
 
-import math "core:math"
-import log "core:log"
-
 import camera "src:camera"
 import entity "src:entity"
 import weapon "src:item/weapon"
 import color "src:util/color"
+import input "src:input"
 
 Player_Character :: struct {
     entity: entity.Entity_Handle,

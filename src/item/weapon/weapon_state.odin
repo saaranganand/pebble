@@ -14,7 +14,9 @@ Weapon_State :: struct {
     definition: ^Weapon_Definition,
 
     cooldown_counter: f32,
-    uses_since_cooldown: int,
+    uses_since_cooldown: uint,
+
+    owner_team: entity.Team,
 
     charging: bool,
     time_since_charge_start: f32,
@@ -22,7 +24,7 @@ Weapon_State :: struct {
     animation_controller: animation.Animation_Controller,
 }
 
-weapon_state_create :: proc(definition_tag: Weapon_Definition_Tag, team: entity.Team, animated: bool = false) -> (state: Weapon_State) {
+weapon_state_create :: proc(definition_tag: string, team: entity.Team, animated: bool = false) -> (state: Weapon_State) {
     state.definition = weapon_manager_get_definition(definition_tag)
 
     state.cooldown_counter = 0.0
@@ -31,7 +33,7 @@ weapon_state_create :: proc(definition_tag: Weapon_Definition_Tag, team: entity.
     state.charging = false
     state.time_since_charge_start = 0.0
 
-    state.definition.projectile_shell.team = team
+    state.owner_team = team
 
     state.animated = animated
     state.animation_controller = animation.animation_controller_create(state.definition.animation_source)
@@ -111,19 +113,21 @@ weapon_shoot :: proc(controller: ^Weapon_Controller, state: ^Weapon_State, shoot
     state.uses_since_cooldown += 1
     if state.uses_since_cooldown >= state.definition.uses_before_cooldown do state.cooldown_counter = state.definition.cooldown
 
+
+
     proj_shell := state.definition.projectile_shell
     proj_shell.damage = state.definition.damage
+    proj_shell.team = state.owner_team
 
     // charging
     if state.charging {
         charge_ratio := state.time_since_charge_start / state.definition.max_charge_time
         proj_shell.speed *= charge_ratio
         proj_shell.damage *= charge_ratio
-        proj_shell.piercing = max(int(f32(proj_shell.piercing) * charge_ratio), 1)
-        shape := proj_shell.shape.(projectile.Circle)
-        shape.radius *= charge_ratio
+        proj_shell.piercing = max(uint(f32(proj_shell.piercing) * charge_ratio), 1)
+        proj_shell.shape_radius *= charge_ratio
 
-        proj_shell.animation_controller.scale = 1 + 4 * charge_ratio
+        proj_shell.scale = 1 + state.definition.max_charge_time * charge_ratio
         
         sound_stop_loop(&state.definition.sounds, .CHARGE)
         state.charging = false

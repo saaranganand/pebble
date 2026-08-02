@@ -38,7 +38,7 @@ weapon_controller_init :: proc(controller: ^Weapon_Controller, draw_distance: f3
     controller.team = team
 }
 
-weapon_controller_add_weapon :: proc(controller: ^Weapon_Controller, definition_tag: Weapon_Definition_Tag, animated: bool = false) {
+weapon_controller_add_weapon :: proc(controller: ^Weapon_Controller, definition_tag: string, animated: bool = false) {
     append(&controller.weapons, weapon_state_create(definition_tag, controller.team, animated))
 }
 
@@ -56,7 +56,7 @@ weapon_controller_select_weapon_num :: proc(controller: ^Weapon_Controller, inde
     weapon_state_select(&controller.weapons[controller.active_weapon])    
 }
 
-weapon_controller_select_weapon_tag :: proc(controller: ^Weapon_Controller, definition_tag: Weapon_Definition_Tag) {
+weapon_controller_select_weapon_tag :: proc(controller: ^Weapon_Controller, definition_tag: string) {
     i := 0
     for weapon_state in controller.weapons {
         defer i += 1

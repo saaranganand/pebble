@@ -1,35 +1,26 @@
 package weapon
 
-import yaml "../../../libs/odin-yaml"
-
 import animation "src:data_load/animation"
 import effect "src:entity/entity_effect"
 import projectile "src:geometry/projectile"
-import data_load "src:data_load"
-import yaml_parse "src:data_load/yaml_parse"
 
-import runtime "base:runtime"
-import strings "core:strings"
-import math "core:math"
+import json "core:encoding/json"
 import log "core:log"
-import fmt "core:fmt"
-
-Weapon_Definition_Tag :: string
-Weapon_Definition_ID :: u32
+import os "core:os"
 
 Weapon_Definition :: struct {
-    unique_tag: Weapon_Definition_Tag,
-    unique_id: Weapon_Definition_ID,
+    unique_tag: string,
+    unique_id: uint,
     category: Category,
 
-    //shoot_callback: Shoot_Callback,
-    charge_callback: Charge_Callback,
+    shoot_callback: string,
+    charge_callback: string,
     
-    projectile_shell: projectile.Projectile_State,
+    projectile_shell: projectile.Projectile_Shell,
 
     gcd_interval: f32,
     cooldown: f32,
-    uses_before_cooldown: int,
+    uses_before_cooldown: uint,
     damage: f32,
 
     max_charge_time: f32,
@@ -39,6 +30,22 @@ Weapon_Definition :: struct {
     animation_default_angle: f32,
 }
 
+@(private)
+weapon_definition_load :: proc(definition: ^Weapon_Definition, path: string) {
+    data, err := os.read_entire_file(path, context.allocator)
+	if err != os.General_Error.None {
+        log.errorf("Failed to read animation file %v: %v", path, err)
+        return
+    }
+	defer delete(data)
+
+	json_err := json.unmarshal(data, definition, spec = .MJSON)
+	if json_err != nil {
+		log.errorf("Failed to parse animation json file %v: %v", path, json_err)
+		return
+	}
+}
+/*
 weapon_definition_load :: proc(
     pre_path, file_path: string, counter: ^Weapon_Definition_ID, arena_allocator: runtime.Allocator
 ) {
@@ -114,11 +121,11 @@ weapon_definition_load :: proc(
 
     log.debugf("Loaded weapon definition %v", file_path)
 }
-
+*/
 weapon_definition_unload :: proc(definition: ^Weapon_Definition) {
     delete(definition.unique_tag)
     delete(definition.animation_source)
     delete(definition.projectile_shell.animation_controller.data_tag)
-    if tag, ok := definition.projectile_shell.apply_effect.(effect.Effect_Instance_Tag); ok do delete(tag)
+    if tag, ok := definition.projectile_shell.apply_effect.(string); ok do delete(tag)
     sound_set_destroy(&definition.sounds)
 }

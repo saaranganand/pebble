@@ -1,0 +1,29 @@
+category: "CHARGE"
+
+charge_callback: "energy_charge"
+
+projectile_shell: {
+  category: "BULLET"
+  piercing: 10
+  speed: 4000
+  lifetime: 3
+
+  animation_controller: {
+    data_tag: "bullet.animation"
+  }
+
+  shape_radius: 20
+}
+
+gcd_interval: 1
+damage: 100
+
+max_charge_time: 4
+
+sounds: {
+  SELECT: "weapon_select.wav"
+  CHARGE: "weapon_charge.wav"
+  SHOOT: "weapon_shoot.wav"
+}
+animation_source: "energy_charge.animation"
+animation_default_angle: 0.0

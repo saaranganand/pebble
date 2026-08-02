@@ -64,7 +64,6 @@ game_create :: proc() {
     reaction.reaction_manager_load(game.effect_manager.definition_tag_to_id)
 
     game.weapon_manager = weapon.weapon_manager_create()
-    weapon.weapon_manager_load()
 
     game.projectile_manager = projectile.projectile_manager_create()
 
