@@ -5,9 +5,9 @@ import yaml "../../libs/odin-yaml"
 
 import effect "../entity_effect"
 import projectile "../projectile"
-import assets "../assets"
+import data_load "../data_load"
 import handle "../handle"
-import yaml_parse "../assets/yaml_parse"
+import yaml_parse "../data_load/yaml_parse"
 
 import runtime "base:runtime"
 import strings "core:strings"

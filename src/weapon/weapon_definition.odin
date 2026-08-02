@@ -2,11 +2,11 @@ package weapon
 
 import yaml "../../libs/odin-yaml"
 
-import animation "../assets/animation"
+import animation "../data_load/animation"
 import effect "../entity_effect"
 import projectile "../projectile"
-import assets "../assets"
-import yaml_parse "../assets/yaml_parse"
+import data_load "../data_load"
+import yaml_parse "../data_load/yaml_parse"
 
 import runtime "base:runtime"
 import strings "core:strings"
@@ -44,7 +44,7 @@ weapon_definition_load :: proc(
 ) {
     defer counter^ += 1
 
-    full_path := fmt.aprint(assets.DATA_TAG_DEFAULT_ASSET_FOLDER, file_path, sep = "")
+    full_path := fmt.aprint(data_load.DATA_TAG_DEFAULT_ASSET_FOLDER, file_path, sep = "")
     defer delete(full_path)
     data_map, map_ok := yaml_parse.get_yaml_mapping(full_path, arena_allocator)
     if !map_ok {
@@ -80,7 +80,7 @@ weapon_definition_load :: proc(
     new_definition.projectile_shell.lifetime = cast(f32) yaml_parse.read_value_from_map(projectile_map, "lifetime", f64, default = 0)
     new_definition.projectile_shell.total_lifetime = new_definition.projectile_shell.lifetime
     
-    new_data_tag := cast(assets.Data_Tag) strings.clone(
+    new_data_tag := cast(string) strings.clone(
         yaml_parse.read_value_from_map(projectile_map, "animation_source", string, default = "")
     )
     new_definition.projectile_shell.animation_controller = animation.animation_controller_create(new_data_tag)
@@ -100,7 +100,7 @@ weapon_definition_load :: proc(
         new_definition.charge_callback = weapon_charge_callback_get(custom_charge_callback)
     }
 
-    new_definition.animation_source = cast(assets.Data_Tag) strings.clone(
+    new_definition.animation_source = cast(string) strings.clone(
         yaml_parse.read_value_from_map(data_map, "animation_source", string, default = "")
     )
     

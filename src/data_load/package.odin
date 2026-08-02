@@ -1,4 +1,4 @@
-package assets
+package data_load
 
 import load_group "load_group"
 import animation "animation"

@@ -2,11 +2,11 @@ package projectile
 
 import sdl "vendor:sdl3"
 
-import animation "../assets/animation"
+import animation "../data_load/animation"
 import primatives "../sdl_primatives"
 import effect "../entity_effect"
 import entity "../entity"
-import assets "../assets"
+import data_load "../data_load"
 import geo "../geometry"
 
 import log "core:log"

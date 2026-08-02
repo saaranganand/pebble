@@ -13,7 +13,7 @@ import collision "collision"
 import player "player"
 import hud "HUD"
 import camera "camera"
-import assets "assets" 
+import data_load "data_load" 
 import weapon "weapon"
 import input "input"
 
@@ -111,7 +111,7 @@ game_destroy :: proc() {
     entity.entity_manager_destroy()
     effect.effect_manager_destroy()
 
-    assets.global_destroy()
+    data_load.global_destroy()
 }
 
 game_input :: proc() {

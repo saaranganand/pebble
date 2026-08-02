@@ -7,7 +7,7 @@ import log "core:log"
 
 import primatives "../sdl_primatives"
 import camera "../camera"
-import assets "../assets" 
+import data_load "../data_load" 
 import entity "../entity"
 import weapon "../weapon"
 import geo "../geometry"

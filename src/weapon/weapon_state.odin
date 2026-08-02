@@ -3,9 +3,9 @@ package weapon
 import sdl "vendor:sdl3"
 import primatives "../sdl_primatives"
 
-import animation "../assets/animation"
+import animation "../data_load/animation"
 import projectile "../projectile"
-import assets "../assets"
+import data_load "../data_load"
 import camera "../camera"
 import entity "../entity"
 import color "../color"

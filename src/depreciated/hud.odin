@@ -8,7 +8,7 @@ import ttf "vendor:sdl3/ttf"
 import primatives "sdl_primatives"
 import color "color"
 import entity "entity"
-import assets "assets"
+import data_load "assets"
 
 
 

@@ -2,7 +2,7 @@ package reaction
 
 import sdl "vendor:sdl3"
 
-import assets "../assets"
+import data_load "../data_load"
 import handle "../handle"
 import entity "../entity"
 import effect "../entity_effect"
@@ -59,7 +59,7 @@ reaction_manager_load :: proc(effect_definition_tag_to_id: effect.Effect_Definit
     defer delete(file_paths)
 
     pre_path := "data/effect/reactions/"
-    assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
+    data_load.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
 
     for path in file_paths {
         reaction_data_load(pre_path, path, effect_definition_tag_to_id, arena_alloc)

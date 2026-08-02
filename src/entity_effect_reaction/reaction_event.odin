@@ -3,9 +3,9 @@ package reaction
 import sdl "vendor:sdl3"
 import yaml "../../libs/odin-yaml"
 
-import yaml_parse "../assets/yaml_parse"
+import yaml_parse "../data_load/yaml_parse"
 import color "../color"
-import audio "../assets/audio"
+import audio "../data_load/audio"
 import handle "../handle"
 import entity "../entity"
 import effect "../entity_effect"

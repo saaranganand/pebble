@@ -2,8 +2,8 @@ package weapon
 
 import sdl "vendor:sdl3"
 
-import yaml_parse "../assets/yaml_parse"
-import assets "../assets"
+import yaml_parse "../data_load/yaml_parse"
+import data_load "../data_load"
 import handle "../handle"
 
 import runtime "base:runtime"
@@ -67,7 +67,7 @@ weapon_manager_load :: proc() {
     defer delete(file_paths)
 
     pre_path := "data/weapon/"
-    assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
+    data_load.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths)
 
     num_definitions := len(file_paths)
     global_weapon_manager.unique_definition_ids = cast(u32) num_definitions

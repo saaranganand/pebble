@@ -2,11 +2,11 @@ package entity
 
 import sdl "vendor:sdl3"
 
-import animation "../assets/animation"
+import animation "../data_load/animation"
 import primatives "../sdl_primatives"
 import camera "../camera"
 import handle "../handle"
-import assets "../assets"
+import data_load "../data_load"
 
 import log "core:log"
 
@@ -40,7 +40,7 @@ Entity :: struct {
 // Is used to allow outside sources to create an entity
 entity_make_data :: proc(
     position: sdl.FPoint, base_move_speed, max_health: f32, col_radius: f32, team: Team, category: Category,
-    animation_source_tag: assets.Data_Tag
+    animation_source_tag: string
 ) -> (data: Entity) {
     data.position = position
     data.move_direction = {0.0,0.0}

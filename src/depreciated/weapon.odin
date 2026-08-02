@@ -6,7 +6,7 @@ import sdl "vendor:sdl3"
 import "core:math"
 /*
 import primatives "sdl_primatives"
-import assets "assets" 
+import data_load "assets" 
 import entity "entity"
 import effect "entity_effect"
 import input "input"
@@ -51,7 +51,7 @@ update_bitpistol :: proc(bp: ^BitPistol, x: f32, y: f32, aimAngle: f32) {
         //effect_data := effect.effect_application_data_from_tag("burn_high", game.player.entity, game.player.entity)
         //effect.effect_manager_queue_apply(effect_data)
 
-        //assets.sound_play("sounds/silly/pirate_bell.wav")
+        //data_load.sound_play("sounds/silly/pirate_bell.wav")
         //spawn_bullet(pool, x, y, aimAngle, BulletType.BitPistol, cfg.damage, cfg.bullet_speed, cfg.bullet_size)
         bp.cooldown = 1.0 / cfg.fire_rate
     }

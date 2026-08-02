@@ -5,7 +5,7 @@ import ttf "vendor:sdl3/ttf"
 import log "core:log"
 
 import primatives "sdl_primatives"
-import assets "assets"
+import data_load "data_load"
 
 App :: struct {
     display_id: sdl.DisplayID,
@@ -64,7 +64,7 @@ app_create :: proc() {
     // configs
     if !load_configs() do log.errorf("Failed to load game config")
 
-    assets.global_init()
+    data_load.global_init()
 
     game_create()
 }

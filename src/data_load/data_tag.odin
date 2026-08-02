@@ -1,5 +1,5 @@
-package assets
-
+package data_load
+/*
 import sdl "vendor:sdl3"
 
 import strings "core:strings"
@@ -100,3 +100,4 @@ data_tag_process_precursors :: proc(precursors: ^[^][^]u8, num_precursors: i32, 
 
     return
 }
+*/

@@ -7,10 +7,10 @@ import math "core:math"
 import log "core:log"
 import fmt "core:fmt"
 
-import animation "../assets/animation"
+import animation "../data_load/animation"
 import primatives "../sdl_primatives"
-import img "../assets/img"
-import font "../assets/font"
+import img "../data_load/img"
+import font "../data_load/font"
 import color "../color"
 import geo "../geometry"
 

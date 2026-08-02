@@ -3,7 +3,7 @@ package effect
 import sdl "vendor:sdl3"
 
 import primatives "../sdl_primatives"
-import assets "../assets"
+import data_load "../data_load"
 import entity "../entity"
 
 import strings "core:strings"

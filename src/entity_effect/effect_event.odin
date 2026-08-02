@@ -2,7 +2,7 @@ package effect
 
 import sdl "vendor:sdl3"
 
-import assets "../assets"
+import data_load "../data_load"
 import handle "../handle"
 import entity "../entity"
 

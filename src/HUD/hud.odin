@@ -3,7 +3,7 @@ package HUD
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
-import font "../assets/font"
+import font "../data_load/font"
 import color "../color"
 import entity "../entity"
 import player "../player"

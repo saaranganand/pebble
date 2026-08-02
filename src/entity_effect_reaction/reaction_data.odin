@@ -3,9 +3,9 @@ package reaction
 import sdl "vendor:sdl3"
 import yaml "../../libs/odin-yaml"
 
-import yaml_parse "../assets/yaml_parse"
+import yaml_parse "../data_load/yaml_parse"
 import color "../color"
-import assets "../assets"
+import data_load "../data_load"
 import handle "../handle"
 import entity "../entity"
 import effect "../entity_effect"
@@ -18,7 +18,7 @@ import mem "core:mem"
 
 // For example, if an entity with an active burn effect should draw an animation of flames around them,
 // said animation will be accessed from this data source.
-REACTION_ANIMATION_SOURCE: assets.Data_Tag: "reactions.animation"
+REACTION_ANIMATION_SOURCE: string: "reactions.animation"
 
 
 Reaction_Data_Tag :: string
@@ -40,9 +40,9 @@ reaction_data_tag_destroy :: proc(tag: Reaction_Data_Tag) {
 // So, the allied player reaction set would contain a sound_on_trigger, and a external_animation_tag,
 // while the default reaction set would contain just an external_animation_tag.
 Reaction_Data :: struct {
-    apply_sound:  Maybe(assets.Data_Tag),
-    trigger_sound:   Maybe(assets.Data_Tag),
-    remove_sound: Maybe(assets.Data_Tag),
+    apply_sound:  Maybe(string),
+    trigger_sound:   Maybe(string),
+    remove_sound: Maybe(string),
 
     flash_color:    Maybe(color.Default_Palette_Color),
     flash_duration: f32,
@@ -76,13 +76,13 @@ reaction_data_empty_struct :: proc() -> (data: Reaction_Data) {
 }
 
 reaction_data_destroy :: proc(data: ^Reaction_Data) {
-    apply_sound, has_apply_sound := data.apply_sound.(assets.Data_Tag)
+    apply_sound, has_apply_sound := data.apply_sound.(string)
     if has_apply_sound do delete(cast(string) apply_sound)
 
-    trigger_sound, has_trigger_sound := data.trigger_sound.(assets.Data_Tag)
+    trigger_sound, has_trigger_sound := data.trigger_sound.(string)
     if has_trigger_sound do delete(cast(string) trigger_sound)
 
-    remove_sound, has_remove_sound := data.remove_sound.(assets.Data_Tag)
+    remove_sound, has_remove_sound := data.remove_sound.(string)
     if has_remove_sound do delete(cast(string) remove_sound)
 
     entity_animation_tag, has_entity_animation_tag := data.entity_animation_tag.(string)
@@ -121,7 +121,7 @@ reaction_data_load :: proc(
     pre_path, file_path: string, effect_definition_tag_to_id: effect.Effect_Definition_Tag_To_ID_Map,
     arena_allocator: runtime.Allocator
 ) {
-    full_path := fmt.aprint(assets.DATA_TAG_DEFAULT_ASSET_FOLDER, file_path, sep = "")
+    full_path := fmt.aprint(data_load.DATA_TAG_DEFAULT_ASSET_FOLDER, file_path, sep = "")
     defer delete(full_path)
     data_map, map_ok := yaml_parse.get_yaml_mapping(full_path, arena_allocator)
     if !map_ok {
@@ -163,13 +163,13 @@ reaction_data_read_yaml_map :: proc(yaml_map: yaml.Mapping) -> (data: Reaction_D
     combo_name = strings.clone(yaml_parse.read_value_from_map(yaml_map, "tag", string, default = ""))
 
     apply_sound := yaml_parse.read_value_from_map(yaml_map, "apply_sound", string, default = "")
-    if apply_sound != "" do data.apply_sound = cast(assets.Data_Tag) strings.clone(apply_sound)
+    if apply_sound != "" do data.apply_sound = cast(string) strings.clone(apply_sound)
 
     trigger_sound := yaml_parse.read_value_from_map(yaml_map, "trigger_sound", string, default = "")
-    if trigger_sound != "" do data.trigger_sound = cast(assets.Data_Tag) strings.clone(trigger_sound)
+    if trigger_sound != "" do data.trigger_sound = cast(string) strings.clone(trigger_sound)
 
     remove_sound := yaml_parse.read_value_from_map(yaml_map, "remove_sound", string, default = "")
-    if remove_sound != "" do data.remove_sound = cast(assets.Data_Tag) strings.clone(remove_sound)
+    if remove_sound != "" do data.remove_sound = cast(string) strings.clone(remove_sound)
 
     flash_color := yaml_parse.read_value_from_map(yaml_map, "flash_color", string, default = "")
     data.flash_color = color.default_palette_color_from_string(flash_color)

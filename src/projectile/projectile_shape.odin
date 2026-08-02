@@ -2,7 +2,7 @@ package projectile
 
 import yaml "../../libs/odin-yaml"
 
-import yaml_parse "../assets/yaml_parse"
+import yaml_parse "../data_load/yaml_parse"
 import entity "../entity"
 import handle "../handle"
 
