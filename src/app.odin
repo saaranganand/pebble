@@ -4,8 +4,8 @@ import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 import log "core:log"
 
-import primatives "sdl_primatives"
-import data_load "data_load"
+import primatives "src:sdl_primatives"
+import data_load "src:data_load"
 
 App :: struct {
     display_id: sdl.DisplayID,

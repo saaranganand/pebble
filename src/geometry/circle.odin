@@ -4,7 +4,7 @@ import sdl "vendor:sdl3"
 
 import math "core:math"
 
-import primatives "../sdl_primatives"
+import primatives "src:sdl_primatives"
 
 Circle :: struct {
     position: sdl.FPoint,

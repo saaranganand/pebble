@@ -1,12 +1,12 @@
 package main
 
 import sdl "vendor:sdl3"
-import ttf "vendor:sdl3/ttf"
-import img "vendor:sdl3/image"
+
+import util "src:util"
+
+import runtime "base:runtime"
 import mem "core:mem"
 import log "core:log"
-import util "util"
-import runtime "base:runtime"
 
 ORIGINAL_ALLOCATOR: runtime.Allocator
 

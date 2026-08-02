@@ -2,7 +2,7 @@ package font
 
 import sdl_ttf "vendor:sdl3/ttf"
 
-import primatives "../../sdl_primatives"
+import primatives "src:sdl_primatives"
 import util "../../util"
 
 import filepath "core:path/filepath"

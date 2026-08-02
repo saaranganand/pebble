@@ -4,11 +4,11 @@ import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
 import font "../data_load/font"
-import color "../color"
-import entity "../entity"
-import player "../player"
-import input "../input"
-import weapon "../weapon"
+import color "src:util/color"
+import entity "src:entity"
+import player "src:entity/player"
+import input "src:input"
+import weapon "src:item/weapon"
 
 HUD :: struct {
     top_left, bottom_right: sdl.FPoint,

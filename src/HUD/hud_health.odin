@@ -3,13 +3,8 @@ package HUD
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
-import primatives "../sdl_primatives"
-import color "../color"
-import entity "../entity"
-import data_load "../data_load"
-import player "../player"
-import input "../input"
-import weapon "../weapon"
+import primatives "src:sdl_primatives"
+import color "src:util/color"
 
 draw_hud_health_bar :: proc(health, max_health: f32) {
     HEALTH_BAR_WIDTH :: 300

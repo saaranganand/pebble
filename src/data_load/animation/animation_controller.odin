@@ -2,7 +2,7 @@ package animation
 
 import sdl "vendor:sdl3"
 
-import primatives "../../sdl_primatives"
+import primatives "src:sdl_primatives"
 import img "../img"
 
 import log "core:log"

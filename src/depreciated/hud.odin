@@ -5,10 +5,10 @@ package depreciated
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
-import primatives "sdl_primatives"
-import color "color"
-import entity "entity"
-import data_load "assets"
+import primatives "src:sdl_primatives"
+import color "src:util/color"
+import entity "src:entity"
+import data_load "src:data_load"
 
 
 

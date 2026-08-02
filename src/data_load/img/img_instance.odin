@@ -3,7 +3,7 @@ package img
 import sdl_img "vendor:sdl3/image"
 import sdl "vendor:sdl3"
 
-import primatives "../../sdl_primatives"
+import primatives "src:sdl_primatives"
 import util "../../util"
 
 import strings "core:strings"

@@ -2,7 +2,7 @@ package dep_horde
 
 import sdl "vendor:sdl3"
 
-import primatives "../../sdl_primatives"
+import primatives "src:sdl_primatives"
 import geo "../../geometry"
 
 Horde_Entity_Type :: enum { LEADER, FOLLOWER }

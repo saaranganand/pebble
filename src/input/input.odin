@@ -2,7 +2,7 @@ package input
 
 import sdl "vendor:sdl3"
 
-import weapon "../weapon"
+import weapon "src:item/weapon"
 import geo "../geometry"
 
 import log "core:log"

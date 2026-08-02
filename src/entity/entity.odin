@@ -3,10 +3,10 @@ package entity
 import sdl "vendor:sdl3"
 
 import animation "../data_load/animation"
-import primatives "../sdl_primatives"
-import camera "../camera"
+import primatives "src:sdl_primatives"
+import camera "src:camera"
 import handle "../handle"
-import data_load "../data_load"
+import data_load "src:data_load"
 
 import log "core:log"
 

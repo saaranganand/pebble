@@ -7,7 +7,7 @@ import fmt "core:fmt"
 import mem "core:mem"
 import strings "core:strings"
 
-//import horde "enemy/horde"
+//import horde "src:entity/entity_horde"
 
 
 // Weapon

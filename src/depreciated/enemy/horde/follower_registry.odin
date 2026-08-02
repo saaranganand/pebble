@@ -5,7 +5,7 @@ import sdl "vendor:sdl3"
 import log "core:log"
 
 import geo "../../geometry"
-import camera "../../camera"
+import camera "src:camera"
 
 Follower_Registry :: struct {
     tickets: [dynamic]Follower_Ticket,

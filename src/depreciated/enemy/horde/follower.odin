@@ -5,7 +5,7 @@ import math "core:math"
 import rand "core:math/rand"
 import log "core:log"
 
-import primatives "../../sdl_primatives"
+import primatives "src:sdl_primatives"
 import geo "../../geometry"
 
 @(private)

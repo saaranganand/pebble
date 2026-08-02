@@ -5,11 +5,11 @@ package depreciated
 import sdl "vendor:sdl3"
 import "core:math"
 /*
-import primatives "sdl_primatives"
-import data_load "assets" 
-import entity "entity"
-import effect "entity_effect"
-import input "input"
+import primatives "src:sdl_primatives"
+import data_load "src:data_load" 
+import entity "src:entity"
+import effect "src:entity/entity_effect"
+import input "src:input"
 
 WeaponCategory :: enum {
     Manual,
