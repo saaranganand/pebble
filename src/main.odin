@@ -1,12 +1,13 @@
 package main
 
+import sdl_ttf "vendor:sdl3/ttf"
 import sdl "vendor:sdl3"
-import ttf "vendor:sdl3/ttf"
-import img "vendor:sdl3/image"
+
+import util "src:util"
+
+import runtime "base:runtime"
 import mem "core:mem"
 import log "core:log"
-import util "util"
-import runtime "base:runtime"
 
 ORIGINAL_ALLOCATOR: runtime.Allocator
 
@@ -39,7 +40,7 @@ main_init :: proc() {
     crash := !sdl.Init({.VIDEO})
     if crash do log.errorf("SDL init fail: %v", sdl.GetError())
 
-    crash = !ttf.Init()
+    crash = !sdl_ttf.Init()
     if crash do log.errorf("SDL ttf fail: %v", sdl.GetError())
     
     
@@ -53,7 +54,7 @@ main_fini :: proc() {
     app_destroy()
 
     // DE-INITIALIZATION
-    ttf.Quit()
+    sdl_ttf.Quit()
     sdl.Quit()
 
     when ODIN_DEBUG {
@@ -64,12 +65,4 @@ main_fini :: proc() {
     util.destroy_file_logger()
 
     when ODIN_DEBUG do util.destroy_tracking_alloc()
-}
-
-reset_auto_weapons :: proc(player: ^Player, pool: ^PingWavePool) {
-    player.ping.is_active = false
-    for &w in pool.waves {
-        w.alive = false
-    }
-    player.daemon.is_active = false
 }

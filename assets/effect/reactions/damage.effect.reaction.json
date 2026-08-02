@@ -1,0 +1,11 @@
+definition_tag: "damage.effect.definition"
+
+default_reaction_data: {
+  trigger_sound: "burn_tick.wav"
+
+  flash_color: "RED"
+  flash_duration: 0.25
+
+  show_damage_number: true
+  show_damage_number_color: "RED"
+}

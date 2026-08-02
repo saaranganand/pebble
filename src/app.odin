@@ -4,7 +4,8 @@ import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 import log "core:log"
 
-import primatives "sdl_primatives"
+import primatives "src:sdl_primatives"
+import data_load "src:data_load"
 
 App :: struct {
     display_id: sdl.DisplayID,
@@ -42,6 +43,7 @@ app_loop :: proc() -> bool {
 }
 
 app_create :: proc() {
+    log.infof("\n\n\n\n==================== APP INITIALIZATION ====================")
     app = new(App)
 
     app.window_width = 800
@@ -62,11 +64,15 @@ app_create :: proc() {
     // configs
     if !load_configs() do log.errorf("Failed to load game config")
 
+    data_load.global_init()
+
     game_create()
 }
 
 app_destroy :: proc() {
     game_destroy()
+
+    log.infof("\n\n\n\n==================== APP DE-INITIALIZATION ====================")
 
     primatives.global_renderer_destroy()
     primatives.global_window_destroy()

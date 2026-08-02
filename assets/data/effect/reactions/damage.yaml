@@ -1,8 +1,0 @@
-definition: damage
-
-default_reaction_data:
-  flash_color: RED
-  flash_duration: 0.25
-  trigger_sound: sounds/effects/burn_tick.wav
-  show_damage_number: true
-  damage_number_color: RED

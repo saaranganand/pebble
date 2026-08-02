@@ -5,8 +5,8 @@ import math "core:math"
 import rand "core:math/rand"
 import log "core:log"
 
-import primatives "../../sdl_primatives"
-import geo "../../geometry"
+import primatives "src:sdl_primatives"
+import geo "src:geometry"
 
 @(private)
 leader_create :: proc(registry: ^Leader_Registry, leader_position: sdl.FPoint, leader_target: ^sdl.FPoint) -> Leader_Handle {

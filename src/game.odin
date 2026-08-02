@@ -1,42 +1,43 @@
 package main
 
 import sdl "vendor:sdl3"
-import ttf "vendor:sdl3/ttf"
 
-import primatives "sdl_primatives"
-import entity "entity"
-import effect "entity_effect"
-import reaction "entity_effect_reaction"
-import projectile "projectile"
-import color "color"
-import horde "entity_horde"
-import collision "collision"
+import reaction   "src:entity/entity_effect_reaction"
+import effect     "src:entity/entity_effect"
+import horde      "src:entity/entity_horde"
+import projectile "src:geometry/projectile"
+import collision  "src:geometry/collision"
+import primatives "src:sdl_primatives"
+import player     "src:entity/player"
+import weapon     "src:item/weapon"
+import color      "src:util/color"
+import data_load  "src:data_load"
+import camera     "src:camera"
+import entity     "src:entity"
+import input      "src:input"
+import hud        "src:HUD"
 
-import camera "camera"
-import assets "assets" 
-import weapon "weapon"
-import input "input"
+import log "core:log"
 
-AIM_DIST :: 50
 AIM_SIZE :: 8
 
 TILE_SIZE :: 64
 
 game := struct {
-    player: Player,
+    player: player.Player_Character,
     bullets: BulletPool,
     waves: PingWavePool,
-    //enemies: EnemyPool,
+
     game_over: bool,
     input: input.Input,
-    //horde: horde.Horde,
+
     horde_manager: ^horde.Horde_Manager,
     effect_manager: ^effect.Effect_Manager,
     entity_manager: ^entity.Entity_Manager,
     reaction_manager: ^reaction.Reaction_Manager,
     weapon_manager: ^weapon.Weapon_Manager,
     projectile_manager: ^projectile.Projectile_Manager,
-    hud: HUD,
+    hud: hud.HUD,
 }{}
 
 game_loop :: proc() {
@@ -48,49 +49,25 @@ game_loop :: proc() {
     game_draw()
 }
 
-/*
-main :: proc() {
-    
-
-    // scope crosshair
-    crosshair_surface := img.Load("assets/crosshair.png")
-    crosshair_cursor := sdl.CreateColorCursor(crosshair_surface, 32, 32)
-    sdl.DestroySurface(crosshair_surface)
-    _ =sdl.SetCursor(crosshair_cursor)
-    defer sdl.DestroyCursor(crosshair_cursor)
-
-    // trace missile
-    trace_tex := img.LoadTexture(primatives.global_renderer, "assets/trace.png")
-    defer sdl.DestroyTexture(trace_tex)
-
-    
-
-    // setup
-}
-    */
 game_create :: proc() {
     primatives.global_timer_init()
 
-    assets.global_init()
-
+    log.infof("\n\n\n\n==================== GAME INITIALIZATION ====================")
     // Effect manager must be created and loaded before other entity processes.
     // This is because the number of total effect definitions is important for the ability to use
     // malloced arrays instead of dynamic ones.
     game.effect_manager = effect.effect_manager_create()
-    effect.effect_manager_load()
 
     game.entity_manager = entity.entity_manager_create()
-    game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.unique_definition_ids)
-    reaction.reaction_manager_load(game.effect_manager.definition_tag_to_id)
-
+    game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.unique_definition_ids, game.effect_manager.definition_tag_to_id)
+    
     game.weapon_manager = weapon.weapon_manager_create()
-    weapon.weapon_manager_load()
 
     game.projectile_manager = projectile.projectile_manager_create()
 
     program_system_create()
 
-    game.player = player_init()
+    game.player = player.player_init()
 
     game.horde_manager = horde.horde_manager_create()
     horde.horde_manager_spawn_horde({0,0}, game.player.entity)
@@ -102,11 +79,15 @@ game_create :: proc() {
     camera.global_camera_create(f32(app.window_width), f32(app.window_height))
     camera.camera_set_follow(&game.player.tracking_position, 1)//0.05)
 
-    game.hud = create_hud()
+    game.hud = hud.create_hud({0,0}, {f32(app.window_width), f32(app.window_height)})
+
+    log.infof("\n\n\n\n==================== ENTERING GAME ====================")
 }
 
 game_destroy :: proc() {
-    destroy_hud(&game.hud)
+    log.infof("\n\n\n\n==================== GAME DE-INITIALIZATION ====================")
+
+    hud.destroy_hud(&game.hud)
     program_system_destroy()
 
     //data.global_manager_destroy()
@@ -115,7 +96,7 @@ game_destroy :: proc() {
 
     //horde.destroy(&game.horde)
 
-    player_destroy(&game.player)
+    player.player_destroy(&game.player)
 
     projectile.projectile_manager_destroy()
 
@@ -127,11 +108,11 @@ game_destroy :: proc() {
     entity.entity_manager_destroy()
     effect.effect_manager_destroy()
 
-    assets.global_destroy()
+    data_load.global_destroy()
 }
 
 game_input :: proc() {
-    game.input = input.process_input()
+    game.input = input.process_input(&game.player.weapon_controller)
 }
 /*case sdl.K_1:
                         player.active_category = WeaponCategory.Manual
@@ -151,16 +132,12 @@ game_input :: proc() {
                 }*/
 
 game_update :: proc() {
-    apply_movement_penalty()
-
-    update_player()
+    player.update_player(&game.player, game.input)
     update_bullets()    
 
     horde.horde_manager_update()
 
     entity.entity_manager_update()
-
-    update_waves()
 
     projectile.projectile_manager_update()
 
@@ -205,60 +182,19 @@ game_update :: proc() {
     
 }
 
-draw_background :: proc() {
-    space_width := f32(app.window_width)
-    space_height := f32(app.window_height)
-
-    /*
-    // bg texture
-    color.sdl_set_color(color.Default_Palette_Color.BLACK)
-
-    x := -math.mod(cam.x, f32(TILE_SIZE))
-    for x < space_width {
-        sdl.RenderLine(primatives.global_renderer, x, 0, x, space_height)
-        x += TILE_SIZE
-    }
-
-    y := -math.mod(cam.y, f32(TILE_SIZE))
-    for y < space_height {
-        sdl.RenderLine(primatives.global_renderer, 0, y, space_width, y)
-        y += TILE_SIZE
-    }*/
-}
-
 game_draw :: proc() {
     color.sdl_set_color(color.Default_Palette_Color.WHITE)
     sdl.RenderClear(primatives.global_renderer)
 
     // drawing
     camera.camera_draw_grid()
-    draw_background()
-
-    //horde.horde_manager_draw()
 
     entity.entity_manager_draw()
-
-    draw_player()
-
     projectile.projectile_manager_draw()
 
-    //horde.draw(&game.horde)
+    player.draw_player_accessories(&game.player)
 
-    draw_hud()
-    draw_bullets()
-    draw_ping_waves()
+    hud.draw_hud(&game.hud, &game.player, game.input)
 
-    camera.camera_draw_center_lines()
-    
-    
-    /*
-    if player.active_category == .Hold && player.weaponHold == .Bus {
-        detect_bus_damage(&enemies, player.bus, player.x, player.y, player.aimAngle, input, dt)
-        draw_bus(player.bus, input, player.x, player.y, player.aimAngle)
-    }
-    if player.daemon.is_active {
-        draw_daemon(player.daemon)
-    }*/
-
-    //draw_enemies()
+    //camera.camera_draw_center_lines()
 }

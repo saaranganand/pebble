@@ -2,8 +2,8 @@ package depreciated
 import sdl "vendor:sdl3"
 import "core:math"
 
-import primatives "../sdl_primatives"
-import color "../color"
+import primatives "src:sdl_primatives"
+import color "src:util/color"
 
 Camera :: struct {
     x, y: f32

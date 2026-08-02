@@ -1,7 +1,0 @@
-definition: "gravity"
-duration: 15.0
-interval: 0.0
-callback_type: "position"
-# data
-direction: {x: 0.0, y: 1.0}
-speed: 50.0

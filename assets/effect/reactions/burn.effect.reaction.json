@@ -1,0 +1,25 @@
+definition_tag: "burn.effect.definition"
+
+default_reaction_data: {
+  flash_color: "RED"
+  trigger_sound: "burn_tick.wav"
+  flash_duration: 0.25
+}
+
+reaction_data_map: {
+  "ALLY,PLAYER": {
+    trigger_sound: "burn_tick.wav"
+
+    flash_color: "RED"
+    flash_duration: 0.15
+
+    external_animation_tag: "flame_small.animation"
+
+    show_damage_number: true
+    show_damage_number_color: "RED"
+  }
+
+  "ANY,NPC": {
+    external_animation_tag: "flame_small.animation"
+  }
+}

@@ -2,8 +2,10 @@ package entity
 
 import sdl "vendor:sdl3"
 
-import handle "../handle"
+import handle "src:handle"
 
+import slice "core:slice"
+import rand "core:math/rand"
 import log "core:log"
 
 @(private)
@@ -42,6 +44,19 @@ entity_get :: proc(entity_handle: Entity_Handle, team: Team) -> (entity: ^Entity
     return 
 }
 
+entity_manager_get_random_handle :: proc(team: Team) -> Entity_Handle{
+    pool_free_list := global_entity_manager.pools[team].free_list
+    pool_data := global_entity_manager.pools[team].data
+    pool_gens := global_entity_manager.pools[team].generations
+
+    if len(pool_data) <= 0 || len(pool_data) == len(pool_free_list) do return Entity_Handle{}
+
+    option := rand.int32_range(0, cast(i32) len(pool_data))
+    for slice.contains(pool_free_list[:], cast(u32) option) do option = rand.int32_range(0, cast(i32) len(pool_data))
+
+    return Entity_Handle{ cast(u32) option, pool_gens[option] }
+}
+
 entity_manager_add_entity :: proc(entity_data: Entity) -> (new_handle: Entity_Handle) {
     new_entity := entity_data
     entity_create(&new_entity)
@@ -55,8 +70,6 @@ entity_manager_add_entity :: proc(entity_data: Entity) -> (new_handle: Entity_Ha
     }
     entity_give_handle.own_handle = new_handle
     
-    log.debugf("Adding entity with handle %v", new_handle)
-
     return 
 }
 

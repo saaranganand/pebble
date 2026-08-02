@@ -5,8 +5,8 @@ import math "core:math"
 import rand "core:math/rand"
 import log "core:log"
 
-import geo "../../geometry"
-import color "../../color"
+import geo "src:geometry"
+import color "src:util/color"
 
 // The horde is a group of enemies, each enemy being either a leader or a follower (both entities)
 // Leaders are smart and pathfind towards the player,
@@ -24,7 +24,7 @@ import color "../../color"
 // Instead of leaving dead entities in the data array and skipping them on iteration,
 // entities are removed on death, using unordered remove.
 // This messes with the handles, but can be solved with two arrays:
-// tickets is a dynamic array of tickets. It is what handles point to, and tickets themselves point to assets.
+// tickets is a dynamic array of tickets. It is what handles point to, and tickets themselves point to data_load.
 // The next is an array that shadows data, and acts as a reverse lookup table. It answers: whats the index into the ticket array
 // for the ticket that points to entity at index i? The array at index i holds an index j, which is the ticket.
 // This would be used to find the ticket that needs to be updated when entity a dies, and is replaced with entity b at the end of the array --
