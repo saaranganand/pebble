@@ -116,10 +116,9 @@ projectile_state_check_collision :: proc(state: Projectile_State, circle: geo.Ci
 
 projectile_state_update :: proc(state: ^Projectile_State, index: uint) {
     if !state.active do return
-    defer state.lifetime -= primatives.dt
+    defer state.total_lifetime += primatives.dt
 
-    if state.category == .RAY && state.lifetime < state.total_lifetime do projectile_manager_remove(index, state.team, state.category)
-    if state.lifetime <= 0 do projectile_manager_remove(index, state.team, state.category)
+    if state.total_lifetime > state.lifetime do projectile_manager_remove(index, state.team, state.category)
     if state.piercing == 0 do projectile_manager_remove(index, state.team, state.category)
 
     switch state.category {
