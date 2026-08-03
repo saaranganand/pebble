@@ -21,7 +21,6 @@ Projectile_State :: struct {
     piercing: uint, // Determines how many times a fired projectile can register a hit before it is destroyed, -1 means ad infinitum
     speed: f32,
     lifetime: f32,
-    shots: uint,
 
     apply_effect: Maybe(string),
     animation_controller: animation.Animation_Controller,
@@ -41,7 +40,6 @@ projectile_state_init :: proc(shell: Projectile_Shell, position: sdl.FPoint, sho
     state.piercing = shell.piercing
     state.speed = shell.speed
     state.lifetime = shell.lifetime
-    state.shots = max(1, shell.shots) 
 
     state.apply_effect = shell.apply_effect
     state.animation_controller = animation.animation_controller_create(shell.animation_source, shell.scale)
@@ -59,8 +57,8 @@ projectile_state_check_collision :: proc(state: Projectile_State, circle: geo.Ci
 }
 
 projectile_state_check_lifetime :: proc(state: ^Projectile_State, index: uint) {
-    if state.total_lifetime > state.lifetime do projectile_manager_remove(index, state.team, state.category)
-    if state.piercing == 0 do projectile_manager_remove(index, state.team, state.category)
+    if state.total_lifetime > state.lifetime do projectile_manager_remove(index, state.team)
+    if state.piercing == 0 do projectile_manager_remove(index, state.team)
 
     state.total_lifetime += primatives.dt
 }
