@@ -16,7 +16,7 @@ Weapon_Definition :: struct {
     shoot_callback: string,
     charge_callback: string,
     
-    projectile_shell: projectile.Projectile_Shell,
+    projectile_shell: projectile.Shell,
 
     gcd_interval: f32,
     cooldown: f32,

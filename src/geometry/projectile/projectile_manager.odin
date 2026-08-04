@@ -10,14 +10,20 @@ import xar "core:container/xar"
 global_projectile_manager: Projectile_Manager
 
 Projectile_Manager :: struct {
-    lists: [entity.Team]xar.Array(Projectile_State, 8),
-    remove_queues: [entity.Team][dynamic]uint,
+    projectiles: [entity.Team]xar.Array(State, 8),
+    projectile_remove_queues: [entity.Team][dynamic]uint,
+
+    tracking_arrows: [entity.Team]xar.Array(Tracking_Arrow_State, 8),
+    tracking_arrow_remove_queues: [entity.Team][dynamic]uint,
 }
 
 projectile_manager_create :: proc() -> ^Projectile_Manager {
     for team in entity.Team {
-        xar.array_init(&global_projectile_manager.lists[team])
-        global_projectile_manager.remove_queues[team] = make([dynamic]uint)
+        xar.array_init(&global_projectile_manager.projectiles[team])
+        global_projectile_manager.projectile_remove_queues[team] = make([dynamic]uint)
+
+        xar.array_init(&global_projectile_manager.tracking_arrows[team])
+        global_projectile_manager.tracking_arrow_remove_queues[team] = make([dynamic]uint)
     }
     
     return &global_projectile_manager
@@ -25,8 +31,11 @@ projectile_manager_create :: proc() -> ^Projectile_Manager {
 
 projectile_manager_destroy :: proc() {
     for team in entity.Team {
-        xar.array_destroy(&global_projectile_manager.lists[team])
-        delete(global_projectile_manager.remove_queues[team])
+        xar.array_destroy(&global_projectile_manager.projectiles[team])
+        delete(global_projectile_manager.projectile_remove_queues[team])
+
+        xar.array_destroy(&global_projectile_manager.tracking_arrows[team])
+        delete(global_projectile_manager.tracking_arrow_remove_queues[team])
     }
 }
 
@@ -39,57 +48,84 @@ projectile_manager_destroy :: proc() {
 // Thus, it makes more sense to use XAR's destroy on clear rather than XAR's "clear".
 projectile_manager_clear :: proc() {
     for team in entity.Team {
-        xar.array_destroy(&global_projectile_manager.lists[team])
-        xar.array_init(&global_projectile_manager.lists[team])
+        xar.array_destroy(&global_projectile_manager.projectiles[team])
+        xar.array_init(&global_projectile_manager.projectiles[team])
 
-        clear(&global_projectile_manager.remove_queues[team])
+        clear(&global_projectile_manager.projectile_remove_queues[team])
+
+        xar.array_destroy(&global_projectile_manager.tracking_arrows[team])
+        xar.array_init(&global_projectile_manager.tracking_arrows[team])
+
+        clear(&global_projectile_manager.tracking_arrow_remove_queues[team])
     }
 }
 
 // Recycle is what we will use as a traditional "clear". This would be used for things like going from room to room
 projectile_manager_recycle :: proc() {
     for team in entity.Team {
-        xar.array_clear(&global_projectile_manager.lists[team])
-        clear(&global_projectile_manager.remove_queues[team])
+        xar.array_clear(&global_projectile_manager.projectiles[team])
+        clear(&global_projectile_manager.projectile_remove_queues[team])
+
+        xar.array_clear(&global_projectile_manager.tracking_arrows[team])
+        clear(&global_projectile_manager.tracking_arrow_remove_queues[team])
     }
 }
 
-projectile_manager_spawn :: proc(shell: Projectile_Shell, position: sdl.FPoint, shoot_angle: f32) {
-    state := projectile_state_init(shell, position, shoot_angle)
-
-    xar.array_push_back_elem(&global_projectile_manager.lists[shell.team], state)
+projectile_manager_spawn :: proc(shell: Shell, position: sdl.FPoint, shoot_angle: f32) {
+    if shell.category == .TRACKING_ARROW {
+        tracking_arrow_spawn(shell, position, shoot_angle)
+        return
+    }
+    state_spawn(shell, position, shoot_angle)
 }
 
-projectile_manager_remove :: proc(index: uint, team: entity.Team) {
-    append(&global_projectile_manager.remove_queues[team], index)
+projectile_manager_remove :: proc(index: uint, team: entity.Team, category: Category) {
+    if category == .TRACKING_ARROW {
+        append(&global_projectile_manager.tracking_arrow_remove_queues[team], index)
+        return
+    }
+
+    append(&global_projectile_manager.projectile_remove_queues[team], index)
 }
 
 projectile_manager_update :: proc() {
     for team in entity.Team {
-        list := &global_projectile_manager.lists[team]
+        projectiles_update(team)
 
-        it := xar.iterator(list)
-        for state, idx in xar.iterate_by_ptr(&it) {
-            projectile_state_update(state, uint(idx))
-        }
-
-        queue := &global_projectile_manager.remove_queues[team]
-
-        #reverse for idx in queue {
-            xar.unordered_remove(list, idx)
-        }
-
-        clear(queue)
+        tracking_arrows_update(team)
     }
+}
+
+projectiles_update :: proc(team: entity.Team) {
+    list := &global_projectile_manager.projectiles[team]
+
+    it := xar.iterator(list)
+    for state, idx in xar.iterate_by_ptr(&it) {
+        state_update(state, uint(idx))
+    }
+
+    queue := &global_projectile_manager.projectile_remove_queues[team]
+
+    #reverse for idx in queue {
+        xar.unordered_remove(list, idx)
+    }
+
+    clear(queue)
 }
 
 projectile_manager_draw :: proc() {
     for team in entity.Team {
-        list := &global_projectile_manager.lists[team]
+        projectiles_draw(team)
 
-        it := xar.iterator(list)
-        for state, idx in xar.iterate_by_ptr(&it) {
-            projectile_state_draw(state)
-        }
+        tracking_arrows_draw(team)
+    }
+}
+
+projectiles_draw :: proc(team: entity.Team) {
+    list := &global_projectile_manager.projectiles[team]
+
+    it := xar.iterator(list)
+    for state, idx in xar.iterate_by_ptr(&it) {
+        state_draw(state)
     }
 }

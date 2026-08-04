@@ -4,7 +4,7 @@ import entity "src:entity"
 
 // Used for a go-between for loading weapons from json and spawning projectiles from weapons
 // Contains the needed information to spawn projectile states, at which point th
-Projectile_Shell :: struct {
+Shell :: struct {
     category: Category,
     team: entity.Team,
     damage: f32,
@@ -22,7 +22,7 @@ Projectile_Shell :: struct {
     shape_turn_speed: f32,
 }
 
-projectile_shell_add_defaults :: proc(shell: ^Projectile_Shell, team: entity.Team) {
+shell_add_defaults :: proc(shell: ^Shell, team: entity.Team) {
     if shell.shots == 0 do shell.shots = 1
     if shell.scale == 0 do shell.scale = 1
     shell.team = team

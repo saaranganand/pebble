@@ -2,30 +2,27 @@ package projectile
 
 import sdl "vendor:sdl3"
 
-import primatives "src:sdl_primatives"
 import camera "src:camera"
-import entity "src:entity"
 import geo "src:geometry"
 
 import math "core:math"
 
-projectile_draw_proc :: proc(state: ^Projectile_State)
+draw_proc :: proc(state: ^State)
 
 @(rodata)
-projectile_draw_procs := [Category]projectile_draw_proc{
+draw_procs := #partial [Category]draw_proc{
     .BULLET         = default_draw,
     .RAY            = ray_draw,
 	.AOE            = default_draw,
 	.RADIAL         = default_draw,
-	.LINE           = default_line_draw,
-	.TRACKING_ARROW = default_line_draw,
+	.LINE           = default_line_draw
 }
 
-default_draw :: proc(state: ^Projectile_State) {
+default_draw :: proc(state: ^State) {
     camera.camera_draw_animation(&state.animation_controller, state.position)
 }
 
-ray_draw :: proc(state: ^Projectile_State) {
+ray_draw :: proc(state: ^State) {
     start_pos := state.position
     camera_bounds: sdl.FRect = {
         camera.global_camera.position.x - camera.global_camera.width / 2.0,
@@ -49,6 +46,6 @@ ray_draw :: proc(state: ^Projectile_State) {
     }
 }
 
-default_line_draw :: proc(state: ^Projectile_State) {
+default_line_draw :: proc(state: ^State) {
     camera.camera_draw_animation(&state.animation_controller, state.position, f64(state.shoot_angle))
 }
