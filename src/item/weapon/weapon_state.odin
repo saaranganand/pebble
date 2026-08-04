@@ -119,7 +119,7 @@ weapon_shoot :: proc(controller: ^Weapon_Controller, state: ^Weapon_State, shoot
 
     proj_shell := &state.definition.projectile_shell
     
-    projectile.projectile_shell_add_defaults(proj_shell, state.owner_team)
+    projectile.shell_add_defaults(proj_shell, state.owner_team)
 
     proj_shell.damage = state.definition.damage
     proj_shell.team = state.owner_team

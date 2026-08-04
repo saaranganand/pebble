@@ -1,11 +1,12 @@
 package weapon
 
 import handle "src:handle"
+import util "src:util"
 
 import log "core:log"
 
-Shoot_Callback :: proc(weapon: ^Weapon_State, owner: handle.Entity_Handle)
-Charge_Callback :: proc(weapon: ^Weapon_State, owner: handle.Entity_Handle)
+Shoot_Callback :: proc(weapon: ^Weapon_State, owner: util.Handle)
+Charge_Callback :: proc(weapon: ^Weapon_State, owner: util.Handle)
 
 weapon_charge_callback_get :: proc(name: string) -> Charge_Callback {
     switch name {
@@ -17,6 +18,6 @@ weapon_charge_callback_get :: proc(name: string) -> Charge_Callback {
     return nil
 }
 
-energy_charge_callback :: proc(weapon: ^Weapon_State, owner: handle.Entity_Handle) {
+energy_charge_callback :: proc(weapon: ^Weapon_State, owner: util.Handle) {
 
 }

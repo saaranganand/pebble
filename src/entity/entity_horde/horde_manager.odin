@@ -3,6 +3,7 @@ package horde
 import sdl "vendor:sdl3"
 
 import handle "src:handle"
+import util "src:util"
 
 @(private)
 global_horde_manager: Horde_Manager
@@ -12,7 +13,7 @@ Horde_Manager :: struct {
     followers_per_leader: int,
 
     grid: Spatial_Grid,
-    grid_followers: map[handle.Entity_Handle][]handle.Entity_Handle,
+    grid_followers: map[util.Handle][]util.Handle,
 }
 
 DEFAULT_FOLLOWERS_PER_LEADER :: 100
@@ -20,7 +21,7 @@ DEFAULT_FOLLOWERS_PER_LEADER :: 100
 horde_manager_create :: proc() -> ^Horde_Manager {
     global_horde_manager.hordes = make([dynamic]Horde)
     global_horde_manager.followers_per_leader = DEFAULT_FOLLOWERS_PER_LEADER
-    global_horde_manager.grid_followers = make(map[handle.Entity_Handle][]handle.Entity_Handle)
+    global_horde_manager.grid_followers = make(map[util.Handle][]util.Handle)
     spatial_grid_create(&global_horde_manager.grid)
 
     return &global_horde_manager
@@ -39,7 +40,7 @@ horde_manager_destroy :: proc() {
     delete(global_horde_manager.grid_followers)
 }
 
-horde_manager_spawn_horde :: proc(horde_position: sdl.FPoint, target: handle.Entity_Handle) {
+horde_manager_spawn_horde :: proc(horde_position: sdl.FPoint, target: util.Handle) {
     new_horde: Horde
     horde_create(&new_horde, target, global_horde_manager.followers_per_leader)
     horde_populate(&new_horde, horde_position)

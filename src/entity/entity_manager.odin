@@ -3,26 +3,30 @@ package entity
 import sdl "vendor:sdl3"
 
 import handle "src:handle"
+import util "src:util"
 
+import hm "core:container/handle_map"
+import xar "core:container/xar"
 import slice "core:slice"
 import rand "core:math/rand"
 import log "core:log"
 
 @(private)
-global_entity_manager: Entity_Manager
+global_manager: Entity_Manager
 
 Entity_Manager :: struct {
-    pools: [Team]handle.Pool(handle.Entity_Tag, Entity)
+    entities: [Team]hm.Dynamic_Handle_Map(Entity, util.Handle)
+    //pools: [Team]handle.Pool(handle.Entity_Tag, Entity)
 }
 
 entity_manager_create :: proc() -> (entity_manager: ^Entity_Manager){
     log.infof("Creating entity manager")
 
     for team in Team {
-        global_entity_manager.pools[team] = handle.pool_create(handle.Entity_Tag, Entity)
+        hm.dynamic_init(&global_manager.entities[team], context.allocator)
     }
     
-    entity_manager = &global_entity_manager
+    entity_manager = &global_manager
     return
 }
 
@@ -30,81 +34,89 @@ entity_manager_destroy :: proc() {
     log.infof("Destroying entity manager")
 
     for team in Team {
-        pool := &global_entity_manager.pools[team]
-        for &entity in pool.data do entity_destroy(&entity)
-        
+        pool := &global_manager.entities[team]
+        it := hm.iterator_make(pool)
+        for e, h in hm.iterate(&it) {
+            entity_destroy(e)
+        }
 
-        handle.pool_destroy(pool)
+        hm.dynamic_destroy(pool)
     }
 }
 
-entity_get :: proc(entity_handle: Entity_Handle, team: Team) -> (entity: ^Entity, ok: bool) {
-    entity, ok = handle.pool_get(&global_entity_manager.pools[team], entity_handle)
+entity_get :: proc(handle: util.Handle, team: Team) -> (entity: ^Entity, ok: bool) {
+    entity, ok = hm.get(&global_manager.entities[team], handle)
     
     return 
 }
 
-entity_manager_get_random_handle :: proc(team: Team) -> Entity_Handle{
-    pool_free_list := global_entity_manager.pools[team].free_list
-    pool_data := global_entity_manager.pools[team].data
-    pool_gens := global_entity_manager.pools[team].generations
+entity_manager_get_random_handle :: proc(team: Team) -> (handle: util.Handle, success: bool) {
+    pool_items := &global_manager.entities[team].items
+    unused_items := &global_manager.entities[team].unused_items
 
-    if len(pool_data) <= 0 || len(pool_data) == len(pool_free_list) do return Entity_Handle{}
+    if xar.len(pool_items^) <= 0 || xar.len(pool_items^) == xar.len(unused_items^) do return util.Handle{0,0}, false
 
-    option := rand.int32_range(0, cast(i32) len(pool_data))
-    for slice.contains(pool_free_list[:], cast(u32) option) do option = rand.int32_range(0, cast(i32) len(pool_data))
+    option := rand.int32_range(0, cast(i32) xar.len(pool_items^))
 
-    return Entity_Handle{ cast(u32) option, pool_gens[option] }
+    _, found := util.array_linear_search(unused_items, cast(u32) option)
+    for found {
+        option = rand.int32_range(0, cast(i32) xar.len(pool_items^))
+        _, found = util.array_linear_search(unused_items, cast(u32) option)
+    }
+
+    return xar.get(pool_items, option).handle, true
 }
 
-entity_manager_add_entity :: proc(entity_data: Entity) -> (new_handle: Entity_Handle) {
-    new_entity := entity_data
+entity_manager_add_entity :: proc(data: Entity) -> (handle: util.Handle) {
+    new_entity := data
     entity_create(&new_entity)
 
-    new_handle = handle.pool_add(&global_entity_manager.pools[entity_data.team], new_entity)
-
-    entity_give_handle, ok := entity_get(new_handle, entity_data.team)
-    if !ok {
-        log.errorf("Failed getting entity via handle %v that was just created for said entity", new_handle)
+    new_handle, err := hm.add(&global_manager.entities[data.team], new_entity)
+    if err != .None {
+        log.errorf("Failed adding entity to handle map")
         return
     }
-    entity_give_handle.own_handle = new_handle
-    
-    return 
+
+    // TODO -- give entity its own handle
+    return new_handle
 }
 
-entity_manager_remove_entity :: proc(to_remove: Entity_Handle, team: Team) {
-    entity, ok := handle.pool_get(&global_entity_manager.pools[team], to_remove)
+entity_manager_remove_entity :: proc(to_remove: util.Handle, team: Team) {
+    e, ok := hm.get(&global_manager.entities[team], to_remove)
     if !ok do return
     
+    entity_destroy(e)
 
-    entity_destroy(entity)
-
-    handle.pool_remove(&global_entity_manager.pools[entity.team], to_remove)
+    hm.remove(&global_manager.entities[team], to_remove)
 }
 
 entity_manager_update :: proc() {
+    
     for team in Team {
-        pool := &global_entity_manager.pools[team]
-        for &entity in pool.data {
-            entity_update(&entity)
+        pool := &global_manager.entities[team]
+        it := hm.iterator_make(pool)
+        for e, h in hm.iterate(&it) {
+            entity_update(e)
         }
     }
 }
 
 entity_manager_draw :: proc() {
-    pool := &global_entity_manager.pools[.ENEMY]
-    for &entity in pool.data {
-        entity_draw(&entity)
+    pool := &global_manager.entities[.ENEMY]
+    it := hm.iterator_make(pool)
+    for e, h in hm.iterate(&it) {
+        entity_draw(e)
     }
 
-    pool = &global_entity_manager.pools[.NEUTRAL]
-    for &entity in pool.data {
-        entity_draw(&entity)
+    pool = &global_manager.entities[.NEUTRAL]
+    it = hm.iterator_make(pool)
+    for e, h in hm.iterate(&it) {
+        entity_draw(e)
     }
 
-    pool = &global_entity_manager.pools[.ALLY]
-    for &entity in pool.data {
-        entity_draw(&entity)
+    pool = &global_manager.entities[.ALLY]
+    it = hm.iterator_make(pool)
+    for e, h in hm.iterate(&it) {
+        entity_draw(e)
     }
 }

@@ -47,7 +47,7 @@ horde_boid_update :: proc() {
             if !follower_ok do continue
             if !follower_entity.active do continue
 
-            spatial_grid_get_nearby_followers(grid, follower_handle, follower_entity.position)
+            spatial_grid_get_nearby_followers(grid, follower_handle, follower_entity.collision.position)
 
             separation_velocity, alignment_velocity, cohesion_velocity: sdl.FPoint
             neighbour_count := 0
@@ -57,11 +57,11 @@ horde_boid_update :: proc() {
                 if !n_ok do continue
                 defer neighbour_count += 1
 
-                alignment_velocity += neighbour.move_direction * neighbour.base_move_speed
+                alignment_velocity += neighbour.direction * neighbour.base_move_speed
 
-                cohesion_velocity += neighbour.position
+                cohesion_velocity += neighbour.collision.position
                 
-                delta_pos := follower_entity.position - neighbour.position
+                delta_pos := follower_entity.collision.position - neighbour.collision.position
                 dist := math.sqrt(math.pow(delta_pos.x, 2) + math.pow(delta_pos.y, 2))
                 if dist < 0.1 do continue
                 separation_velocity += geo.normalize_point(delta_pos) * SEPERATION_SPEED / math.pow(dist, 1)
@@ -70,11 +70,11 @@ horde_boid_update :: proc() {
             if neighbour_count > 0 {
                 n := f32(neighbour_count)
                 // average the by-neighbour velocities
-                alignment_velocity = (alignment_velocity / n) - (follower_entity.move_direction * follower_entity.base_move_speed)
-                cohesion_velocity  = (cohesion_velocity  / n) - follower_entity.position
+                alignment_velocity = (alignment_velocity / n) - (follower_entity.direction * follower_entity.base_move_speed)
+                cohesion_velocity  = (cohesion_velocity  / n) - follower_entity.collision.position
             }
 
-            leader_difference := follower_entity.position - leader_entity.position
+            leader_difference := follower_entity.collision.position - leader_entity.collision.position
             leader_dist_squared := math.pow(leader_difference.x, 2) + math.pow(leader_difference.y, 2)
             leader_direction := geo.normalize_point(leader_difference)
 
@@ -128,7 +128,7 @@ horde_boid_update :: proc() {
 
 
             follower_entity.base_move_speed = math.sqrt(math.pow(steer_velocity.x, 2) + math.pow(steer_velocity.y, 2))
-            follower_entity.move_direction = geo.normalize_point(steer_velocity)
+            follower_entity.direction = geo.normalize_point(steer_velocity)
 
             //log.warnf("move_speed %v\nmove_direction %v\n", follower_entity.move_speed, follower_entity.move_direction)
         }

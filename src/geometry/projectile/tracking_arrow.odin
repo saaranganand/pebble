@@ -8,6 +8,7 @@ import camera "src:camera"
 import entity "src:entity"
 import handle "src:handle"
 import geo "src:geometry"
+import util "src:util"
 
 import xar "core:container/xar"
 import rand "core:math/rand"
@@ -33,7 +34,7 @@ Tracking_Arrow_State :: struct {
     shoot_angle: f32,
 
     length: f32,
-    tracking: handle.Entity_Handle,
+    tracking: util.Handle,
     tracking_team: entity.Team,
     turn_speed: f32,
 }
@@ -62,7 +63,8 @@ tracking_arrow_init :: proc(shell: Shell, position: sdl.FPoint, shoot_angle: f32
 
     state.tracking_team = entity.Team.ALLY
     if state.team == .ALLY do state.tracking_team = .ENEMY
-    state.tracking = entity.entity_manager_get_random_handle(state.tracking_team)
+    tracking, success := entity.entity_manager_get_random_handle(state.tracking_team)
+    state.tracking = tracking
 
     RANDOM_SPAWN_RANGE :: 10
     state.position += { rand.float32_range(-RANDOM_SPAWN_RANGE, RANDOM_SPAWN_RANGE), rand.float32_range(-RANDOM_SPAWN_RANGE, RANDOM_SPAWN_RANGE) }
@@ -116,7 +118,7 @@ tracking_arrow_update :: proc(state: ^Tracking_Arrow_State, index: uint) {
     target_entity, target_ok := entity.entity_get(state.tracking, state.tracking_team)
     if !target_ok do return
 
-    to_target := target_entity.position - state.position
+    to_target := target_entity.collision.position - state.position
     target_angle := math.atan2(to_target.y, to_target.x)
 
     diff := math.atan2(math.sin(target_angle - state.shoot_angle), math.cos(target_angle - state.shoot_angle))

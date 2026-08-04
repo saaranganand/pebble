@@ -7,18 +7,19 @@ import camera "src:camera"
 import handle "src:handle"
 import entity "src:entity"
 import geo "src:geometry"
+import util "src:util"
 
 import rand "core:math/rand"
 import log "core:log"
 
 Horde :: struct {
-    leader: handle.Entity_Handle,
-    target: handle.Entity_Handle,
+    leader: util.Handle,
+    target: util.Handle,
     num_followers: int,
     populated: bool,
 }
 
-horde_create :: proc(horde: ^Horde, target: handle.Entity_Handle, num_followers: int) {
+horde_create :: proc(horde: ^Horde, target: util.Handle, num_followers: int) {
     horde.populated = false
     horde.target = target
     horde.num_followers = num_followers
@@ -43,7 +44,7 @@ horde_populate :: proc(horde: ^Horde, horde_position: sdl.FPoint) -> (followers_
     ))
 
     horde.leader = leader_handle
-    global_horde_manager.grid_followers[leader_handle] = make([]handle.Entity_Handle, horde.num_followers)
+    global_horde_manager.grid_followers[leader_handle] = make([]util.Handle, horde.num_followers)
     
     for i in 0..<horde.num_followers {
         follow_handle := entity.entity_manager_add_entity(entity.entity_make_data(
@@ -68,7 +69,7 @@ horde_update :: proc(horde: ^Horde) {
     target_entity, target_ok := entity.entity_get(horde.target, .ALLY)
     if !target_ok do return
 
-    if leader_entity.active do leader_entity.position += leader_entity.move_speed * primatives.dt * geo.normalize_point(
-        target_entity.position - leader_entity.position
+    if leader_entity.active do leader_entity.collision.position += leader_entity.move_speed * primatives.dt * geo.normalize_point(
+        target_entity.collision.position - leader_entity.collision.position
     )
 }

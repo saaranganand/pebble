@@ -2,6 +2,7 @@ package effect
 
 import handle "src:handle"
 import entity "src:entity"
+import util "src:util"
 
 import log "core:log"
 
@@ -196,7 +197,7 @@ effect_manager_update :: proc() {
 // This both checks if the effect should apply at all,
 // as well as manages the stacking logic of the preexisiting effect.
 effect_manager_stack_on_apply :: proc(
-    instance: ^Effect_Instance, target: handle.Entity_Handle
+    instance: ^Effect_Instance, target: util.Handle
 ) -> (should_apply: bool) {
     if instance.definition.stack_behaviour == .STACK do return true
     //maybe_existing_effect := entity_get_active_effect_by_ID(target_entity, instance.definition.unique_id)

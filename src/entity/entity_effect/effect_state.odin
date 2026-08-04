@@ -3,6 +3,7 @@ package effect
 import primatives "src:sdl_primatives"
 import handle "src:handle"
 import entity "src:entity"
+import util "src:util"
 
 // This both stores all the instance-specific data about the effect, as well as the effect's state (aka its progress)
 // Basically, the burn effect does the same thing, but different burn effects applied by different sources might do different damage,
@@ -10,7 +11,7 @@ import entity "src:entity"
 Effect_State :: struct {
     instance: ^Effect_Instance,
 
-    source, target: handle.Entity_Handle,
+    source, target: util.Handle,
     target_team: entity.Team,
 
     active: bool,

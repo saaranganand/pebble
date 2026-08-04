@@ -104,7 +104,7 @@ effect_speed_fn    :: proc(data: Effect_Callback_Data, target_entity: entity.Ent
     return
 }
 effect_position_fn :: proc(data: Effect_Callback_Data, target_entity: entity.Entity) -> (new_pos: sdl.FPoint) {
-    new_pos = target_entity.position + data["direction"].(sdl.FPoint) * data["speed"].(f32) * primatives.dt
+    new_pos = target_entity.collision.position + data["direction"].(sdl.FPoint) * data["speed"].(f32) * primatives.dt
     return
 }
 
@@ -122,7 +122,7 @@ effect_callback_trigger :: proc(state: ^Effect_State, target_entity: ^entity.Ent
 
     case .POSITION:
         // TODO: seperate position into a buffer and apply it at end of frame
-        target_entity.position += effect_position_fn(state.callback_data, target_entity^)
+        target_entity.collision.position += effect_position_fn(state.callback_data, target_entity^)
 
     case .FORCE:
         //data := state.callback_data.data.(Effect_Force_Fn_Data)

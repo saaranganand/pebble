@@ -4,18 +4,19 @@ import sdl "vendor:sdl3"
 
 import entity "src:entity"
 import handle "src:handle"
+import util "src:util"
 
 import math "core:math"
 import log "core:log"
 
-Grid_Cell :: [dynamic]handle.Entity_Handle
+Grid_Cell :: [dynamic]util.Handle
 
 FOLLOWER_NEIGHBOUR_SEARCH_RADIUS :: 70
 SPATIAL_GRID_CELL_SIZE :: FOLLOWER_NEIGHBOUR_SEARCH_RADIUS
 
 Spatial_Grid :: struct {
     cells: map[sdl.Point]Grid_Cell,
-    grid_neighbours: [dynamic]handle.Entity_Handle,
+    grid_neighbours: [dynamic]util.Handle,
 }
 
 spatial_grid_create :: proc(grid: ^Spatial_Grid) {
@@ -51,7 +52,7 @@ spatial_grid_build :: proc(grid: ^Spatial_Grid) {
             if !ok do continue
             if !follower_entity.active do continue
 
-            cell_pos := spatial_grid_get_cell_pos(follower_entity.position)
+            cell_pos := spatial_grid_get_cell_pos(follower_entity.collision.position)
             if cell_pos not_in grid.cells {
                 grid.cells[cell_pos] = make(Grid_Cell)
             }
@@ -61,7 +62,7 @@ spatial_grid_build :: proc(grid: ^Spatial_Grid) {
     }
 }
 
-spatial_grid_get_nearby_followers :: proc(grid: ^Spatial_Grid, searcher: handle.Entity_Handle, position: sdl.FPoint) {
+spatial_grid_get_nearby_followers :: proc(grid: ^Spatial_Grid, searcher: util.Handle, position: sdl.FPoint) {
     radius: f32 = FOLLOWER_NEIGHBOUR_SEARCH_RADIUS
 
     clear(&grid.grid_neighbours)
@@ -80,7 +81,7 @@ spatial_grid_get_nearby_followers :: proc(grid: ^Spatial_Grid, searcher: handle.
                 if !ok do continue
                 if !neighbour.active do continue
 
-                distance := neighbour.position - position
+                distance := neighbour.collision.position - position
                 distance_squared := math.pow(distance.x, 2) + math.pow(distance.y, 2)
                 if distance_squared < radius_squared do append(&grid.grid_neighbours, neighbour_handle)
             }

@@ -183,6 +183,7 @@ game_update :: proc() {
 }
 
 game_draw :: proc() {
+    
     color.sdl_set_color(color.Default_Palette_Color.WHITE)
     sdl.RenderClear(primatives.global_renderer)
 
