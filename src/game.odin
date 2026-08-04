@@ -25,8 +25,6 @@ TILE_SIZE :: 64
 
 game := struct {
     player: player.Player_Character,
-    bullets: BulletPool,
-    waves: PingWavePool,
 
     game_over: bool,
     input: input.Input,
@@ -133,7 +131,6 @@ game_input :: proc() {
 
 game_update :: proc() {
     player.update_player(&game.player, game.input)
-    update_bullets()    
 
     horde.horde_manager_update()
 
