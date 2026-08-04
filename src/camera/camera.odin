@@ -9,8 +9,8 @@ import fmt "core:fmt"
 
 import animation "src:data_load/animation"
 import primatives "src:sdl_primatives"
-import img "../data_load/img"
-import font "../data_load/font"
+import img "src:data_load/img"
+import font "src:data_load/font"
 import color "src:util/color"
 import geo "src:geometry"
 

@@ -1,6 +1,6 @@
 package weapon
 
-import audio "../../data_load/audio"
+import audio "src:data_load/audio"
 
 Weapon_Sound_Event :: enum { SELECT, MOVE, CHARGE, FIRE, SHOOT, RELOAD }
 

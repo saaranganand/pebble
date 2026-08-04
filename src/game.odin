@@ -2,9 +2,9 @@ package main
 
 import sdl "vendor:sdl3"
 
-import reaction   "src:entity/entity_effect_reaction"
-import effect     "src:entity/entity_effect"
-import horde      "src:entity/entity_horde"
+import reaction   "src:entity/effect/reaction"
+import effect     "src:entity/effect"
+import horde      "src:entity/horde"
 import projectile "src:geometry/projectile"
 import collision  "src:geometry/collision"
 import primatives "src:sdl_primatives"

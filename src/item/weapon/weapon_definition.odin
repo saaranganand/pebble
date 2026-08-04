@@ -1,7 +1,7 @@
 package weapon
 
 import animation "src:data_load/animation"
-import effect "src:entity/entity_effect"
+import effect "src:entity/effect"
 import projectile "src:geometry/projectile"
 
 import json "core:encoding/json"

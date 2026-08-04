@@ -5,7 +5,7 @@ import sdl "vendor:sdl3"
 
 import entity "src:entity"
 import hm "core:container/handle_map"
-import effect "src:entity/entity_effect"
+import effect "src:entity/effect"
 import projectile "src:geometry/projectile"
 import handle "src:handle"
 import geo "src:geometry"

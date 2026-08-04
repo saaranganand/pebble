@@ -1,8 +1,8 @@
 package reaction
 
-import audio "../../data_load/audio"
+import audio "src:data_load/audio"
 import entity "src:entity"
-import effect "src:entity/entity_effect"
+import effect "src:entity/effect"
 
 reaction_event_trigger :: proc(event: effect.Effect_Event, data: Reaction_Data, target_entity: ^entity.Entity) {
     switch event.type {

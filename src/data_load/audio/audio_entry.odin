@@ -2,7 +2,7 @@ package audio
 
 import ma "vendor:miniaudio"
 
-import util "../../util"
+import util "src:util"
 
 import strings "core:strings"
 import log "core:log"
