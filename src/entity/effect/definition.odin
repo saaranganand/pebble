@@ -45,7 +45,7 @@ effect_definitions_load :: proc() {
     util.scrape_files(EFFECT_DEFINITION_MASTER_FOLDER, EFFECT_DEFINITION_DATA_EXTENSION, &results)
 
     num_definitions := len(results)
-    global_effect_manager.definition_ids = cast(uint) num_definitions
+    global_effect_manager.num_definitions = cast(uint) num_definitions
     global_effect_manager.definitions = make([]Effect_Definition, num_definitions)
     definition_id_counter: uint = 0
     
@@ -55,7 +55,7 @@ effect_definitions_load :: proc() {
 
         global_effect_manager.definitions[definition_id_counter] = {}
         definition := &global_effect_manager.definitions[definition_id_counter]
-        global_effect_manager.definition_tag_to_id[tag] = definition_id_counter
+        global_effect_manager.definition_id_map[tag] = definition_id_counter
 
         effect_definition_load(definition, path)
         

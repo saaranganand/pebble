@@ -12,16 +12,17 @@ global_effect_manager: Effect_Manager
 Effect_Manager :: struct {
     pool: handle.Pool(handle.Effect_Tag, Effect_State),
 
-    definition_ids: uint,
     definitions: []Effect_Definition,
-    definition_tag_to_id: map[string]uint,
+    num_definitions: uint,
+    definition_id_map: map[string]uint,
 
-    instance_ids: uint,
     instances: []Effect_Instance,
-    instance_tag_to_id: map[string]uint,
+    num_instances: uint,
+    instance_id_map: map[string]uint,
 
     application_queue: [dynamic]Effect_Application_Data,
     removal_queue: [dynamic]Effect_Handle,
+    events: [dynamic]Effect_Event,
 
     // A slice that is sized as the total number of unique effect definitions loaded in.
     // When an effect is applied, give this the handle.
@@ -38,8 +39,6 @@ Effect_Manager :: struct {
     // Thus, whether or not this check is valid or invalid does not matter to us.
     // !! If that were to change !! Then this system would need to be reworked.
     entity_active_effects: Effect_Active_Entity_Effect_Map,
-
-    events: [dynamic]Effect_Event,
 }
 
 effect_manager_create :: proc() -> (effect_manager: ^Effect_Manager) {
@@ -50,8 +49,8 @@ effect_manager_create :: proc() -> (effect_manager: ^Effect_Manager) {
     global_effect_manager.application_queue = make([dynamic]Effect_Application_Data)
     global_effect_manager.removal_queue = make([dynamic]Effect_Handle)
 
-    global_effect_manager.definition_tag_to_id = make(map[string]uint)
-    global_effect_manager.instance_tag_to_id = make(map[string]uint)
+    global_effect_manager.definition_id_map = make(map[string]uint)
+    global_effect_manager.instance_id_map = make(map[string]uint)
 
     global_effect_manager.entity_active_effects = make(Effect_Active_Entity_Effect_Map)
     global_effect_manager.events = make([dynamic]Effect_Event)
@@ -68,8 +67,8 @@ effect_manager_destroy :: proc() {
 
     handle.pool_destroy(&global_effect_manager.pool)
 
-    delete(global_effect_manager.instance_tag_to_id)
-    delete(global_effect_manager.definition_tag_to_id)
+    delete(global_effect_manager.instance_id_map)
+    delete(global_effect_manager.definition_id_map)
 
     delete(global_effect_manager.application_queue)
     delete(global_effect_manager.removal_queue)
@@ -149,7 +148,6 @@ effect_manager_update :: proc() {
             continue
         }
 
-        // todo: manage application queue? in case an effect wants to apply an effect?
         should_remove := effect_state_update(&effect, target_entity)
 
         if should_remove {
@@ -158,8 +156,11 @@ effect_manager_update :: proc() {
             effect_manager_remove_entity_active_effect(effect.target, effect.instance.definition.id, current_handle)
         }
     }
-    //TODO separate
-    // do removals
+    effect_manager_process_removal_queue()
+    effect_manager_process_application_queue()
+}
+
+effect_manager_process_removal_queue :: proc() {
     for len(global_effect_manager.removal_queue) > 0 {
         to_remove := pop(&global_effect_manager.removal_queue)
         defer handle.pool_remove(&global_effect_manager.pool, to_remove)
@@ -174,8 +175,9 @@ effect_manager_update :: proc() {
             magnitude = effect_fn_data_get_reaction_magnitude(removal_effect.callback_data)
         }) 
     }
+}
 
-    // do applications
+effect_manager_process_application_queue :: proc() {
     for len(global_effect_manager.application_queue) > 0 {
         //log.errorf("app queue len = %v", len(global_effect_manager.application_queue))
         application_data := pop(&global_effect_manager.application_queue)
@@ -243,6 +245,5 @@ effect_manager_apply_effect :: proc(
 
     new_effect_handle := handle.pool_add(&global_effect_manager.pool, state)
     
-    // TODO
     effect_manager_add_entity_active_effect(target, {new_effect_handle, instance.definition.id})
 }

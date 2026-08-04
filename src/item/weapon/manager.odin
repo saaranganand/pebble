@@ -15,13 +15,13 @@ global_weapon_manager: Weapon_Manager
 Weapon_Manager :: struct {
     weapons: []Weapon_Definition,
     num_weapons: uint,
-    definition_tag_to_id: map[string]uint,
-    definition_ids: uint,
+    definition_id_map: map[string]uint,
+    num_definitions: uint,
 }
 
 weapon_manager_create :: proc() -> ^Weapon_Manager {
     log.infof("Creating weapon manager")
-    global_weapon_manager.definition_tag_to_id = make(map[string]uint)
+    global_weapon_manager.definition_id_map = make(map[string]uint)
 
     weapon_manager_load()
 
@@ -35,11 +35,11 @@ weapon_manager_destroy :: proc() {
         weapon_definition_unload(&weapon)
     }
     delete(global_weapon_manager.weapons)
-    delete(global_weapon_manager.definition_tag_to_id)
+    delete(global_weapon_manager.definition_id_map)
 }
 
 weapon_manager_get_definition :: proc(definition_tag: string) -> ^Weapon_Definition {
-    definition_ID, def_ok := global_weapon_manager.definition_tag_to_id[definition_tag]
+    definition_ID, def_ok := global_weapon_manager.definition_id_map[definition_tag]
     if !def_ok {
         log.errorf("Attempted to get weapon definition ID from tag %v that does not have an ID mapping", definition_tag)
         return nil
@@ -62,7 +62,7 @@ weapon_manager_load :: proc() {
     util.scrape_files(WEAPON_MASTER_FOLDER, WEAPON_DATA_EXTENSION, &results)
 
     num_definitions := len(results)
-    global_weapon_manager.definition_ids = cast(uint) num_definitions
+    global_weapon_manager.num_definitions = cast(uint) num_definitions
     global_weapon_manager.weapons = make([]Weapon_Definition, num_definitions)
     definition_id_counter: uint = 0
 
@@ -72,7 +72,7 @@ weapon_manager_load :: proc() {
 
         global_weapon_manager.weapons[definition_id_counter] = {}
         definition := &global_weapon_manager.weapons[definition_id_counter]
-        global_weapon_manager.definition_tag_to_id[tag] = definition_id_counter
+        global_weapon_manager.definition_id_map[tag] = definition_id_counter
 
         weapon_definition_load(definition, path)
         

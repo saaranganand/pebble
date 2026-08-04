@@ -37,7 +37,7 @@ effect_instances_load :: proc() {
     util.scrape_files(EFFECT_INSTANCE_MASTER_FOLDER, EFFECT_INSTANCE_DATA_EXTENSION, &results)
 
     num_instances := len(results)
-    global_effect_manager.instance_ids = cast(uint) num_instances
+    global_effect_manager.num_instances = cast(uint) num_instances
     global_effect_manager.instances = make([]Effect_Instance, num_instances)
     instance_id_counter: uint = 0
     
@@ -47,14 +47,14 @@ effect_instances_load :: proc() {
 
         global_effect_manager.instances[instance_id_counter] = {}
         instance := &global_effect_manager.instances[instance_id_counter]
-        global_effect_manager.instance_tag_to_id[tag] = instance_id_counter
+        global_effect_manager.instance_id_map[tag] = instance_id_counter
 
         effect_instance_load(instance, path)
         
         instance.tag = tag
         instance.id = instance_id_counter
 
-        definition_id := global_effect_manager.definition_tag_to_id[instance.definition_tag]
+        definition_id := global_effect_manager.definition_id_map[instance.definition_tag]
         instance.definition = &global_effect_manager.definitions[definition_id]
     }
 }

@@ -16,15 +16,15 @@ Reaction_Manager :: struct {
 }
 
 reaction_manager_create :: proc(
-    effect_definition_ids: uint, effect_definition_tag_to_id: map[string]uint
+    effect_num_definitions: uint, effect_definition_id_map: map[string]uint
 ) -> (reaction_manager: ^Reaction_Manager) {
     log.infof("Creating reaction manager")
 
-    global_reaction_manager.table = make([]Reaction_Set, effect_definition_ids)
+    global_reaction_manager.table = make([]Reaction_Set, effect_num_definitions)
 
     reaction_manager = &global_reaction_manager
 
-    reaction_manager_load(effect_definition_tag_to_id)
+    reaction_manager_load(effect_definition_id_map)
 
     return
 }
@@ -42,7 +42,7 @@ reaction_manager_destroy :: proc() {
 EFFECT_REACTION_MASTER_FOLDER :: "assets/"
 EFFECT_REACTION_DATA_EXTENSION :: ".effect.reaction.json"
 @(private)
-reaction_manager_load :: proc(effect_definition_tag_to_id: map[string]uint) {
+reaction_manager_load :: proc(effect_definition_id_map: map[string]uint) {
     log.infof("Loading effect reactions")
 
     results := make([dynamic]string)
@@ -56,7 +56,7 @@ reaction_manager_load :: proc(effect_definition_tag_to_id: map[string]uint) {
         set: Reaction_Set
         reaction_set_load(&set, path)
 
-        definition_id := effect_definition_tag_to_id[set.definition_tag]
+        definition_id := effect_definition_id_map[set.definition_tag]
 
         global_reaction_manager.table[definition_id] = set
     }

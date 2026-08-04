@@ -57,7 +57,7 @@ game_create :: proc() {
     game.effect_manager = effect.effect_manager_create()
 
     game.entity_manager = entity.entity_manager_create()
-    game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.definition_ids, game.effect_manager.definition_tag_to_id)
+    game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.num_definitions, game.effect_manager.definition_id_map)
     
     game.weapon_manager = weapon.weapon_manager_create()
 
