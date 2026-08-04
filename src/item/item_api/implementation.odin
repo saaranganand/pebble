@@ -1,6 +1,6 @@
 package item_api
 
-import util "../util"
+import util "src:util"
 
 import os "core:os"
 import log "core:log"

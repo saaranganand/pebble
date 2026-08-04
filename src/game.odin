@@ -2,9 +2,9 @@ package main
 
 import sdl "vendor:sdl3"
 
-import reaction   "src:entity/entity_effect_reaction"
-import effect     "src:entity/entity_effect"
-import horde      "src:entity/entity_horde"
+import reaction   "src:entity/effect/reaction"
+import effect     "src:entity/effect"
+import horde      "src:entity/horde"
 import projectile "src:geometry/projectile"
 import collision  "src:geometry/collision"
 import primatives "src:sdl_primatives"
@@ -25,8 +25,6 @@ TILE_SIZE :: 64
 
 game := struct {
     player: player.Player_Character,
-    bullets: BulletPool,
-    waves: PingWavePool,
 
     game_over: bool,
     input: input.Input,
@@ -59,7 +57,7 @@ game_create :: proc() {
     game.effect_manager = effect.effect_manager_create()
 
     game.entity_manager = entity.entity_manager_create()
-    game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.unique_definition_ids, game.effect_manager.definition_tag_to_id)
+    game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.num_definitions, game.effect_manager.definition_id_map)
     
     game.weapon_manager = weapon.weapon_manager_create()
 
@@ -77,7 +75,7 @@ game_create :: proc() {
     //horde.leader_spawn(&game.horde, {200, 200})
 
     camera.global_camera_create(f32(app.window_width), f32(app.window_height))
-    camera.camera_set_follow(&game.player.tracking_position, 1)//0.05)
+    camera.set_follow(&game.player.tracking_position, 1)//0.05)
 
     game.hud = hud.create_hud({0,0}, {f32(app.window_width), f32(app.window_height)})
 
@@ -133,7 +131,6 @@ game_input :: proc() {
 
 game_update :: proc() {
     player.update_player(&game.player, game.input)
-    update_bullets()    
 
     horde.horde_manager_update()
 
@@ -141,7 +138,7 @@ game_update :: proc() {
 
     projectile.projectile_manager_update()
 
-    camera.camera_update()
+    camera.update()
 
     //horde.update(&game.horde, &game.player.allied_damage_areas)
     collision.resolve_collisions(game.projectile_manager, game.entity_manager, game.effect_manager)
@@ -183,11 +180,12 @@ game_update :: proc() {
 }
 
 game_draw :: proc() {
+    
     color.sdl_set_color(color.Default_Palette_Color.WHITE)
     sdl.RenderClear(primatives.global_renderer)
 
     // drawing
-    camera.camera_draw_grid()
+    camera.draw_grid()
 
     entity.entity_manager_draw()
     projectile.projectile_manager_draw()
@@ -195,6 +193,4 @@ game_draw :: proc() {
     player.draw_player_accessories(&game.player)
 
     hud.draw_hud(&game.hud, &game.player, game.input)
-
-    //camera.camera_draw_center_lines()
 }

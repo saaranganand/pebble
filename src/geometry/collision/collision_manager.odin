@@ -1,52 +1,90 @@
 package collision
 
+import "src:HUD"
 import sdl "vendor:sdl3"
 
 import entity "src:entity"
-import effect "src:entity/entity_effect"
+import hm "core:container/handle_map"
+import effect "src:entity/effect"
 import projectile "src:geometry/projectile"
 import handle "src:handle"
 import geo "src:geometry"
+import util "src:util"
 
 import log "core:log"
+import xar "core:container/xar"
 
 resolve_collisions :: proc(
-    projectile_manager: ^projectile.Projectile_Manager, entity_manager: ^entity.Entity_Manager, effect_manager: ^effect.Effect_Manager,
+    projectile_manager: ^projectile.Projectile_Manager,
+    entity_manager: ^entity.Entity_Manager,
+    effect_manager: ^effect.Effect_Manager,
+) {
+
+    for entity_team in entity.Team {
+        pool := &entity_manager.entities[entity_team]
+        it := hm.iterator_make(pool)
+        for e, e_h in hm.iterate(&it) {
+            resolve_projectile_collisions(projectile_manager, entity_manager, e, e_h)
+        }
+    }
+
+    
+}
+
+resolve_projectile_collisions :: proc(
+    projectile_manager: ^projectile.Projectile_Manager,
+    entity_manager: ^entity.Entity_Manager,
+    check_entity: ^entity.Entity, check_entity_handle: util.Handle
 ) {
     for projectile_team in entity.Team {
-        projectile_list := &projectile_manager.lists[projectile_team]
-        for entity_team in entity.Team {
-            if projectile_team == entity_team do continue
-            entity_pool := &entity_manager.pools[entity_team]
+        if projectile_team == check_entity.team do continue
+        projectile_list := &projectile_manager.projectiles[projectile_team]
 
-            for &projectiles, cat in projectile_list {
-                //log.warnf("num projectiles = %v", len(projectiles))
-                for &check_projectile in projectiles {
-                    if !check_projectile.active do continue
+        it := xar.iterator(projectile_list)
+        for projectile_state, idx in xar.iterate_by_ptr(&it) {
+            if !projectile_state.active do continue
 
-                    //log.warnf("num entities = %v", len(entity_pool.data))
-                    entity_handle := handle.Entity_Handle{ 0, 0 }
-                    for &check_entity in entity_pool.data {
-                        defer entity_handle.index += 1
-                        if !check_entity.active do continue
+            collision := projectile.state_check_collision(
+                projectile_state^, check_entity.collision
+            )
+            if !collision do continue
 
-                        entity_handle.generation = entity_pool.generations[entity_handle.index]
+            effect_data := effect.effect_application_data_from_tag("damage.effect.instance", {}, check_entity_handle, check_entity.team)
 
-                        collision := projectile.projectile_state_check_collision(
-                            check_projectile, geo.Circle{check_entity.position, check_entity.col_radius}
-                        )
-                        if !collision do continue
+            effect.effect_manager_queue_apply(effect_data, effect.Effect_Callback_Data_Override{
+                tag = "damage", data = projectile_state.damage
+            })
 
-                        effect_data := effect.effect_application_data_from_tag("damage.effect.instance", {}, entity_handle, check_entity.team)
-
-                        effect.effect_manager_queue_apply(effect_data, effect.Effect_Callback_Data_Override{
-                            tag = "damage", data = check_projectile.damage
-                        })
-
-                        if check_projectile.piercing > 0 do check_projectile.piercing -= 1
-                    }
-                }
-            }
+            if projectile_state.piercing > 0 do projectile_state.piercing -= 1
         }
+
+        resolve_tracking_arrow_collisions(projectile_manager, entity_manager, check_entity, check_entity_handle, projectile_team)
+    }
+}
+
+resolve_tracking_arrow_collisions :: proc(
+    projectile_manager: ^projectile.Projectile_Manager,
+    entity_manager: ^entity.Entity_Manager,
+    check_entity: ^entity.Entity, check_entity_handle: util.Handle,
+    projectile_team: entity.Team
+) {
+    tracking_arrow_list := &projectile_manager.tracking_arrows[projectile_team]
+
+    tracking_it := xar.iterator(tracking_arrow_list)
+    for tracking_arrow_state, idx in xar.iterate_by_ptr(&tracking_it) {
+        if !tracking_arrow_state.active do continue
+
+        collision := projectile.tracking_arrow_collision(
+            tracking_arrow_state^, check_entity.collision
+        )
+        if !collision do continue
+
+        effect_data := effect.effect_application_data_from_tag("damage.effect.instance", {}, check_entity_handle, check_entity.team)
+
+        effect.effect_manager_queue_apply(effect_data, effect.Effect_Callback_Data_Override{
+            tag = "damage", data = tracking_arrow_state.damage
+        })
+
+        if tracking_arrow_state.piercing > 0 do tracking_arrow_state.piercing -= 1
     }
 }

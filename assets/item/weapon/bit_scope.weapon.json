@@ -3,7 +3,7 @@ category: "RANGED"
 projectile_shell: {
   category: "RAY"
   piercing: 1
-  lifetime: 3
+  lifetime: 0
 
   animation_source: "ray.animation"
 }

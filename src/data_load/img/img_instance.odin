@@ -4,7 +4,7 @@ import sdl_img "vendor:sdl3/image"
 import sdl "vendor:sdl3"
 
 import primatives "src:sdl_primatives"
-import util "../../util"
+import util "src:util"
 
 import strings "core:strings"
 import math "core:math"

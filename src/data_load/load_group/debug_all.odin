@@ -1,9 +1,9 @@
 package load_group
 
 import animation "src:data_load/animation"
-import audio "../audio"
-import font "../font"
-import img "../img"
+import audio "src:data_load/audio"
+import font "src:data_load/font"
+import img "src:data_load/img"
 
 debug_all_load :: proc() {
     audio.audio_load("pirate_bell.wav")
