@@ -51,7 +51,7 @@ draw_player_accessories :: proc(player: ^Player_Character) {
     if !entity.active do return
 
     color.sdl_set_color(color.Default_Palette_Color.BABY_BLUE)
-    camera.camera_fill_circle({{entity.collision.position.x, entity.collision.position.y}, 10})
+    camera.fill_circle({{entity.collision.position.x, entity.collision.position.y}, 10})
 
     weapon.weapon_controller_draw(&player.weapon_controller, entity.collision.position)
 }

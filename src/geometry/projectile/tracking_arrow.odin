@@ -146,5 +146,5 @@ tracking_arrows_draw :: proc(team: entity.Team) {
 tracking_arrow_draw :: proc(state: ^Tracking_Arrow_State) {
     if !state.active do return
     
-    camera.camera_draw_animation(&state.animation_controller, state.position, f64(state.shoot_angle))
+    camera.draw_animation(&state.animation_controller, state.position, f64(state.shoot_angle))
 }

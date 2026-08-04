@@ -1,12 +1,6 @@
 package weapon
 
-import yaml "../../../libs/odin-yaml"
-
-import yaml_parse "src:data_load/yaml_parse"
 import audio "../../data_load/audio"
-
-import strings "core:strings"
-import log "core:log"
 
 Weapon_Sound_Event :: enum { SELECT, MOVE, CHARGE, FIRE, SHOOT, RELOAD }
 
@@ -30,14 +24,6 @@ weapon_sound_event_to_string :: proc(event: Weapon_Sound_Event) -> string {
 }
 
 Sound_Set :: [Weapon_Sound_Event]Maybe(string)
-
-sound_set_load :: proc(set: ^Sound_Set, data_map: yaml.Mapping) {
-    for event in Weapon_Sound_Event {
-        yaml_label := weapon_sound_event_to_string(event)
-        data_tag := yaml_parse.read_value_from_map(data_map, yaml_label, string, default = "")
-        if data_tag != "" do set[event] = cast(string) strings.clone(data_tag)
-    }
-}
 
 sound_set_destroy :: proc(set: ^Sound_Set) {
     for event in Weapon_Sound_Event {

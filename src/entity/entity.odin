@@ -89,5 +89,5 @@ entity_update :: proc(entity: ^Entity) {
 entity_draw :: proc(entity: ^Entity) {
     if !entity.active do return
     
-    camera.camera_draw_animation(&entity.animation_controller, entity.collision.position)
+    camera.draw_animation(&entity.animation_controller, entity.collision.position)
 }

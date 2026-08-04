@@ -46,7 +46,7 @@ draw_bullets :: proc() {
         switch b.type {
             case .BitPistol:
                 color.sdl_set_color(color.Default_Palette_Color.YELLOW)
-                camera.camera_fill_circle({{b.x, b.y}, b.size})
+                camera.fill_circle({{b.x, b.y}, b.size})
             // case .Scope:
             //     bulletRect:=sdl.FRect{
             //     x = b.x, 
@@ -77,7 +77,7 @@ update_bullets :: proc() {
         b.x += b.vx * primatives.dt
         b.y += b.vy * primatives.dt
 
-        if !camera.camera_check_circle_visible({{b.x, b.y}, b.size}) {
+        if !camera.check_circle_visible({{b.x, b.y}, b.size}) {
             b.alive = false
         }
 

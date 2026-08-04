@@ -19,7 +19,7 @@ draw_procs := #partial [Category]draw_proc{
 }
 
 default_draw :: proc(state: ^State) {
-    camera.camera_draw_animation(&state.animation_controller, state.position)
+    camera.draw_animation(&state.animation_controller, state.position)
 }
 
 ray_draw :: proc(state: ^State) {
@@ -42,10 +42,10 @@ ray_draw :: proc(state: ^State) {
     for i in 0..=steps {
         d := f32(i) * step
         draw_pos := start_pos + dir * d
-        camera.camera_draw_animation(&state.animation_controller, draw_pos)
+        camera.draw_animation(&state.animation_controller, draw_pos)
     }
 }
 
 default_line_draw :: proc(state: ^State) {
-    camera.camera_draw_animation(&state.animation_controller, state.position, f64(state.shoot_angle))
+    camera.draw_animation(&state.animation_controller, state.position, f64(state.shoot_angle))
 }

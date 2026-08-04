@@ -58,7 +58,7 @@ leader_registry_destroy :: proc(registry: ^Leader_Registry) {
 
 @(private)
 leader_registry_draw :: proc(registry: ^Leader_Registry) {
-    for collider in registry.colliders do camera.camera_fill_circle(collider)
+    for collider in registry.colliders do camera.fill_circle(collider)
 }
 
 Leader_Ticket :: struct {

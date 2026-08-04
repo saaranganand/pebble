@@ -76,10 +76,10 @@ weapon_state_active_update :: proc(controller: ^Weapon_Controller, state: ^Weapo
 weapon_state_active_draw :: proc(state: ^Weapon_State, draw_position: sdl.FPoint, natural_draw_angle: f64, flip_mode: sdl.FlipMode) {
     if !state.animated do return
 
-    camera.camera_draw_animation(&state.animation_controller, draw_position, natural_draw_angle, flip_mode)
+    camera.draw_animation(&state.animation_controller, draw_position, natural_draw_angle, flip_mode)
 
     color.sdl_set_color(color.Default_Palette_Color.SKY_BLUE)
-    camera.camera_fill_circle(geo.Circle{draw_position, 5.0})
+    camera.fill_circle(geo.Circle{draw_position, 5.0})
 }
 
 weapon_fire :: proc(controller: ^Weapon_Controller, state: ^Weapon_State, shoot_position: sdl.FPoint) {

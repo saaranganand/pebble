@@ -52,7 +52,7 @@ follower_registry_destroy :: proc(registry: ^Follower_Registry) {
 
 @(private)
 follower_registry_draw :: proc(registry: ^Follower_Registry) {
-    for collider in registry.colliders do camera.camera_fill_circle(collider)
+    for collider in registry.colliders do camera.fill_circle(collider)
 }
 
 Follower_Ticket :: struct {

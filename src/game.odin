@@ -77,7 +77,7 @@ game_create :: proc() {
     //horde.leader_spawn(&game.horde, {200, 200})
 
     camera.global_camera_create(f32(app.window_width), f32(app.window_height))
-    camera.camera_set_follow(&game.player.tracking_position, 1)//0.05)
+    camera.set_follow(&game.player.tracking_position, 1)//0.05)
 
     game.hud = hud.create_hud({0,0}, {f32(app.window_width), f32(app.window_height)})
 
@@ -141,7 +141,7 @@ game_update :: proc() {
 
     projectile.projectile_manager_update()
 
-    camera.camera_update()
+    camera.update()
 
     //horde.update(&game.horde, &game.player.allied_damage_areas)
     collision.resolve_collisions(game.projectile_manager, game.entity_manager, game.effect_manager)
@@ -188,7 +188,7 @@ game_draw :: proc() {
     sdl.RenderClear(primatives.global_renderer)
 
     // drawing
-    camera.camera_draw_grid()
+    camera.draw_grid()
 
     entity.entity_manager_draw()
     projectile.projectile_manager_draw()
@@ -196,6 +196,4 @@ game_draw :: proc() {
     player.draw_player_accessories(&game.player)
 
     hud.draw_hud(&game.hud, &game.player, game.input)
-
-    //camera.camera_draw_center_lines()
 }
