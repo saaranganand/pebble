@@ -9,6 +9,7 @@ import util "src:util"
 // Basically, the burn effect does the same thing, but different burn effects applied by different sources might do different damage,
 // last different amount of times, etc.
 Effect_State :: struct {
+    handle: util.Handle,
     instance: ^Effect_Instance,
 
     source, target: util.Handle,

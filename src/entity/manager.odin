@@ -1,13 +1,9 @@
 package entity
 
-import sdl "vendor:sdl3"
-
-import handle "src:handle"
 import util "src:util"
 
 import hm "core:container/handle_map"
 import xar "core:container/xar"
-import slice "core:slice"
 import rand "core:math/rand"
 import log "core:log"
 

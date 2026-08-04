@@ -10,8 +10,6 @@ import strings "core:strings"
 import log "core:log"
 import os "core:os"
 
-Effect_Handle :: handle.Effect_Handle
-
 // Defines what happens when an effect is attempted to be applied to an entity that already has said effect.
 // NONE:    the effect is not applied
 // REFRESH: the effect is applied, and the exisiting effect is removed. If the effect is pulse, then an extra pulse occurs.
