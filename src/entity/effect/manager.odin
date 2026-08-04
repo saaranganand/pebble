@@ -9,24 +9,21 @@ import log "core:log"
 @(private)
 global_effect_manager: Effect_Manager
 
-Effect_Instance_Tag_To_ID_Map :: map[Effect_Instance_Tag]uint
-Effect_Definition_Tag_To_ID_Map :: map[Effect_Definition_Tag]uint
-
 Effect_Manager :: struct {
     pool: handle.Pool(handle.Effect_Tag, Effect_State),
 
-    unique_definition_ids: uint,
+    definition_ids: uint,
     definitions: []Effect_Definition,
-    definition_tag_to_id: Effect_Definition_Tag_To_ID_Map,
+    definition_tag_to_id: map[string]uint,
 
-    unique_instance_ids: uint,
+    instance_ids: uint,
     instances: []Effect_Instance,
-    instance_tag_to_id: Effect_Instance_Tag_To_ID_Map,
+    instance_tag_to_id: map[string]uint,
 
     application_queue: [dynamic]Effect_Application_Data,
     removal_queue: [dynamic]Effect_Handle,
 
-    // A slice that is sized as the total number of unqiue effect definitions loaded in.
+    // A slice that is sized as the total number of unique effect definitions loaded in.
     // When an effect is applied, give this the handle.
     // When the effect is removed, set this to nil.
     // For all cases where we dont want to stack, this operates as a boolean check, as well as a source
@@ -53,8 +50,8 @@ effect_manager_create :: proc() -> (effect_manager: ^Effect_Manager) {
     global_effect_manager.application_queue = make([dynamic]Effect_Application_Data)
     global_effect_manager.removal_queue = make([dynamic]Effect_Handle)
 
-    global_effect_manager.definition_tag_to_id = make(Effect_Definition_Tag_To_ID_Map)
-    global_effect_manager.instance_tag_to_id = make(Effect_Instance_Tag_To_ID_Map)
+    global_effect_manager.definition_tag_to_id = make(map[string]uint)
+    global_effect_manager.instance_tag_to_id = make(map[string]uint)
 
     global_effect_manager.entity_active_effects = make(Effect_Active_Entity_Effect_Map)
     global_effect_manager.events = make([dynamic]Effect_Event)
@@ -121,11 +118,6 @@ effect_manager_queue_apply :: proc(data: Effect_Application_Data, callback_overr
         if override.tag not_in data.callback_data do data.callback_data[override.tag] = nil
         data.callback_data[override.tag] = override.data
     }
-    /*override_data, should_override := override.(Effect_Fn_Data)
-    if should_override {
-        success := effect_state_override_data(&data.callback_data, override_data)
-        if !success do log.errorf("Tried to overrite effect state with wrong override data type for instance with tag %v", data.instance.unique_tag)
-    }*/
 
     append(&global_effect_manager.application_queue, data)
 }
@@ -148,7 +140,6 @@ effect_manager_update :: proc() {
         // Find the target entity
         target_entity, entity_ok := entity.entity_get(effect.target, effect.target_team)
         if !entity_ok {
-            //log.errorf("Error in accessing target entity of handle %v while updaing effect of handle %v", effect.target, current_handle)
 
             // remove the effect
             effect.active = false
@@ -164,12 +155,10 @@ effect_manager_update :: proc() {
         if should_remove {
             effect.active = false
             effect_manager_queue_remove(current_handle)
-            effect_manager_remove_entity_active_effect(effect.target, effect.instance.definition.unique_id, current_handle)
+            effect_manager_remove_entity_active_effect(effect.target, effect.instance.definition.id, current_handle)
         }
-
-        
-
     }
+    //TODO separate
     // do removals
     for len(global_effect_manager.removal_queue) > 0 {
         to_remove := pop(&global_effect_manager.removal_queue)
@@ -181,7 +170,7 @@ effect_manager_update :: proc() {
         effect_manager_queue_event(Effect_Event{
             type = .REMOVE, target = removal_effect.target,
             target_team = removal_effect.target_team,
-            definition_id = removal_effect.instance.definition.unique_id,
+            definition_id = removal_effect.instance.definition.id,
             magnitude = effect_fn_data_get_reaction_magnitude(removal_effect.callback_data)
         }) 
     }
@@ -200,15 +189,11 @@ effect_manager_stack_on_apply :: proc(
     instance: ^Effect_Instance, target: util.Handle
 ) -> (should_apply: bool) {
     if instance.definition.stack_behaviour == .STACK do return true
-    //maybe_existing_effect := entity_get_active_effect_by_ID(target_entity, instance.definition.unique_id)
-    //is_existing_effect := maybe_existing_effect != nil
-
-    //if !is_existing_effect do return true
 
     // While this would fail if there is no existing effect, we have already returned in such a case.
     // As such, be very careful not to move the above conditional return to below this block of code.
     
-    existing_effect_handle, existing_effect_handle_ok := effect_manager_get_entity_active_effect(target, instance.definition.unique_id)
+    existing_effect_handle, existing_effect_handle_ok := effect_manager_get_entity_active_effect(target, instance.definition.id)
     // No effect, dont care about stacking
     if !existing_effect_handle_ok do return true
 
@@ -252,12 +237,12 @@ effect_manager_apply_effect :: proc(
     effect_manager_queue_event(Effect_Event{
         type = .APPLY, target = application_data.target,
         target_team = application_data.target_team,
-        definition_id = application_data.instance.definition.unique_id,
+        definition_id = application_data.instance.definition.id,
         magnitude = effect_fn_data_get_reaction_magnitude(application_data.callback_data)
     })
 
     new_effect_handle := handle.pool_add(&global_effect_manager.pool, state)
     
     // TODO
-    effect_manager_add_entity_active_effect(target, {new_effect_handle, instance.definition.unique_id})
+    effect_manager_add_entity_active_effect(target, {new_effect_handle, instance.definition.id})
 }

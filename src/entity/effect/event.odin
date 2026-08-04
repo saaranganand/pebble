@@ -16,7 +16,7 @@ Effect_Event :: struct {
     type: Effect_Event_Type,
     target: util.Handle,
     target_team: entity.Team,
-    definition_id: Effect_Definition_ID,
+    definition_id: uint,
     // Kind of a catch all value.
     // Can be used to display damage amount as floating text,
     // or in an equation to determine screen shake based on amount of damage taken.

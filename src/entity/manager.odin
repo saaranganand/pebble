@@ -16,7 +16,6 @@ global_manager: Entity_Manager
 
 Entity_Manager :: struct {
     entities: [Team]hm.Dynamic_Handle_Map(Entity, util.Handle)
-    //pools: [Team]handle.Pool(handle.Entity_Tag, Entity)
 }
 
 entity_manager_create :: proc() -> (entity_manager: ^Entity_Manager){

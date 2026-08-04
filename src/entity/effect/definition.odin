@@ -22,12 +22,9 @@ Stack_Behaviour :: enum { NONE, REFRESH, STACK, EXTEND }
 
 Effect_Type :: enum { PULSE, CONTINUOUS, SINGLE }
 
-Effect_Definition_Tag :: string
-Effect_Definition_ID :: uint
-
 Effect_Definition :: struct {
-    unique_id: uint,
-    unique_tag: string,
+    id: uint,
+    tag: string,
 
     callback: Effect_Callback,
     stack_behaviour: Stack_Behaviour,
@@ -48,7 +45,7 @@ effect_definitions_load :: proc() {
     util.scrape_files(EFFECT_DEFINITION_MASTER_FOLDER, EFFECT_DEFINITION_DATA_EXTENSION, &results)
 
     num_definitions := len(results)
-    global_effect_manager.unique_definition_ids = cast(uint) num_definitions
+    global_effect_manager.definition_ids = cast(uint) num_definitions
     global_effect_manager.definitions = make([]Effect_Definition, num_definitions)
     definition_id_counter: uint = 0
     
@@ -62,8 +59,8 @@ effect_definitions_load :: proc() {
 
         effect_definition_load(definition, path)
         
-        definition.unique_tag = tag
-        definition.unique_id = definition_id_counter
+        definition.tag = tag
+        definition.id = definition_id_counter
     }
 }
 
@@ -88,7 +85,7 @@ effect_definitions_unload :: proc() {
     log.infof("Unloading effect definitions")
 
     for &definition in &global_effect_manager.definitions {
-        delete(definition.unique_tag)
+        delete(definition.tag)
     }
     defer delete(global_effect_manager.definitions)
 }

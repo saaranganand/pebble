@@ -9,17 +9,12 @@ import strings "core:strings"
 import log "core:log"
 import os "core:os"
 
-Effect_Instance_Tag :: string
-
-Effect_Instance_ID :: u32
-
-// TODO: store instances in a allocated slice (not dynamic array)
 Effect_Instance :: struct {
     definition: ^Effect_Definition,
     definition_tag: string,
 
-    unique_tag: string,
-    unique_id: uint,
+    tag: string,
+    id: uint,
 
     duration: f32,
     interval: f32,
@@ -42,7 +37,7 @@ effect_instances_load :: proc() {
     util.scrape_files(EFFECT_INSTANCE_MASTER_FOLDER, EFFECT_INSTANCE_DATA_EXTENSION, &results)
 
     num_instances := len(results)
-    global_effect_manager.unique_instance_ids = cast(uint) num_instances
+    global_effect_manager.instance_ids = cast(uint) num_instances
     global_effect_manager.instances = make([]Effect_Instance, num_instances)
     instance_id_counter: uint = 0
     
@@ -56,8 +51,8 @@ effect_instances_load :: proc() {
 
         effect_instance_load(instance, path)
         
-        instance.unique_tag = tag
-        instance.unique_id = instance_id_counter
+        instance.tag = tag
+        instance.id = instance_id_counter
 
         definition_id := global_effect_manager.definition_tag_to_id[instance.definition_tag]
         instance.definition = &global_effect_manager.definitions[definition_id]
@@ -84,7 +79,7 @@ effect_instances_unload :: proc() {
     log.infof("Unloading effect instances")
 
     for instance in global_effect_manager.instances {
-        delete(instance.unique_tag)
+        delete(instance.tag)
         delete(instance.definition_tag)
 
         for key, value in instance.callback_data {

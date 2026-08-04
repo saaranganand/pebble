@@ -16,7 +16,7 @@ Weapon_Manager :: struct {
     weapons: []Weapon_Definition,
     num_weapons: uint,
     definition_tag_to_id: map[string]uint,
-    unique_definition_ids: uint,
+    definition_ids: uint,
 }
 
 weapon_manager_create :: proc() -> ^Weapon_Manager {
@@ -62,7 +62,7 @@ weapon_manager_load :: proc() {
     util.scrape_files(WEAPON_MASTER_FOLDER, WEAPON_DATA_EXTENSION, &results)
 
     num_definitions := len(results)
-    global_weapon_manager.unique_definition_ids = cast(uint) num_definitions
+    global_weapon_manager.definition_ids = cast(uint) num_definitions
     global_weapon_manager.weapons = make([]Weapon_Definition, num_definitions)
     definition_id_counter: uint = 0
 
@@ -76,7 +76,7 @@ weapon_manager_load :: proc() {
 
         weapon_definition_load(definition, path)
         
-        definition.unique_tag = tag
-        definition.unique_id = definition_id_counter
+        definition.tag = tag
+        definition.id = definition_id_counter
     }
 }

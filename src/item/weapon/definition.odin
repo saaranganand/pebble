@@ -9,8 +9,8 @@ import log "core:log"
 import os "core:os"
 
 Weapon_Definition :: struct {
-    unique_tag: string,
-    unique_id: uint,
+    tag: string,
+    id: uint,
     category: Category,
 
     shoot_callback: string,
@@ -47,7 +47,7 @@ weapon_definition_load :: proc(definition: ^Weapon_Definition, path: string) {
 }
 
 weapon_definition_unload :: proc(definition: ^Weapon_Definition) {
-    delete(definition.unique_tag)
+    delete(definition.tag)
     delete(definition.animation_source)
     delete(definition.shoot_callback)
     delete(definition.charge_callback)

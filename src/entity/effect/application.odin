@@ -15,7 +15,7 @@ Effect_Application_Data :: struct {
 }
 
 effect_application_data_from_tag :: proc(
-    instance_tag: Effect_Instance_Tag, source, target: util.Handle, target_team: entity.Team
+    instance_tag: string, source, target: util.Handle, target_team: entity.Team
 ) -> (data: Effect_Application_Data) {
     data.source = source
     data.target = target

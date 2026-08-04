@@ -8,7 +8,7 @@ import log "core:log"
 
 Active_Effect_Data :: struct {
     handle: Effect_Handle,
-    ID: Effect_Definition_ID
+    ID: uint
 }
 Effect_Active_Entity_Effect_Map :: map[util.Handle][dynamic]Active_Effect_Data
 
@@ -20,7 +20,7 @@ effect_manager_add_entity_active_effect :: proc(target: util.Handle, effect_data
 }
 
 effect_manager_get_entity_active_effect :: proc(
-    target: util.Handle, effect_ID: Effect_Definition_ID
+    target: util.Handle, effect_ID: uint
 ) -> (handle: Effect_Handle, ok: bool){
     active_effects, active_effects_ok := &global_effect_manager.entity_active_effects[target]
     if !active_effects_ok do return {}, false
@@ -33,7 +33,7 @@ effect_manager_get_entity_active_effect :: proc(
 }
 
 effect_manager_remove_entity_active_effect :: proc(
-    target: util.Handle, effect_ID: Effect_Definition_ID, effect_handle: Effect_Handle
+    target: util.Handle, effect_ID: uint, effect_handle: Effect_Handle
 ) {
     active_effects, ok := &global_effect_manager.entity_active_effects[target]
     if !ok {

@@ -60,7 +60,7 @@ weapon_controller_select_weapon_tag :: proc(controller: ^Weapon_Controller, defi
     i := 0
     for weapon_state in controller.weapons {
         defer i += 1
-        if weapon_state.definition.unique_tag != definition_tag do continue
+        if weapon_state.definition.tag != definition_tag do continue
 
         controller.active_weapon = i
         weapon_state_select(&controller.weapons[controller.active_weapon])
