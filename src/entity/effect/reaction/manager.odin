@@ -1,10 +1,8 @@
 package reaction
 
-import data_load "src:data_load"
 import entity "src:entity"
 import effect "src:entity/effect"
 import util "src:util"
-
 
 import log "core:log"
 import fmt "core:fmt"
@@ -56,7 +54,7 @@ reaction_manager_load :: proc(effect_definition_tag_to_id: effect.Effect_Definit
     
     for path in results {
         set: Reaction_Set
-        effect_reaction_load(&set, path)
+        reaction_set_load(&set, path)
 
         definition_id := effect_definition_tag_to_id[set.definition_tag]
 
