@@ -103,7 +103,7 @@ entity_manager_draw :: proc() {
         entity_draw(e)
     }
 
-    pool = &global_manager.entities[.NEUTRAL]
+    pool = &global_manager.entities[.BOSS]
     it = hm.iterator_make(pool)
     for e, h in hm.iterate(&it) {
         entity_draw(e)

@@ -40,7 +40,7 @@ horde_populate :: proc(horde: ^Horde, horde_position: sdl.FPoint) -> (followers_
     horde.populated = true
 
     leader_handle := entity.entity_manager_add_entity(entity.entity_make_data(
-        horde_position + horde_rand_offset, 90, 100, 32, .ENEMY, .PLAYER, "horde_leader.animation"
+        horde_position + horde_rand_offset, 90, 100, 32, .ENEMY, "horde_leader.animation"
     ))
 
     horde.leader = leader_handle
@@ -48,7 +48,7 @@ horde_populate :: proc(horde: ^Horde, horde_position: sdl.FPoint) -> (followers_
     
     for i in 0..<horde.num_followers {
         follow_handle := entity.entity_manager_add_entity(entity.entity_make_data(
-            horde_position + horde_rand_offset, 80 + rand.float32_range(-20, 20), 20, 16, .ENEMY, .PLAYER, "horde_follower.animation"
+            horde_position + horde_rand_offset, 80 + rand.float32_range(-20, 20), 20, 16, .ENEMY, "horde_follower.animation"
         ))
 
         

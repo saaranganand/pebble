@@ -63,29 +63,18 @@ reaction_manager_load :: proc(effect_definition_id_map: map[string]uint) {
 }
 
 reaction_manager_get_data_from_enums :: proc(
-    team: entity.Team, category: entity.Category, definition_id: uint
+    team: entity.Team, definition_id: uint
 ) -> (data: Reaction_Data, ok: bool) {
     reaction_set := global_reaction_manager.table[definition_id]
 
-    // First, try specific combo
-    base_key := reaction_data_tag_create(team, category)
-    defer reaction_data_tag_destroy(base_key)
-
-    data, ok = reaction_set.reaction_data_map[base_key]
+    // First, try team
+    team_string := fmt.aprint(team)
+    defer delete(team_string)
+    data, ok = reaction_set.reaction_data_map[team_string]
     if ok do return data, true
 
-    // Then, try matching team with any category
-    team_key := fmt.aprint(team, "ANY", sep = ",")
-    defer delete(team_key)
-
-    data, ok = reaction_set.reaction_data_map[team_key]
-    if ok do return data, true
-
-    // Then, category with any team
-    category_key := fmt.aprint("ANY", category, sep = ",")
-    defer delete(category_key)
-
-    data, ok = reaction_set.reaction_data_map[category_key]
+    // Then, fallback to ANY
+    data, ok = reaction_set.reaction_data_map["ANY"]
     if ok do return data, true
 
     // Finally, try default
@@ -101,7 +90,7 @@ reaction_manager_update :: proc(effect_manager: ^effect.Effect_Manager) {
         target_entity, entity_ok := entity.entity_get(event.target, event.target_team)
         if !entity_ok do continue
 
-        data, data_ok := reaction_manager_get_data_from_enums(target_entity.team, target_entity.category, event.definition_id)
+        data, data_ok := reaction_manager_get_data_from_enums(target_entity.team, event.definition_id)
         if !data_ok do continue
 
         // trigger the reaction

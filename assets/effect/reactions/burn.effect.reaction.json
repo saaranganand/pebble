@@ -7,7 +7,7 @@ default_reaction_data: {
 }
 
 reaction_data_map: {
-  "ALLY,PLAYER": {
+  "ALLY": {
     trigger_sound: "burn_tick.wav"
 
     flash_color: "RED"
@@ -19,7 +19,7 @@ reaction_data_map: {
     show_damage_number_color: "RED"
   }
 
-  "ANY,NPC": {
+  "ANY": {
     external_animation_tag: "flame_small.animation"
   }
 }

@@ -12,14 +12,6 @@ import fmt "core:fmt"
 // said animation will be accessed from this data source.
 REACTION_ANIMATION_SOURCE: string: "reactions.animation"
 
-reaction_data_tag_create :: proc(team: entity.Team, category: entity.Category) -> (tag: string) {
-    return fmt.aprint(team, category, sep = ",")
-}
-
-reaction_data_tag_destroy :: proc(tag: string) {
-    delete(tag)
-}
-
 // Reaction data contains a collection of data related to possible reaction outcomes.
 // Some effects might play a sound on their trigger, while some may display an animation while active.
 // Some may do both.

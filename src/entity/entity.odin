@@ -17,15 +17,13 @@ Force :: struct {
     decay_rate: f32,
 }
 
-Team :: enum { ALLY, NEUTRAL, ENEMY }
-Category :: enum { PLAYER, BULLET, NPC, VIP }
+Team :: enum { ALLY, ENEMY, BOSS }
 
 Entity :: struct {
     handle: util.Handle,
     collision: geo.Circle,
     animation_controller: animation.Animation_Controller,
     team: Team,
-    category: Category,
 
     direction: sdl.FPoint,
     base_move_speed, move_speed: f32,
@@ -34,13 +32,12 @@ Entity :: struct {
 
 // Is used to allow outside sources to create an entity
 entity_make_data :: proc(
-    col_position: sdl.FPoint, base_move_speed, max_hp, col_radius: f32, team: Team, category: Category,
+    col_position: sdl.FPoint, base_move_speed, max_hp, col_radius: f32, team: Team,
     animation_source_tag: string
 ) -> (entity: Entity) {
     entity.collision = geo.Circle{ position = col_position, radius = col_radius}
     entity.animation_controller = animation.animation_controller_create(animation_source_tag)
     entity.team = team
-    entity.category = category
 
     entity.direction = {0.0,0.0}
     entity.base_move_speed = base_move_speed
