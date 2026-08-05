@@ -1,12 +1,39 @@
 package util
 
+import sdl_ttf "vendor:sdl3/ttf"
 import mu "vendor:microui"
 import sdl "vendor:sdl3"
 
-mu_ctx_init :: proc(ctx: ^mu.Context, renderer: ^sdl.Renderer, atlas_tex: ^^sdl.Texture) {
+import strings "core:strings"
+import log "core:log"
+
+MU_Text_Cache :: map[string]^sdl_ttf.Text
+
+mu_ctx_init :: proc(ctx: ^mu.Context, renderer: ^sdl.Renderer, atlas_tex: ^^sdl.Texture, font: ^sdl_ttf.Font = nil) {
     mu.init(ctx)
-    ctx.text_width = mu.default_atlas_text_width
-    ctx.text_height = mu.default_atlas_text_height
+
+    ctx.style.font = transmute(mu.Font)font
+
+    if font == nil {
+        ctx.text_width = mu.default_atlas_text_width
+        ctx.text_height = mu.default_atlas_text_height
+    } else {
+        // Provide measuring callbacks
+        ctx.text_width = proc(font: mu.Font, text: string) -> i32 {
+            f := transmute(^sdl_ttf.Font)font
+            w, h: i32
+
+            cstr_text := strings.clone_to_cstring(text)
+            defer delete(cstr_text)
+            sdl_ttf.GetStringSize(f, cstr_text, uint(len(text)), &w, &h)
+            return w
+        }
+
+        ctx.text_height = proc(font: mu.Font) -> i32 {
+            f := transmute(^sdl_ttf.Font)font
+            return i32(sdl_ttf.GetFontHeight(f))
+        }
+    }    
 
     pixels := make([]u8, mu.DEFAULT_ATLAS_WIDTH * mu.DEFAULT_ATLAS_HEIGHT * 4)
     for a, i in mu.default_atlas_alpha {
@@ -64,21 +91,30 @@ mu_ctx_read_input :: proc(ev: sdl.Event, ctx: ^mu.Context) {
 }
 
 
-mu_ctx_draw :: proc(ctx: ^mu.Context, renderer: ^sdl.Renderer, atlas_tex: ^sdl.Texture) {
+mu_ctx_draw :: proc(ctx: ^mu.Context, renderer: ^sdl.Renderer, atlas_tex: ^sdl.Texture, text_cache: MU_Text_Cache) {
     cmd: ^mu.Command
     for variant in mu.next_command_iterator(ctx, &cmd) {
         switch v in variant {
         case ^mu.Command_Text:
-            dst := sdl.FRect{f32(v.pos.x), f32(v.pos.y), 0, 0}
-            sdl.SetTextureColorMod(atlas_tex, v.color.r, v.color.g, v.color.b)
-            sdl.SetTextureAlphaMod(atlas_tex, v.color.a)
-            x := v.pos.x
-            for ch in v.str {
-                r := min(int(ch), 127)
-                src := mu.default_atlas[mu.DEFAULT_ATLAS_FONT + r]
-                dst := sdl.FRect{f32(x), f32(v.pos.y), f32(src.w), f32(src.h)}
-                sdl.RenderTexture(renderer, atlas_tex, &sdl.FRect{f32(src.x), f32(src.y), f32(src.w), f32(src.h)}, &dst)
-                x += src.w
+            if text_cache == nil {
+                dst := sdl.FRect{f32(v.pos.x), f32(v.pos.y), 0, 0}
+                sdl.SetTextureColorMod(atlas_tex, v.color.r, v.color.g, v.color.b)
+                sdl.SetTextureAlphaMod(atlas_tex, v.color.a)
+                x := v.pos.x
+                for ch in v.str {
+                    r := min(int(ch), 127)
+                    src := mu.default_atlas[mu.DEFAULT_ATLAS_FONT + r]
+                    dst := sdl.FRect{f32(x), f32(v.pos.y), f32(src.w), f32(src.h)}
+                    sdl.RenderTexture(renderer, atlas_tex, &sdl.FRect{f32(src.x), f32(src.y), f32(src.w), f32(src.h)}, &dst)
+                    x += src.w
+                }
+
+                break
+            }
+
+            if cached_text, ok := text_cache[v.str]; ok {
+                sdl_ttf.SetTextColor(cached_text, v.color.r, v.color.g, v.color.b, v.color.a)
+                sdl_ttf.DrawRendererText(cached_text, f32(v.pos.x), f32(v.pos.y))
             }
 
         case ^mu.Command_Rect:

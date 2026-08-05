@@ -21,6 +21,7 @@ debug_all_load :: proc() {
     font.font_load("ubuntu", 32)
     font.font_load("ubuntu", 24)
     font.font_load("ubuntu", 16)
+    font.font_load("ubuntu", 12)
 
     img.img_load("player")
     img.img_load("weapons")

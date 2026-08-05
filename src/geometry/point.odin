@@ -54,3 +54,7 @@ line_rect_intersection :: proc(start: sdl.FPoint, angle: f32, rect: sdl.FRect) -
 
     return start + dir * t_max
 }
+
+point_in_rect :: proc(p: sdl.FPoint, rect: sdl.FRect) -> bool {
+    return p.x >= rect.x && p.x <= rect.x + rect.w && p.y >= rect.y && p.y <= rect.y + rect.h
+}

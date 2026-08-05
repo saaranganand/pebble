@@ -5,6 +5,9 @@ import log "core:log"
 
 global_window: ^sdl.Window
 
+screen_width, screen_height: i32
+window_width, window_height: i32
+
 global_window_create :: proc(width, height: i32) {
     global_window = sdl.CreateWindow("Pebble", width, height, {})
     if global_window == nil do log.errorf("SDL window creation fail: %v", sdl.GetError())

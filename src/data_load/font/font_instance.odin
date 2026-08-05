@@ -33,7 +33,9 @@ font_load :: proc(tag: string, size: f32) {
 
     log.infof("Loading font %v with size %v.", tag, size)
 
-    instance.size_map[size] = sdl_ttf.OpenFont(strings.unsafe_string_to_cstring(instance.path), size)
+    cstr_path := strings.clone_to_cstring(instance.path)
+    defer delete(cstr_path)
+    instance.size_map[size] = sdl_ttf.OpenFont(cstr_path, size)
 }
 
 font_unload :: proc(tag: string, size: f32) {

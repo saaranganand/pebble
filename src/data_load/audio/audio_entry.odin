@@ -91,8 +91,11 @@ audio_load :: proc(tag: string, engine_type: Engine_Type = .GAME) {
     // TODO: check out fences and sound groups
     entry.engine_owner = engine_type
     engine := &global_audio_manager.engines[engine_type]
+    
+    cstr_path := strings.clone_to_cstring(entry.path)
+    defer delete(cstr_path)
     result := ma.sound_init_from_file(
-        engine, strings.unsafe_string_to_cstring(entry.path), flags, nil, nil, entry.source_audio
+        engine, cstr_path, flags, nil, nil, entry.source_audio
     )
     
     if result != .SUCCESS {

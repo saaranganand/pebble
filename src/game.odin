@@ -72,10 +72,10 @@ game_create :: proc() {
     game.horde_manager = horde.horde_manager_create()
     horde.horde_manager_spawn_horde({0,0}, game.player.entity)
 
-    camera.global_camera_create(f32(app.window_width), f32(app.window_height))
+    camera.global_camera_create(f32(primatives.window_width), f32(primatives.window_height))
     camera.set_follow(&game.player.tracking_position, 1)//0.05)
 
-    game.hud = hud.create_hud({0,0}, {f32(app.window_width), f32(app.window_height)})
+    game.hud = hud.create_hud({0,0}, {f32(primatives.window_width), f32(primatives.window_height)})
 
     log.infof("\n\n\n\n==================== ENTERING GAME ====================")
 }

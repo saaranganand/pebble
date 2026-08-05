@@ -39,7 +39,10 @@ img_load :: proc(tag: string) {
 
     log.infof("Loading texture %v", tag)
 
-    instance.texture = sdl_img.LoadTexture(primatives.global_renderer, strings.unsafe_string_to_cstring(instance.path))
+    cstr_path := strings.clone_to_cstring(instance.path)
+    defer delete(cstr_path)
+    instance.texture = sdl_img.LoadTexture(primatives.global_renderer, cstr_path)
+    
     sdl.SetTextureBlendMode(instance.texture, {.BLEND})
     sdl.SetTextureScaleMode(instance.texture, .PIXELART)
 

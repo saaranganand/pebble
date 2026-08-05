@@ -10,6 +10,8 @@ global_renderer_create :: proc() {
     if global_renderer == nil do log.errorf("SDL renderer creation fail: %v", sdl.GetError())
 
     log.infof("Created global renderer")
+
+    sdl.SetRenderDrawBlendMode(global_renderer, sdl.BLENDMODE_BLEND)
 }
 
 global_renderer_destroy :: proc() {

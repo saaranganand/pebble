@@ -45,7 +45,7 @@ handle_app_input :: proc(input: App_Input) {
     }
 
     if input.new_display {
-        app.display_id = primatives.global_window_read_screen_size(&app.screen_width, &app.screen_height)
+        app.display_id = primatives.global_window_read_screen_size(&primatives.screen_width, &primatives.screen_height)
     }
 
     should_read_window_size := false
@@ -60,7 +60,7 @@ handle_app_input :: proc(input: App_Input) {
         // its pixel size changes with it
         input.new_display
         
-    if should_read_window_size do primatives.global_window_read_size(&app.window_width, &app.window_height)
+    if should_read_window_size do primatives.global_window_read_size(&primatives.window_width, &primatives.window_height)
 }
 
 poll_app_input :: proc() -> (input: App_Input) {

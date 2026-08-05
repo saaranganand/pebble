@@ -21,8 +21,6 @@ app_loops := [App_State]proc(){
 
 App :: struct {
     display_id: sdl.DisplayID,
-    screen_width, screen_height: i32,
-    window_width, window_height: i32,
     fullscreen: bool,
     state: App_State,
     target_state: App_State,
@@ -37,31 +35,34 @@ app: App
 app_create :: proc() {
     log.infof("\n\n\n\n==================== APP INITIALIZATION ====================")
 
-    app.window_width = 800
-    app.window_height = 800
+    primatives.window_width = 800
+    primatives.window_height = 800
 
-    app.state = .GAME
-    app.target_state = .GAME
+    default_state :: App_State.GAME
+    app.state = default_state
+    app.target_state = .LEVEL_CREATOR
     app.active_mu_ctx = nil
 
-    primatives.global_window_create(app.window_width, app.window_height)
+    app_switch_state()
+
+    primatives.global_window_create(primatives.window_width, primatives.window_height)
     // We call this immediately because of window display scale
     // for example a HiDPI display could use the same window positioning, but have twice as many pixels.
     // On such a display, when we set our window to a size, it will actually have a pixel size of 2x.
     // Since we will be using our window size for rendering, this is important, and as such,
     // we need to immediately read the window's pixel size using this procedure.
-    primatives.global_window_read_size(&app.window_width, &app.window_height)
-    app.display_id = primatives.global_window_read_screen_size(&app.screen_width, &app.screen_height)
+    primatives.global_window_read_size(&primatives.window_width, &primatives.window_height)
+    app.display_id = primatives.global_window_read_screen_size(&primatives.screen_width, &primatives.screen_height)
 
     primatives.global_renderer_create()
     primatives.global_renderer_set_vsync()
-
-    level_creator.creator_init()
 
     // configs
     if !load_configs() do log.errorf("Failed to load game config")
 
     data_load.global_init()
+
+    level_creator.creator_init()
 
     game_create()
 }
@@ -91,7 +92,7 @@ app_switch_state :: proc() {
     else do audio.resume_audio(.GAME)
 
     if app.state == .LEVEL_CREATOR {
-        app.active_mu_ctx = &level_creator.mu_ctx
+        app.active_mu_ctx = &level_creator.ui.mu_ctx
     }
 }
 

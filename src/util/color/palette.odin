@@ -2,6 +2,7 @@ package color
 
 import ttf "vendor:sdl3/ttf"
 import sdl "vendor:sdl3"
+import mu "vendor:microui"
 
 import primatives "src:sdl_primatives"
 
@@ -86,6 +87,29 @@ default_color_palette := [Default_Palette_Color]sdl.Color {
     .PALE        = {0xf5, 0xf0, 0xd0, 0xff},
 }
 
+@(rodata)
+default_color_pallette_light_color := [Default_Palette_Color]bool {
+    .WHITE       = true,
+    .LIGHT_GRAY  = true,
+    .GRAY        = true,
+    .DARK_GRAY   = false,
+    .BLACK       = false,
+
+    .BLUE        = false,
+    .SKY_BLUE    = true,
+    .BABY_BLUE   = true,
+
+    .DARK_GREEN  = false,
+    .GREEN       = false,
+    .GRASS_GREEN = true,
+
+    .RED         = false,
+    .PINK        = true,
+    .BROWN       = false,
+    .YELLOW      = true,
+    .PALE        = true,
+}
+
 sdl_fcolor_from_color_palette :: proc(pcolor: Default_Palette_Color) -> sdl.FColor {
     color := default_color_palette[pcolor]
     return {
@@ -94,6 +118,11 @@ sdl_fcolor_from_color_palette :: proc(pcolor: Default_Palette_Color) -> sdl.FCol
         f32(color.b) / 255,
         f32(color.a) / 255
     }
+}
+
+mu_color_from_color_palette :: proc(pcolor: Default_Palette_Color) -> mu.Color {
+    color := default_color_palette[pcolor]
+    return { color.r, color.g, color.b, color.a }
 }
 
 sdl_set_default_color_palette :: proc(pcolor: Default_Palette_Color) {
