@@ -59,6 +59,15 @@ Program_Definition :: struct {
 PROGRAM_DEFAULT_SPRITE :: "program"
 
 @(private)
+PROGRAM_TAG_SUFFIX :: ".program"
+
+// unique_tag is the data file's stem, so it carries the category suffix ("charger.program").
+// Anything the player reads wants the bare name.
+program_definition_display_name :: proc(definition: ^Program_Definition) -> string {
+    return strings.trim_suffix(definition.unique_tag, PROGRAM_TAG_SUFFIX)
+}
+
+@(private)
 program_definition_load :: proc(definition: ^Program_Definition, path: string) {
     data, err := os.read_entire_file(path, context.allocator)
 	if err != os.General_Error.None {

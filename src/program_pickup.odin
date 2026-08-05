@@ -107,7 +107,7 @@ program_pickup_collect :: proc(pickup: ^Program_Pickup, player_position: sdl.FPo
     // Applies buffs, self-effects, and hit-effects
     program.program_loadout_equip(&game.player.program_loadout, definition.unique_tag)
 
-    label := fmt.caprintf("+ %v", definition.unique_tag)
+    label := fmt.caprintf("+ %v", program.program_definition_display_name(definition))
     defer delete(label)
     floating_text_spawn(&game.floating_texts, label, player_position + {0, -30})
 }
