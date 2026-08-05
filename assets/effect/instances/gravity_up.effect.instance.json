@@ -1,0 +1,9 @@
+definition_tag: "gravity.effect.definition"
+
+duration: 15
+interval: 0
+
+callback_data: {
+  direction: [0, -1]
+  speed: 50
+}

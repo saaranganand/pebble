@@ -4,9 +4,9 @@ package main
 import sdl "vendor:sdl3"
 import "core:math"
 
-import primatives "sdl_primatives"
-import camera "camera"
-import color "color"
+import primatives "src:sdl_primatives"
+import camera "src:camera"
+import color "src:util/color"
 
 MAX_BULLETS :: 256
 

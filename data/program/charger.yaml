@@ -1,6 +1,0 @@
-# +5 hp/sec
-
-sprite: img/program/charger.png
-
-self_effects:
-    - program_charger

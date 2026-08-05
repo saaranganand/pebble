@@ -1,7 +1,0 @@
-definition: "knockback"
-duration: 0.0
-callback_type: "force"
-# data
-direction: {x: -1.0, y: 0.0}
-force: 20.0
-decay_rate: 0.5

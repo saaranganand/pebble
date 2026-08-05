@@ -1,0 +1,8 @@
+definition_tag: "heal.effect.definition"
+
+duration: -1.0
+interval: 1.0
+
+callback_data: {
+  amount: 5.0
+}

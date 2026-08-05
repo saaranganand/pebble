@@ -1,7 +1,0 @@
-# +20% max HP while equipped
-
-sprite: img/program/heap.png
-
-entity_buffs:
-    - stat: MAX_HEALTH
-      multiplier: 1.2

@@ -1,0 +1,6 @@
+// +20% max HP while equipped
+sprite: "heap"
+
+entity_buffs: [
+  { stat: "MAX_HEALTH", multiplier: 1.2 }
+]

@@ -1,0 +1,22 @@
+category: "RANGED"
+
+projectile_shell: {
+  category: "BULLET"
+  piercing: 2
+  speed: 2000
+  lifetime: 3
+
+  animation_source: "bullet.animation"
+
+  shape_radius: 5
+}
+
+gcd_interval: 0.2
+damage: 12
+
+sounds: {
+  SELECT: "weapon_select.wav"
+  SHOOT: "weapon_shoot.wav"
+}
+animation_source: "bit_rifle.animation"
+animation_default_angle: 0.0

@@ -1,0 +1,11 @@
+source_img_tag: "enemy_horde"
+animations: {
+  idle: {
+    fps: 0
+    looping: false
+    scale: 2
+    frames: [
+      { source: { x: 32, y: 0, w: 16, h: 16 }, hang_frames: 1, dest_scale: [1, 1] }
+    ]
+  }
+}

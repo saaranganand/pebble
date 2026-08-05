@@ -1,0 +1,4 @@
+callback: "LUA"
+lua_callback: "explode"
+stack_behaviour: "NONE"
+type: "SINGLE"

@@ -1,30 +1,32 @@
 package program
 
-import yaml "../../libs/odin-yaml"
+import effect "src:entity/entity_effect"
+import weapon "src:item/weapon"
+import entity "src:entity"
+import img "src:data_load/img"
 
-import assets "../assets"
-import yaml_parse "../assets/yaml_parse"
-import entity "../entity"
-import effect "../entity_effect"
-import weapon "../weapon"
-
-import runtime "base:runtime"
+import json "core:encoding/json"
 import strings "core:strings"
 import log "core:log"
+import os "core:os"
 
 Program_Definition_Tag :: string
-Program_Definition_ID :: u32
+Program_Definition_ID :: uint
 
 // weapon buff
 Stat_Buff :: struct {
     stat: weapon.Weapon_Stat,
-    weapon_id: Maybe(weapon.Weapon_Definition_ID), // nil = every weapon
     multiplier: f32,
+
+    // Data files name the weapon; "" means every weapon.
+    // Resolved to weapon_id once at load, so per-shot reads stay an index.
+    weapon_tag: string,
+    weapon_id: Maybe(weapon.Weapon_Definition_ID),
 }
 
 Entity_Stat_Buff :: struct {
     stat: entity.Entity_Stat,
-    multiplier: f32
+    multiplier: f32,
 }
 
 // effect instance applied to wielder
@@ -35,131 +37,91 @@ Self_Effect :: struct {
 
 // --- PROGRAMS ---
 // 3 types: buffs (weapons), self effects (applied to player), hit effects (applied to whatever projectile hits)
-// All references are resolved to IDs here at load time, so bad names fail loudly at boot, not during play.
+// All references are resolved to IDs at load time, so bad names fail loudly at boot, not during play.
 Program_Definition :: struct {
     unique_tag: Program_Definition_Tag,
     unique_id: Program_Definition_ID,
-    sprite: assets.Data_Tag,
+    sprite: string,
 
     buffs: []Stat_Buff,
     entity_buffs: []Entity_Stat_Buff,
+
+    // Tags as written in the data file...
+    self_effect_tags: []string,
+    hit_effect_tags: []string,
+
+    // ...and the IDs they resolve to.
     self_effects: []Self_Effect,
     hit_effects: []effect.Effect_Instance_ID,
 }
 
-program_definition_load :: proc(
-    pre_path, file_path: string, counter: ^Program_Definition_ID, arena_allocator: runtime.Allocator
-) {
-    defer counter^ += 1
+@(private)
+PROGRAM_DEFAULT_SPRITE :: "program"
 
-    full_path := strings.clone(file_path)
-    defer delete(full_path)
-    data_map, map_ok := yaml_parse.get_yaml_mapping(full_path, arena_allocator)
-    if !map_ok {
-        log.errorf("Failed in loading program definition from path %v", file_path)
+@(private)
+program_definition_load :: proc(definition: ^Program_Definition, path: string) {
+    data, err := os.read_entire_file(path, context.allocator)
+	if err != os.General_Error.None {
+        log.errorf("Failed to read program file %v: %v", path, err)
         return
     }
+	defer delete(data)
 
-    log.debugf("Loading program definition %v", file_path)
+	json_err := json.unmarshal(data, definition, spec = .MJSON)
+	if json_err != nil {
+		log.errorf("Failed to parse program json file %v: %v", path, json_err)
+		return
+	}
+}
 
-    new_definition: Program_Definition
-    defer global_program_manager.programs[counter^] = new_definition
+// Turns the tags a program's data file refers to into the IDs the rest of the game indexes by.
+// Must run after the weapon and effect managers have loaded.
+@(private)
+program_definition_resolve :: proc(definition: ^Program_Definition) {
+    if definition.sprite == "" do definition.sprite = strings.clone(PROGRAM_DEFAULT_SPRITE)
+    img.img_load(definition.sprite)
 
-    new_definition.unique_id = counter^
-    new_definition.unique_tag = strings.clone(strings.trim_prefix(strings.trim_suffix(file_path, ".yaml"), pre_path))
+    for &buff in definition.buffs {
+        if buff.weapon_tag == "" do continue
 
-    // SPRITE --------------------------------------------
-    sprite_tag := yaml_parse.read_value_from_map(data_map, "sprite", string, default = "img/program/program.png")
-    new_definition.sprite = cast(assets.Data_Tag) strings.clone(sprite_tag)
-    assets.img_load(new_definition.sprite)
-
-    // BUFFS ---------------------------------------------
-    buffs_seq := yaml_parse.read_value_from_map(data_map, "buffs", yaml.Sequence, default = nil)
-    new_definition.buffs = make([]Stat_Buff, len(buffs_seq))
-    for item, i in buffs_seq {
-        buff_map, buff_ok := item.(yaml.Mapping)
-        if !buff_ok {
-            log.errorf("Program %v buff %v is not a mapping", new_definition.unique_tag, i)
-            continue
-        }
-
-        new_buff: Stat_Buff
-        new_buff.stat = weapon.weapon_stat_from_string(yaml_parse.read_value_from_map(buff_map, "stat", string, default = ""))
-        new_buff.multiplier = cast(f32) yaml_parse.read_value_from_map(buff_map, "multiplier", f64, default = 1)
-
-        weapon_tag := yaml_parse.read_value_from_map(buff_map, "weapon", string, default = "")
-        if weapon_tag != "" {
-            weapon_id, weapon_ok := weapon.weapon_manager_get_definition_id(weapon_tag)
-            if !weapon_ok do log.panicf("Program %v buff targets unknown weapon %v", new_definition.unique_tag, weapon_tag)
-            new_buff.weapon_id = weapon_id
-        }
-
-        new_definition.buffs[i] = new_buff
+        weapon_id, weapon_ok := weapon.weapon_manager_get_definition_id(buff.weapon_tag)
+        if !weapon_ok do log.panicf("Program %v buff targets unknown weapon %v", definition.unique_tag, buff.weapon_tag)
+        buff.weapon_id = weapon_id
     }
 
-    // ENTITY BUFFS ---------------------------------------------
-    entity_buffs_seq := yaml_parse.read_value_from_map(data_map, "entity_buffs", yaml.Sequence, default = nil)
-    new_definition.entity_buffs = make([]Entity_Stat_Buff, len(entity_buffs_seq))
-    for item, i in entity_buffs_seq {
-        buff_map, buff_ok := item.(yaml.Mapping)
-        if !buff_ok {
-            log.errorf("Program %v entity_buff %v is not a mapping", new_definition.unique_tag, i)
-            continue
-        }
-
-        new_buff: Entity_Stat_Buff
-        new_buff.stat = entity.entity_stat_from_string(yaml_parse.read_value_from_map(buff_map, "stat", string, default = ""))
-        new_buff.multiplier = cast(f32) yaml_parse.read_value_from_map(buff_map, "multiplier", f64, default = 1)
-
-        new_definition.entity_buffs[i] = new_buff
-    }
-
-
-    // SELF EFFECTS
-    self_seq := yaml_parse.read_value_from_map(data_map, "self_effects", yaml.Sequence, default = nil)
-    new_definition.self_effects = make([]Self_Effect, len(self_seq))
-    for item, i in self_seq {
-        instance_tag, tag_ok := item.(string)
-        if !tag_ok {
-            log.errorf("Program %v self_effect %v is not a string", new_definition.unique_tag, i)
-            continue
-        }
-
+    definition.self_effects = make([]Self_Effect, len(definition.self_effect_tags))
+    for instance_tag, i in definition.self_effect_tags {
         instance_id, instance_ok := effect.effect_manager_get_instance_id(instance_tag)
-        if !instance_ok do log.panicf("Program %v self_effect references unknown effect instance %v", new_definition.unique_tag, instance_tag)
+        if !instance_ok do log.panicf("Program %v self_effect references unknown effect instance %v", definition.unique_tag, instance_tag)
 
-        new_definition.self_effects[i] = Self_Effect{
+        definition.self_effects[i] = Self_Effect{
             instance_id = instance_id,
             definition_id = effect.effect_manager_get_instance(instance_id).definition.unique_id,
         }
     }
 
-    // HIT EFFECTS
-    hit_seq := yaml_parse.read_value_from_map(data_map, "hit_effects", yaml.Sequence, default = nil)
-    new_definition.hit_effects = make([]effect.Effect_Instance_ID, len(hit_seq))
-    for item, i in hit_seq {
-        instance_tag, tag_ok := item.(string)
-        if !tag_ok {
-            log.errorf("Program %v hit_effect %v is not a string", new_definition.unique_tag, i)
-            continue
-        }
-
+    definition.hit_effects = make([]effect.Effect_Instance_ID, len(definition.hit_effect_tags))
+    for instance_tag, i in definition.hit_effect_tags {
         instance_id, instance_ok := effect.effect_manager_get_instance_id(instance_tag)
-        if !instance_ok do log.panicf("Program %v hit_effect references unknown effect instance %v", new_definition.unique_tag, instance_tag)
+        if !instance_ok do log.panicf("Program %v hit_effect references unknown effect instance %v", definition.unique_tag, instance_tag)
 
-        new_definition.hit_effects[i] = instance_id
+        definition.hit_effects[i] = instance_id
     }
-
-    global_program_manager.definition_tag_to_id[new_definition.unique_tag] = new_definition.unique_id
-
-    log.debugf("Loaded program definition %v", file_path)
 }
 
 program_definition_unload :: proc(definition: ^Program_Definition) {
     delete(definition.unique_tag)
-    delete(cast(string) definition.sprite)
+    delete(definition.sprite)
+
+    for buff in definition.buffs do delete(buff.weapon_tag)
     delete(definition.buffs)
+    delete(definition.entity_buffs)
+
+    for tag in definition.self_effect_tags do delete(tag)
+    delete(definition.self_effect_tags)
+    for tag in definition.hit_effect_tags do delete(tag)
+    delete(definition.hit_effect_tags)
+
     delete(definition.self_effects)
     delete(definition.hit_effects)
-    delete(definition.entity_buffs)
 }

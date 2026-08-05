@@ -3,7 +3,7 @@ package main
 import sdl "vendor:sdl3"
 import log "core:log"
 
-import primatives "sdl_primatives"
+import primatives "src:sdl_primatives"
 
 APP_SHUTDOWN_KEY :: sdl.K_ESCAPE
 

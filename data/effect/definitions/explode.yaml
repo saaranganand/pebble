@@ -1,3 +1,0 @@
-callback: "lua,explode"
-stack_behaviour: "NONE"
-type: "SINGLE"

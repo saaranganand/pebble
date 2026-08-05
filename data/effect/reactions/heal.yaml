@@ -1,7 +1,0 @@
-definition: heal
-
-reaction_data_list:
-- tag: ALLY,PLAYER
-  show_damage_number: true
-  damage_number_color: GREEN
-  

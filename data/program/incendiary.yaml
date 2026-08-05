@@ -1,6 +1,0 @@
-# set enemies on fire
-
-sprite: img/program/incendiary.png
-
-hit_effects:
-    - burn_high

@@ -1,0 +1,26 @@
+category: "RANGED"
+
+shoot_callback: "tracking_bow_shoot"
+
+projectile_shell: {
+  category: "TRACKING_ARROW"
+  piercing: 4
+  speed: 700
+  lifetime: 10
+  shots: 6
+
+  animation_source: "arrow.animation"
+
+  shape_length: 40
+  shape_turn_speed: 6
+}
+
+gcd_interval: 0.5
+damage: 2
+
+sounds: {
+  SELECT: "bow_draw.wav"
+  SHOOT: "bow_shoot.wav"
+}
+animation_source: "tracking_bow.animation"
+animation_default_angle: 0.0

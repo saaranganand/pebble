@@ -1,9 +1,0 @@
-img_tag: img/entity/horde.png
-
-animations:
-  idle:
-    fps: 0
-    looping: false
-    scale: 2.0
-    frames:
-      - source: { x: 0.0, y: 0.0, w: 32.0, h: 32.0 }

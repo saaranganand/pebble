@@ -33,3 +33,24 @@ normalize_point_quake :: proc(p: sdl.FPoint) -> sdl.FPoint {
     inverse_length := quake_square_root(length_squared)
     return p * inverse_length
 }
+
+line_rect_intersection :: proc(start: sdl.FPoint, angle: f32, rect: sdl.FRect) -> sdl.FPoint {
+     // clockwise, 0 = right
+    dir := sdl.FPoint{math.cos(angle), math.sin(angle)}
+
+    t_max: f32 = math.F32_MAX
+
+    if dir.x != 0 {
+        t1: f32 = (rect.x - start.x) / dir.x
+        t2: f32 = (rect.x + rect.w - start.x) / dir.x
+        t_max = min(t_max, max(t1, t2))
+    }
+
+    if dir.y != 0 {
+        t1 := (rect.y - start.y) / dir.y
+        t2 := (rect.y + rect.h - start.y) / dir.y
+        t_max = min(t_max, max(t1, t2))
+    }
+
+    return start + dir * t_max
+}

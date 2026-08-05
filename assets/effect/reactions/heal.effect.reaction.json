@@ -1,0 +1,8 @@
+definition_tag: "heal.effect.definition"
+
+reaction_data_map: {
+  "ALLY,PLAYER": {
+    show_damage_number: true
+    show_damage_number_color: "GRASS_GREEN"
+  }
+}

@@ -1,0 +1,5 @@
+// your bullets explode on impact, dealing AoE damage to nearby enemies.
+// behavior lives in assets/scripts/explode.lua -- no engine code.
+hit_effect_tags: [
+  "explode.effect.instance"
+]

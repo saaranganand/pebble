@@ -1,0 +1,18 @@
+category: "RANGED"
+
+projectile_shell: {
+  category: "LINE"
+  piercing: 3
+  speed: 0.0
+  lifetime: 0.15
+
+  animation_source: "ray.animation"
+
+  shape_length: 2000.0
+}
+
+gcd_interval: 0.1
+damage: 8
+
+animation_source: "bit_rifle.animation"
+animation_default_angle: 0.0

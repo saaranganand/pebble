@@ -1,5 +1,0 @@
-# +30% move speed while equipped
-
-entity_buffs:
-    - stat: MOVE_SPEED
-      multiplier: 1.3

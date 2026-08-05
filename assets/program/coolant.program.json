@@ -1,0 +1,8 @@
+// -10% dmg, but slows enemies
+buffs: [
+  { stat: "DAMAGE", multiplier: 0.9 }
+]
+
+hit_effect_tags: [
+  "speed_reduce_low.effect.instance"
+]

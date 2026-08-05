@@ -1,5 +1,0 @@
-# -30% weapon cooldown
-
-buffs:
-    - stat: COOLDOWN
-      multiplier: 0.7

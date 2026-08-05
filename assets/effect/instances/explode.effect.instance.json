@@ -1,0 +1,6 @@
+definition_tag: "explode.effect.definition"
+
+callback_data: {
+  radius: 120.0
+  damage: 15.0
+}

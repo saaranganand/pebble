@@ -1,0 +1,4 @@
+// +50% firerate
+buffs: [
+  { stat: "GCD_INTERVAL", multiplier: 0.667 }
+]
