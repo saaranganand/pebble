@@ -1,0 +1,1 @@
+odin build src/level/creator/src -out:src/level/creator/bin/creator

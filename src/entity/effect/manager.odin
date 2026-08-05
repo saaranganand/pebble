@@ -8,7 +8,7 @@ import hm "core:container/handle_map"
 import log "core:log"
 
 @(private)
-global_effect_manager: Effect_Manager
+global_manager: Effect_Manager
 
 Effect_Manager :: struct {
     effects: hm.Dynamic_Handle_Map(Effect_State, util.Handle),
@@ -45,18 +45,18 @@ Effect_Manager :: struct {
 effect_manager_create :: proc() -> (effect_manager: ^Effect_Manager) {
     log.infof("Creating effect manager")
 
-    hm.dynamic_init(&global_effect_manager.effects, context.allocator)
+    hm.dynamic_init(&global_manager.effects, context.allocator)
 
-    global_effect_manager.application_queue = make([dynamic]Effect_Application_Data)
-    global_effect_manager.removal_queue = make([dynamic]util.Handle)
+    global_manager.application_queue = make([dynamic]Effect_Application_Data)
+    global_manager.removal_queue = make([dynamic]util.Handle)
 
-    global_effect_manager.definition_id_map = make(map[string]uint)
-    global_effect_manager.instance_id_map = make(map[string]uint)
+    global_manager.definition_id_map = make(map[string]uint)
+    global_manager.instance_id_map = make(map[string]uint)
 
-    global_effect_manager.entity_active_effects = make(Effect_Active_Entity_Effect_Map)
-    global_effect_manager.events = make([dynamic]Effect_Event)
+    global_manager.entity_active_effects = make(Effect_Active_Entity_Effect_Map)
+    global_manager.events = make([dynamic]Effect_Event)
     
-    effect_manager = &global_effect_manager
+    effect_manager = &global_manager
 
     effect_manager_load()
 
@@ -66,7 +66,7 @@ effect_manager_create :: proc() -> (effect_manager: ^Effect_Manager) {
 effect_manager_destroy :: proc() {
     log.infof("Destroying effect manager")
 
-    pool := &global_effect_manager.effects
+    pool := &global_manager.effects
     it := hm.iterator_make(pool)
     for e, h in hm.iterate(&it) {
         //effect_destroy(e)
@@ -74,16 +74,16 @@ effect_manager_destroy :: proc() {
 
     hm.dynamic_destroy(pool)
 
-    delete(global_effect_manager.instance_id_map)
-    delete(global_effect_manager.definition_id_map)
+    effect_manager_unload()
 
-    delete(global_effect_manager.application_queue)
-    delete(global_effect_manager.removal_queue)
+    delete(global_manager.instance_id_map)
+    delete(global_manager.definition_id_map)
+
+    delete(global_manager.application_queue)
+    delete(global_manager.removal_queue)
 
     effect_manager_wipe_entity_active_effect_map()
-    delete(global_effect_manager.events)
-
-    effect_manager_unload()
+    delete(global_manager.events)
 }
 
 // load definitions and instances
@@ -103,11 +103,11 @@ effect_manager_unload :: proc() {
 }
 
 effect_manager_queue_event :: proc(event_data: Effect_Event) {
-    append(&global_effect_manager.events, event_data)
+    append(&global_manager.events, event_data)
 }
 
 effect_manager_get_effect :: proc(handle: util.Handle) -> (state: ^Effect_State, ok: bool) {
-    state, ok = hm.get(&global_effect_manager.effects, handle)
+    state, ok = hm.get(&global_manager.effects, handle)
     return 
 }
 
@@ -125,16 +125,16 @@ effect_manager_queue_apply :: proc(data: Effect_Application_Data, callback_overr
         data.callback_data[override.tag] = override.data
     }
 
-    append(&global_effect_manager.application_queue, data)
+    append(&global_manager.application_queue, data)
 }
 
 effect_manager_remove :: proc(to_remove: util.Handle) {
-    append(&global_effect_manager.removal_queue, to_remove)
+    append(&global_manager.removal_queue, to_remove)
 }
 
 effect_manager_update :: proc() {
     //update effects
-    pool := &global_effect_manager.effects
+    pool := &global_manager.effects
     it := hm.iterator_make(pool)
     for e, h in hm.iterate(&it) {
         // Find the target entity
@@ -161,13 +161,13 @@ effect_manager_update :: proc() {
 }
 
 effect_manager_process_removal_queue :: proc() {
-    for len(global_effect_manager.removal_queue) > 0 {
-        to_remove := pop(&global_effect_manager.removal_queue)
+    for len(global_manager.removal_queue) > 0 {
+        to_remove := pop(&global_manager.removal_queue)
 
-        remove_e, e_ok := hm.get(&global_effect_manager.effects, to_remove)
+        remove_e, e_ok := hm.get(&global_manager.effects, to_remove)
         if !e_ok do continue
 
-        defer hm.remove(&global_effect_manager.effects, to_remove)
+        defer hm.remove(&global_manager.effects, to_remove)
 
         //effect_destroy(e)
         effect_manager_queue_event(Effect_Event{
@@ -180,9 +180,9 @@ effect_manager_process_removal_queue :: proc() {
 }
 
 effect_manager_process_application_queue :: proc() {
-    for len(global_effect_manager.application_queue) > 0 {
-        //log.errorf("app queue len = %v", len(global_effect_manager.application_queue))
-        application_data := pop(&global_effect_manager.application_queue)
+    for len(global_manager.application_queue) > 0 {
+        //log.errorf("app queue len = %v", len(global_manager.application_queue))
+        application_data := pop(&global_manager.application_queue)
         effect_manager_apply_effect(application_data)
     }
 }
@@ -245,7 +245,7 @@ effect_manager_apply_effect :: proc(
         magnitude = effect_fn_data_get_reaction_magnitude(application_data.callback_data)
     })
 
-    new_handle, err := hm.add(&global_effect_manager.effects, state)
+    new_handle, err := hm.add(&global_manager.effects, state)
     if err != .None {
         log.errorf("Failed adding entity to handle map")
         return

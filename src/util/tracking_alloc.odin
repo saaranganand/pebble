@@ -37,7 +37,7 @@ report_tracking_alloc :: proc() {
 	log.debug("== MEMORY LEAKS ==")
 	for _, value in GLOBAL_TRACKING_ALLOC.allocation_map {
 
-		s := strings.string_from_ptr(cast(^u8)value.memory, value.size)
-		log.errorf("%v: Leaked %v bytes: %v", value.location, value.size, s)
+		//s := strings.string_from_ptr(cast(^u8)value.memory, value.size)
+		log.errorf("%v: Leaked %v bytes: %v", value.location, value.size)
 	}
 }

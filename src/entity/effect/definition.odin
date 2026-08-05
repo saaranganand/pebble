@@ -1,6 +1,5 @@
 package effect
 
-import handle "src:handle"
 import util "src:util"
 
 import filepath "core:path/filepath"
@@ -43,17 +42,17 @@ effect_definitions_load :: proc() {
     util.scrape_files(EFFECT_DEFINITION_MASTER_FOLDER, EFFECT_DEFINITION_DATA_EXTENSION, &results)
 
     num_definitions := len(results)
-    global_effect_manager.num_definitions = cast(uint) num_definitions
-    global_effect_manager.definitions = make([]Effect_Definition, num_definitions)
+    global_manager.num_definitions = cast(uint) num_definitions
+    global_manager.definitions = make([]Effect_Definition, num_definitions)
     definition_id_counter: uint = 0
     
     for path in results {
         defer definition_id_counter += 1
         tag := strings.clone(filepath.stem(path))
 
-        global_effect_manager.definitions[definition_id_counter] = {}
-        definition := &global_effect_manager.definitions[definition_id_counter]
-        global_effect_manager.definition_id_map[tag] = definition_id_counter
+        global_manager.definitions[definition_id_counter] = {}
+        definition := &global_manager.definitions[definition_id_counter]
+        global_manager.definition_id_map[tag] = definition_id_counter
 
         effect_definition_load(definition, path)
         
@@ -82,8 +81,8 @@ effect_definition_load :: proc(definition: ^Effect_Definition, path: string) {
 effect_definitions_unload :: proc() {
     log.infof("Unloading effect definitions")
 
-    for &definition in &global_effect_manager.definitions {
+    for &definition in &global_manager.definitions {
         delete(definition.tag)
     }
-    defer delete(global_effect_manager.definitions)
+    defer delete(global_manager.definitions)
 }

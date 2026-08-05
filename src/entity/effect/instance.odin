@@ -37,25 +37,25 @@ effect_instances_load :: proc() {
     util.scrape_files(EFFECT_INSTANCE_MASTER_FOLDER, EFFECT_INSTANCE_DATA_EXTENSION, &results)
 
     num_instances := len(results)
-    global_effect_manager.num_instances = cast(uint) num_instances
-    global_effect_manager.instances = make([]Effect_Instance, num_instances)
+    global_manager.num_instances = cast(uint) num_instances
+    global_manager.instances = make([]Effect_Instance, num_instances)
     instance_id_counter: uint = 0
     
     for path in results {
         defer instance_id_counter += 1
         tag := strings.clone(filepath.stem(path))
 
-        global_effect_manager.instances[instance_id_counter] = {}
-        instance := &global_effect_manager.instances[instance_id_counter]
-        global_effect_manager.instance_id_map[tag] = instance_id_counter
+        global_manager.instances[instance_id_counter] = {}
+        instance := &global_manager.instances[instance_id_counter]
+        global_manager.instance_id_map[tag] = instance_id_counter
 
         effect_instance_load(instance, path)
         
         instance.tag = tag
         instance.id = instance_id_counter
 
-        definition_id := global_effect_manager.definition_id_map[instance.definition_tag]
-        instance.definition = &global_effect_manager.definitions[definition_id]
+        definition_id := global_manager.definition_id_map[instance.definition_tag]
+        instance.definition = &global_manager.definitions[definition_id]
     }
 }
 
@@ -78,7 +78,7 @@ effect_instance_load :: proc(instance: ^Effect_Instance, path: string) {
 effect_instances_unload :: proc() {
     log.infof("Unloading effect instances")
 
-    for instance in global_effect_manager.instances {
+    for instance in global_manager.instances {
         delete(instance.tag)
         delete(instance.definition_tag)
 
@@ -91,5 +91,5 @@ effect_instances_unload :: proc() {
         }
         delete(instance.callback_data)
     }
-    delete(global_effect_manager.instances)
+    delete(global_manager.instances)
 }

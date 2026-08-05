@@ -13,16 +13,16 @@ Active_Effect_Data :: struct {
 Effect_Active_Entity_Effect_Map :: map[util.Handle][dynamic]Active_Effect_Data
 
 effect_manager_add_entity_active_effect :: proc(target: util.Handle, effect_data: Active_Effect_Data) {
-    _, ok := &global_effect_manager.entity_active_effects[target]
-    if !ok do global_effect_manager.entity_active_effects[target] = make([dynamic]Active_Effect_Data)
+    _, ok := &global_manager.entity_active_effects[target]
+    if !ok do global_manager.entity_active_effects[target] = make([dynamic]Active_Effect_Data)
 
-    append(&global_effect_manager.entity_active_effects[target], effect_data)
+    append(&global_manager.entity_active_effects[target], effect_data)
 }
 
 effect_manager_get_entity_active_effect :: proc(
     target: util.Handle, effect_ID: uint
 ) -> (handle: util.Handle, ok: bool){
-    active_effects, active_effects_ok := &global_effect_manager.entity_active_effects[target]
+    active_effects, active_effects_ok := &global_manager.entity_active_effects[target]
     if !active_effects_ok do return {}, false
 
     for effect in active_effects {
@@ -35,7 +35,7 @@ effect_manager_get_entity_active_effect :: proc(
 effect_manager_remove_entity_active_effect :: proc(
     target: util.Handle, effect_ID: uint, effect_handle: util.Handle
 ) {
-    active_effects, ok := &global_effect_manager.entity_active_effects[target]
+    active_effects, ok := &global_manager.entity_active_effects[target]
     if !ok {
         log.errorf(
             "Tried to remove active entity effect with definition ID %v from active entity effect list that does not exist for entity with handle %v",
@@ -60,13 +60,13 @@ effect_manager_remove_entity_active_effect :: proc(
 }
 
 effect_manager_wipe_entity_active_effect_key :: proc(target: util.Handle) {
-    delete(global_effect_manager.entity_active_effects[target])
-    delete_key(&global_effect_manager.entity_active_effects, target)
+    delete(global_manager.entity_active_effects[target])
+    delete_key(&global_manager.entity_active_effects, target)
 }
 
 effect_manager_wipe_entity_active_effect_map :: proc() {
-    for key, value in global_effect_manager.entity_active_effects {
+    for key, value in global_manager.entity_active_effects {
         delete(value)
     }
-    delete(global_effect_manager.entity_active_effects)
+    delete(global_manager.entity_active_effects)
 }

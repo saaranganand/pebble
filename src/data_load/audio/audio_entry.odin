@@ -16,6 +16,7 @@ Audio_Entry :: struct {
     type: Audio_Type,
     state: util.Data_Load_State,
     tag_copy, path: string,
+    engine_owner: Engine_Type,
 
     // Only SFX uses the pool
     // The pool contains instances via ma.sound_init_copy.
@@ -68,7 +69,17 @@ audio_entry_get :: proc(tag: string, expected_state: util.Data_Load_State) -> (^
     return entry, true
 }
 
-audio_load :: proc(tag: string) {
+// Audio files are split into engine types
+// Engine types represent discrete situations for playing audio -- like "game", and "ui".
+// The types purpose is to allow for easy handling of starting, stopping, and preventing audio in certain situations.
+// For example, if the player is charging a weapon, but pauses while they are charging, the charging sound should no longer be played.
+// This can be done by assigning the charging sound file's engine to GAME on load (this proc).
+// Note that pausing and unpausing of engines are done manually. Changing the apps state to game will not resume the game audio engine.
+// It can only be resumed by a specific call.
+// This is to allow maximum control of audio.
+// If you wanted all game sound effects to stop, but music to continue and instead just get quieter on pause,
+// Then you could use a GAME engine type for the sfx, and pause it, and a GAME_MUSIC engine type for the music, and lower that engine's volume.
+audio_load :: proc(tag: string, engine_type: Engine_Type = .GAME) {
     log.infof("Loading audio %v", tag)
 
     entry, ok := audio_entry_get(tag, .UNLOADED)
@@ -78,8 +89,10 @@ audio_load :: proc(tag: string) {
     if entry.type == .MUSIC do flags = music_get_miniaudio_flags()
     
     // TODO: check out fences and sound groups
+    entry.engine_owner = engine_type
+    engine := &global_audio_manager.engines[engine_type]
     result := ma.sound_init_from_file(
-        &global_audio_manager.audio_engine, strings.unsafe_string_to_cstring(entry.path), flags, nil, nil, entry.source_audio
+        engine, strings.unsafe_string_to_cstring(entry.path), flags, nil, nil, entry.source_audio
     )
     
     if result != .SUCCESS {

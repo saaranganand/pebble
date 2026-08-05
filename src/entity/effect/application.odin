@@ -21,14 +21,14 @@ effect_application_data_from_tag :: proc(
     data.target = target
     data.target_team = target_team
 
-    id, ok := global_effect_manager.instance_id_map[instance_tag]
+    id, ok := global_manager.instance_id_map[instance_tag]
 
     if !ok {
         log.errorf("Tried to create effect application data from tag %v that is not in map", instance_tag)
         return
     }
 
-    data.instance = &global_effect_manager.instances[id]
+    data.instance = &global_manager.instances[id]
 
     return
 }

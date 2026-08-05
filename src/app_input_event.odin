@@ -1,9 +1,11 @@
 package main
 
 import sdl "vendor:sdl3"
+import mu "vendor:microui"
 import log "core:log"
 
 import primatives "src:sdl_primatives"
+import util "src:util"
 
 APP_SHUTDOWN_KEY :: sdl.K_ESCAPE
 
@@ -15,13 +17,9 @@ App_Input :: struct {
     // When you maximize a window, and then click the maximize button again,
     // it gets restored to the size it was before it was maximized.
     min_max_restored: bool,
-
     gain_focus, lose_focus: bool,
-
     enter_fullscreen, leave_fullscreen: bool,
-
     new_display: bool,
-
     resized: bool,
 }
 
@@ -63,14 +61,14 @@ handle_app_input :: proc(input: App_Input) {
         input.new_display
         
     if should_read_window_size do primatives.global_window_read_size(&app.window_width, &app.window_height)
-
-    
-    
 }
 
 poll_app_input :: proc() -> (input: App_Input) {
     event: sdl.Event
     for sdl.PollEvent(&event) {
+        mu_ctx, mu_ctx_ok := app.active_mu_ctx.(^mu.Context)
+        if mu_ctx_ok do util.mu_ctx_read_input(event, mu_ctx)
+
         input.exit |= event.type == .WINDOW_CLOSE_REQUESTED || event.type == .QUIT
 
         input.minimize |= event.type == .WINDOW_MINIMIZED
@@ -90,6 +88,14 @@ poll_app_input :: proc() -> (input: App_Input) {
         #partial switch event.type {
         case .KEY_DOWN:
             input.exit |= event.key.key == APP_SHUTDOWN_KEY
+
+            if event.key.key == sdl.K_F1 {
+                app_queue_state(.GAME)
+            }
+
+            if event.key.key == sdl.K_F2 {
+                app_queue_state(.LEVEL_CREATOR)
+            }
         }
     }
 

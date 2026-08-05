@@ -49,7 +49,8 @@ audio_entry_play_sound_from_pool :: proc(entry: ^Audio_Entry) -> bool {
 @(private)
 audio_entry_add_to_pool :: proc(entry: ^Audio_Entry) -> (copy: ^ma.sound) {
     copy = new(ma.sound)
-    result := ma.sound_init_copy(&global_audio_manager.audio_engine, entry.source_audio, sound_get_miniaudio_flags(), nil, copy)
+    engine := &global_audio_manager.engines[entry.engine_owner]
+    result := ma.sound_init_copy(engine, entry.source_audio, sound_get_miniaudio_flags(), nil, copy)
 
     if result != .SUCCESS {
         free(copy)
