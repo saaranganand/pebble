@@ -1,10 +1,10 @@
 package program
 
-import assets "../assets"
+import util "src:util"
 
+import filepath "core:path/filepath"
 import strings "core:strings"
 import log "core:log"
-import mem "core:mem"
 
 @(private)
 global_program_manager: Program_Manager
@@ -52,33 +52,41 @@ program_manager_get_definition :: proc(definition_tag: Program_Definition_Tag) -
     return &global_program_manager.programs[definition_ID]
 }
 
-// Must load after the weapon and effect managers
-// program definitions resolve weapon tags and effect instance tags to IDs at load
+PROGRAM_MASTER_FOLDER :: "assets/"
+PROGRAM_DATA_EXTENSION :: ".program.json"
+
+// Must load after the weapon and effect managers:
+// program definitions resolve weapon tags and effect instance tags to IDs at load.
 program_manager_load :: proc() {
     log.infof("Loading program manager")
 
     global_program_manager.definition_tag_to_id = make(map[Program_Definition_Tag]Program_Definition_ID)
 
-    arena_memory := make([]byte, 1*mem.Megabyte)
-    defer delete(arena_memory)
+    results := make([dynamic]string)
+    defer {
+        for result in results do delete(result)
+        delete(results)
+    }
+    util.scrape_files(PROGRAM_MASTER_FOLDER, PROGRAM_DATA_EXTENSION, &results)
 
-    config_arena: mem.Arena
-    mem.arena_init(&config_arena, arena_memory)
-    arena_alloc := mem.arena_allocator(&config_arena)
-
-    file_paths := make([dynamic]string)
-    defer delete(file_paths)
-
-    pre_path := "data/program/"
-    assets.data_tag_resursive_grab_and_process_precursors(pre_path, "*.yaml", &file_paths, "")
-
-    num_definitions := len(file_paths)
-    global_program_manager.unique_definition_ids = cast(u32) num_definitions
+    num_definitions := len(results)
+    global_program_manager.unique_definition_ids = cast(Program_Definition_ID) num_definitions
     global_program_manager.programs = make([]Program_Definition, num_definitions)
     definition_id_counter: Program_Definition_ID = 0
 
-    for path in file_paths {
-        program_definition_load(pre_path, path, &definition_id_counter, arena_alloc)
-        delete(path)
+    for path in results {
+        defer definition_id_counter += 1
+        tag := strings.clone(filepath.stem(path))
+
+        global_program_manager.programs[definition_id_counter] = {}
+        definition := &global_program_manager.programs[definition_id_counter]
+        global_program_manager.definition_tag_to_id[tag] = definition_id_counter
+
+        program_definition_load(definition, path)
+
+        definition.unique_tag = tag
+        definition.unique_id = definition_id_counter
+
+        program_definition_resolve(definition)
     }
 }

@@ -1,37 +1,38 @@
 package main
 
 import sdl "vendor:sdl3"
-import ttf "vendor:sdl3/ttf"
 
-import primatives "sdl_primatives"
-import entity "entity"
-import effect "entity_effect"
-import reaction "entity_effect_reaction"
-import projectile "projectile"
-import color "color"
-import horde "entity_horde"
-import program "program"
-import collision "collision"
-import script "script"
+import reaction   "src:entity/entity_effect_reaction"
+import effect     "src:entity/entity_effect"
+import horde      "src:entity/entity_horde"
+import projectile "src:geometry/projectile"
+import collision  "src:geometry/collision"
+import primatives "src:sdl_primatives"
+import player     "src:entity/player"
+import program    "src:program"
+import weapon     "src:item/weapon"
+import script     "src:script"
+import color      "src:util/color"
+import data_load  "src:data_load"
+import camera     "src:camera"
+import entity     "src:entity"
+import input      "src:input"
+import hud        "src:HUD"
 
-import camera "camera"
-import assets "assets" 
-import weapon "weapon"
-import input "input"
+import log "core:log"
 
-AIM_DIST :: 50
 AIM_SIZE :: 8
 
 TILE_SIZE :: 64
 
 game := struct {
-    player: Player,
+    player: player.Player_Character,
     bullets: BulletPool,
     waves: PingWavePool,
-    //enemies: EnemyPool,
+
     game_over: bool,
     input: input.Input,
-    //horde: horde.Horde,
+
     horde_manager: ^horde.Horde_Manager,
     effect_manager: ^effect.Effect_Manager,
     entity_manager: ^entity.Entity_Manager,
@@ -41,7 +42,7 @@ game := struct {
     projectile_manager: ^projectile.Projectile_Manager,
     program_pickups: Program_Pickup_System,
     floating_texts: Floating_Text_System,
-    hud: HUD,
+    hud: hud.HUD,
 }{}
 
 game_loop :: proc() {
@@ -56,9 +57,9 @@ game_loop :: proc() {
 game_create :: proc() {
     primatives.global_timer_init()
 
-    assets.global_init()
+    log.infof("\n\n\n\n==================== GAME INITIALIZATION ====================")
 
-    // lua scrupts
+    // lua scripts
     script.script_create()
     script.script_load()
 
@@ -66,15 +67,12 @@ game_create :: proc() {
     // This is because the number of total effect definitions is important for the ability to use
     // malloced arrays instead of dynamic ones.
     game.effect_manager = effect.effect_manager_create()
-    effect.effect_manager_load()
 
     game.entity_manager = entity.entity_manager_create()
-    game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.unique_definition_ids)
-    reaction.reaction_manager_load(game.effect_manager.definition_tag_to_id)
+    game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.unique_definition_ids, game.effect_manager.definition_tag_to_id)
     reaction.number_popup_callback = reaction_number_popup
 
     game.weapon_manager = weapon.weapon_manager_create()
-    weapon.weapon_manager_load()
 
     // programs resolve weapon and effect tags to IDs at load, so this is after both of those
     game.program_manager = program.program_manager_create()
@@ -82,7 +80,7 @@ game_create :: proc() {
 
     game.projectile_manager = projectile.projectile_manager_create()
 
-    game.player = player_init()
+    game.player = player.player_init()
 
     program.program_loadout_create(&game.player.program_loadout, game.player.entity, .ALLY, &game.player.weapon_controller)
 
@@ -102,11 +100,15 @@ game_create :: proc() {
     camera.global_camera_create(f32(app.window_width), f32(app.window_height))
     camera.camera_set_follow(&game.player.tracking_position, 1)//0.05)
 
-    game.hud = create_hud()
+    game.hud = hud.create_hud({0,0}, {f32(app.window_width), f32(app.window_height)})
+
+    log.infof("\n\n\n\n==================== ENTERING GAME ====================")
 }
 
 game_destroy :: proc() {
-    destroy_hud(&game.hud)
+    log.infof("\n\n\n\n==================== GAME DE-INITIALIZATION ====================")
+
+    hud.destroy_hud(&game.hud)
 
     program_pickup_system_destroy(&game.program_pickups)
     floating_text_system_destroy(&game.floating_texts)
@@ -115,7 +117,7 @@ game_destroy :: proc() {
 
     //horde.destroy(&game.horde)
 
-    player_destroy(&game.player)
+    player.player_destroy(&game.player)
 
     projectile.projectile_manager_destroy()
 
@@ -129,12 +131,13 @@ game_destroy :: proc() {
     effect.effect_manager_destroy()
 
     script.script_destroy()
+    effect.effect_callback_lua_params_destroy()
 
-    assets.global_destroy()
+    data_load.global_destroy()
 }
 
 game_input :: proc() {
-    game.input = input.process_input()
+    game.input = input.process_input(&game.player.weapon_controller)
 }
 /*case sdl.K_1:
                         player.active_category = WeaponCategory.Manual
@@ -154,9 +157,7 @@ game_input :: proc() {
                 }*/
 
 game_update :: proc() {
-    apply_movement_penalty()
-
-    update_player()
+    player.update_player(&game.player, game.input)
     update_bullets()
 
     program_pickup_system_update(&game.program_pickups)
@@ -165,8 +166,6 @@ game_update :: proc() {
     horde.horde_manager_update()
 
     entity.entity_manager_update()
-
-    update_waves()
 
     projectile.projectile_manager_update()
 
@@ -180,52 +179,26 @@ game_update :: proc() {
     reaction.reaction_manager_update(game.effect_manager)
 }
 
-draw_background :: proc() {
-    space_width := f32(app.window_width)
-    space_height := f32(app.window_height)
-
-    /*
-    // bg texture
-    color.sdl_set_color(color.Default_Palette_Color.BLACK)
-
-    x := -math.mod(cam.x, f32(TILE_SIZE))
-    for x < space_width {
-        sdl.RenderLine(primatives.global_renderer, x, 0, x, space_height)
-        x += TILE_SIZE
-    }
-
-    y := -math.mod(cam.y, f32(TILE_SIZE))
-    for y < space_height {
-        sdl.RenderLine(primatives.global_renderer, 0, y, space_width, y)
-        y += TILE_SIZE
-    }*/
-}
-
 game_draw :: proc() {
     color.sdl_set_color(color.Default_Palette_Color.WHITE)
     sdl.RenderClear(primatives.global_renderer)
 
     // drawing
     camera.camera_draw_grid()
-    draw_background()
-
-    //horde.horde_manager_draw()
 
     entity.entity_manager_draw()
 
     program_pickup_system_draw(&game.program_pickups)
 
-    draw_player()
-
     projectile.projectile_manager_draw()
 
-    //horde.draw(&game.horde)
+    player.draw_player_accessories(&game.player)
 
     floating_text_system_draw(&game.floating_texts)
 
-    draw_hud()
+    hud.draw_hud(&game.hud, &game.player, game.input)
     draw_bullets()
     draw_ping_waves()
 
-    camera.camera_draw_center_lines()
+    //camera.camera_draw_center_lines()
 }

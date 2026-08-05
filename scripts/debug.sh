@@ -1,1 +1,1 @@
-odin run src -debug
+odin run src -debug -collection:src=./src

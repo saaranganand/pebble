@@ -1,0 +1,3 @@
+callback: "DAMAGE"
+stack_behaviour: "EXTEND"
+type: "PULSE"

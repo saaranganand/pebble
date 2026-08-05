@@ -6,7 +6,7 @@ import yaml "../libs/odin-yaml"
 import fmt "core:fmt"
 import mem "core:mem"
 
-//import horde "enemy/horde"
+//import horde "src:entity/entity_horde"
 
 
 // Weapon

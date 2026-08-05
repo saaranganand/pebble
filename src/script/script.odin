@@ -1,12 +1,12 @@
 // shared Lua VM
-// Scripts in data/scripts/*.lua
-// effects/programs reference them via `callback: "lua,<function>"`.
+// Scripts in assets/scripts/*.lua
+// effects/programs reference them via `callback: "LUA"` plus `lua_callback: "<function>"`.
 package script
 
 import lua "vendor:lua/5.4"
 
-import assets "../assets"
-import entity "../entity"
+import entity "src:entity"
+import util "src:util"
 
 import runtime "base:runtime"
 import c "core:c/libc"
@@ -31,12 +31,15 @@ script_destroy :: proc() {
     log.infof("Destroyed Lua scripting VM")
 }
 
-// run every data/scripts/*.lua to define globals
+SCRIPT_MASTER_FOLDER :: "assets/"
+SCRIPT_EXTENSION :: ".lua"
+
+// run every assets/**/*.lua to define globals
 script_load :: proc() {
     file_paths := make([dynamic]string)
     defer delete(file_paths)
 
-    assets.data_tag_resursive_grab_and_process_precursors("data/scripts/", "*.lua", &file_paths, "")
+    util.scrape_files(SCRIPT_MASTER_FOLDER, SCRIPT_EXTENSION, &file_paths)
 
     for path in file_paths {
         defer delete(path)

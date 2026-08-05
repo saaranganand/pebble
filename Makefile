@@ -1,4 +1,4 @@
-FLAGS := -define:YAML_STATIC=true
+FLAGS := -define:YAML_STATIC=true -collection:src=./src
 
 # build libyaml.a locally (it was missing on macos)
 YAML_DIR := libs/odin-yaml

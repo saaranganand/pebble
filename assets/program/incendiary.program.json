@@ -1,0 +1,6 @@
+// set enemies on fire
+sprite: "incendiary"
+
+hit_effect_tags: [
+  "burn_high.effect.instance"
+]

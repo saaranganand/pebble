@@ -1,3 +1,0 @@
-callback: "odin,damage"
-stack_behaviour: "EXTEND"
-type: "PULSE"

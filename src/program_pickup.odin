@@ -9,10 +9,10 @@ import fmt "core:fmt"
 import log "core:log"
 import math "core:math"
 
-import camera "camera"
-import entity "entity"
-import program "program"
-import geo "geometry"
+import camera "src:camera"
+import entity "src:entity"
+import program "src:program"
+import geo "src:geometry"
 
 // // tuning is in data/pickup.yaml (game_config.pickup)
 // // 1 sprite (for now)

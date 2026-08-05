@@ -1,0 +1,18 @@
+category: "RANGED"
+
+projectile_shell: {
+  category: "BULLET"
+  piercing: 1
+  speed: 600.0
+  lifetime: 3.0
+
+  animation_source: "bullet.animation"
+
+  shape_radius: 8.0
+}
+
+gcd_interval: 1.0
+damage: 25
+
+animation_source: "bit_rifle.animation"
+animation_default_angle: 0.0

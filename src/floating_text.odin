@@ -5,17 +5,17 @@ package main
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
-import primatives "sdl_primatives"
-import camera "camera"
-import assets "assets"
-import color "color"
+import primatives "src:sdl_primatives"
+import font "src:data_load/font"
+import camera "src:camera"
+import color "src:util/color"
 
 import log "core:log"
 import fmt "core:fmt"
 
 FLOATING_TEXT_LIFETIME :: 2.5
 FLOATING_TEXT_RISE_SPEED :: 40.0
-FLOATING_TEXT_FONT :: "fonts/ubuntu.ttf"
+FLOATING_TEXT_FONT :: "ubuntu"
 FLOATING_TEXT_FONT_SIZE :: 24
 
 Floating_Text :: struct {
@@ -45,7 +45,7 @@ floating_text_spawn :: proc(
     system: ^Floating_Text_System, label: cstring, world_position: sdl.FPoint,
     text_color: color.Default_Palette_Color = .BLACK
 ) {
-    text := assets.font_create_text(FLOATING_TEXT_FONT, FLOATING_TEXT_FONT_SIZE, label)
+    text := font.font_create_text(FLOATING_TEXT_FONT, FLOATING_TEXT_FONT_SIZE, label)
     if text == nil {
         log.errorf("Failed to create floating text %v (is font %v loaded at size %v?)", label, FLOATING_TEXT_FONT, FLOATING_TEXT_FONT_SIZE)
         return

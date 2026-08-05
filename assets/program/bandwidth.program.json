@@ -1,0 +1,4 @@
+// +50% projectile speed
+buffs: [
+  { stat: "PROJECTILE_SPEED", multiplier: 1.5 }
+]

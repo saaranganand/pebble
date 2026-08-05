@@ -2,10 +2,11 @@ package entity
 
 import sdl "vendor:sdl3"
 
-import primatives "../sdl_primatives"
-import camera "../camera"
-import handle "../handle"
-import assets "../assets"
+import animation "src:data_load/animation"
+import primatives "src:sdl_primatives"
+import camera "src:camera"
+import handle "src:handle"
+import data_load "src:data_load"
 
 import log "core:log"
 
@@ -39,7 +40,7 @@ Entity :: struct {
     damage_taken_mult: f32, // 1.0 = takes full dmg. A program like Firewall lowers this
     forces: [dynamic]Force,
     active: bool,
-    animation_controller: assets.Animation_Controller,
+    animation_controller: animation.Animation_Controller,
 
     team: Team,
     category: Category,
@@ -48,7 +49,7 @@ Entity :: struct {
 // Is used to allow outside sources to create an entity
 entity_make_data :: proc(
     position: sdl.FPoint, base_move_speed, max_health: f32, col_radius: f32, team: Team, category: Category,
-    animation_source_tag: assets.Data_Tag
+    animation_source_tag: string
 ) -> (data: Entity) {
     data.position = position
     data.move_direction = {0.0,0.0}
@@ -65,8 +66,7 @@ entity_make_data :: proc(
     data.team = team
     data.category = category
 
-    data.animation_controller.data_tag = animation_source_tag
-    data.animation_controller.current_animation = "idle"
+    data.animation_controller = animation.animation_controller_create(animation_source_tag)
 
     return
 }
@@ -105,7 +105,7 @@ entity_heal :: proc(entity: ^Entity, amount: f32) {
     entity.health = min(entity.health + amount, entity.max_health)
 }
 
-entity_set_animation :: proc(entity: ^Entity, new_animation: assets.Animation_Tag) {
+entity_set_animation :: proc(entity: ^Entity, new_animation: string) {
     entity.animation_controller.current_animation = new_animation
 }
 

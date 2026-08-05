@@ -1,9 +1,9 @@
 package program
 
-import effect "../entity_effect"
-import weapon "../weapon"
-import entity "../entity"
-import handle "../handle"
+import effect "src:entity/entity_effect"
+import weapon "src:item/weapon"
+import entity "src:entity"
+import handle "src:handle"
 
 import log "core:log"
 
