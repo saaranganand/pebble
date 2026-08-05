@@ -1,5 +1,7 @@
 // +10% damage on every weapon
 
+sprite: "amplify"
+
 buffs: [
   { stat: "DAMAGE", multiplier: 1.10 }
 ]

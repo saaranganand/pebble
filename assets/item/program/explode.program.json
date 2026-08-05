@@ -1,5 +1,7 @@
 // bullets explode on impact, dealing aoe damage
 
+sprite: "explode"
+
 hit_effect_tags: [
   "explode.effect.instance"
 ]
