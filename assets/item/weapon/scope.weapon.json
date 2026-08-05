@@ -1,17 +1,23 @@
+// hold to charge, damage scales with charge time
+// hits whatever the crosshair is on when you let go - no projectile, so enemies
+// standing in front of your target dont soak it. crosshair on nothing wastes the shot
+
 category: "CHARGE"
 
-projectile_shell: {
-  category: "RAY"
-  piercing: 1
-  speed: 0.0
-  lifetime: 0.5
+charge_callback: "charge_slow"
+shoot_callback: "scope"
+no_projectile: true
+cursor: "crosshair"
 
-  animation_source: "ray.animation"
+gcd_interval: 1.0
+max_charge_time: 1.2
+charge_move_speed_mult: 0.2 // -80% movement while charging
+damage: 90
+
+sounds: {
+  SELECT: "weapon_select.wav"
+  CHARGE: "weapon_charge.wav"
+  SHOOT: "weapon_shoot.wav"
 }
-
-gcd_interval: 0.2
-max_charge_time: 0.75
-damage: 70
-
-animation_source: "bit_scope.animation"
+animation_source: "scope.animation"
 animation_default_angle: 0.0

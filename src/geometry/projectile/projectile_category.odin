@@ -34,7 +34,7 @@ projectile_category_from_string :: proc(cat_str: string) -> Category {
     }
 
     log.errorf("Passed projectile category from string did not match any expected result for enum")
-    log.panic("Check data/weapon/ or data/projectile/ *.yaml for 'category' values")
+    log.panic("Check assets/**/*.weapon.json for 'category' values")
 }
 
 projectile_category_bullet_update :: proc(state: ^Projectile_State, shape: Circle) {
@@ -123,8 +123,17 @@ projectile_category_aoe_draw :: proc(state: ^Projectile_State, shape: Circle) {
 projectile_category_radial_draw :: proc(state: ^Projectile_State, shape: Circle) {
 
 }
+// same stepped draw as a ray, but stopping at the segment's length instead of the camera edge
 projectile_category_line_draw :: proc(state: ^Projectile_State, shape: Line) {
-    camera.camera_draw_animation(&state.animation_controller, state.position, f64(state.shoot_angle))
+    dir := sdl.FPoint{math.cos(state.shoot_angle), math.sin(state.shoot_angle)}
+
+    step: f32 = 5.0
+    steps := int(shape.length / step)
+
+    for i in 0..=steps {
+        draw_pos := state.position + dir * (f32(i) * step)
+        camera.camera_draw_animation(&state.animation_controller, draw_pos, f64(state.shoot_angle))
+    }
 }
 
 projectile_category_tracking_arrow_draw :: proc(state: ^Projectile_State, shape: Tracking_Line) {

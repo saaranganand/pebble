@@ -113,7 +113,20 @@ draw_hud_weapon_select :: proc(hud: ^HUD, weapon_controller: weapon.Weapon_Contr
             color.Default_Palette_Color.YELLOW
         )
 
-        
+
+    }
+
+    // STEP 8: heat meter for beam weapons - red while building, orange once overheated
+    heat_box_rect := box_rect
+    for weapon in weapon_controller.weapons {
+        defer heat_box_rect.x += WEAPON_BOX_SIZE + WEAPON_BOX_MARGIN_SIZE
+
+        if weapon.definition.heat.max == 0 do continue
+
+        heat_color := color.Default_Palette_Color.RED
+        if weapon.overheated do heat_color = color.Default_Palette_Color.ORANGE
+
+        draw_cooldown_overlay(heat_box_rect, weapon.heat, weapon.definition.heat.max, heat_color)
     }
 }
 

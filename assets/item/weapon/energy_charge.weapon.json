@@ -1,22 +1,21 @@
+// hold to charge, damage scales with charge time
+
 category: "CHARGE"
 
-charge_callback: "energy_charge"
+charge_callback: "charge_slow"
 
 projectile_shell: {
-  category: "BULLET"
-  piercing: 10
-  speed: 4000
-  lifetime: 3
+  category: "RAY"
+  piercing: 3
+  lifetime: 0.5
 
-  animation_source: "bullet.animation"
-
-  shape_radius: 20
+  animation_source: "ray.animation"
 }
 
-gcd_interval: 1
-damage: 100
-
-max_charge_time: 4
+gcd_interval: 1.0
+max_charge_time: 1.2
+charge_move_speed_mult: 0.2 // -80% movement while charging
+damage: 90
 
 sounds: {
   SELECT: "weapon_select.wav"

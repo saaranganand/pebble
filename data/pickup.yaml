@@ -1,9 +1,0 @@
-# programs scattered on the map
-
-count: 8 # capped at the number of programs that exist
-radius: 20 # pickup collision radius, pixels
-sprite_size: 40 # drawn size, pixels
-
-# programs spawn in a ring around the player: tune max to control how far you may have to travel to reach one
-min_spawn_distance: 150
-max_spawn_distance: 700

@@ -87,5 +87,7 @@ weapon_manager_load :: proc() {
         
         definition.unique_tag = tag
         definition.unique_id = definition_id_counter
+
+        weapon_definition_resolve_callbacks(definition)
     }
 }

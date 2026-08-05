@@ -1,4 +1,5 @@
 // +5 hp/sec
+
 sprite: "charger"
 
 self_effect_tags: [

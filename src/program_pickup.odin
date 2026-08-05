@@ -11,12 +11,10 @@ import math "core:math"
 
 import camera "src:camera"
 import entity "src:entity"
-import program "src:program"
+import program "src:item/program"
 import geo "src:geometry"
 
-// // tuning is in data/pickup.yaml (game_config.pickup)
-// // 1 sprite (for now)
-// PROGRAM_PICKUP_IMG :: "img/program.png"
+// tuning is in assets/pickup.config.json (game_config.pickup)
 
 Program_Pickup :: struct {
     world_position: sdl.FPoint,
@@ -28,7 +26,7 @@ Program_Pickup_System :: struct {
     pickups: [dynamic]Program_Pickup,
 }
 
-// Must run after the program manager is loaded (pickups reference program IDs)
+// must run after the program manager is loaded (pickups reference program IDs)
 program_pickup_system_create :: proc() -> (system: Program_Pickup_System) {
     system.pickups = make([dynamic]Program_Pickup)
 
@@ -38,7 +36,7 @@ program_pickup_system_create :: proc() -> (system: Program_Pickup_System) {
         return
     }
 
-    // No repeats
+    // no repeats
     program_ids := make([]program.Program_Definition_ID, num_programs)
     defer delete(program_ids)
     for i in 0..<num_programs {

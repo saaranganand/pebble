@@ -19,8 +19,9 @@ Audio_Entry :: struct {
 
     // Only SFX uses the pool
     // The pool contains instances via ma.sound_init_copy.
-    // These are cheaper to play 
     pool: Sound_Pool,
+
+    last_play_ms: u64,
 }
 
 

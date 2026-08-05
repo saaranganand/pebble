@@ -7,8 +7,8 @@ import handle "src:handle"
 
 import log "core:log"
 
-// A program loadout is owned by a program-wielding entity (currently player)
-// equip/unequip rebuilds the folded aggregates below, so per-shot reads in the weapon package stay a single table lookup
+// a program loadout is owned by a program-wielding entity (player)
+// equip/unequip rebuilds below
 Program_Loadout :: struct {
     owner: handle.Entity_Handle,
     owner_team: entity.Team,
@@ -21,7 +21,7 @@ Program_Loadout :: struct {
     hit_effects: [dynamic]effect.Effect_Instance_ID,
 }
 
-// Must be called after weapon manager load (mult table is sized based on total number of weapon definitions)
+// must be called after weapon manager load
 program_loadout_create :: proc(
     loadout: ^Program_Loadout, owner: handle.Entity_Handle, owner_team: entity.Team,
     weapon_controller: ^weapon.Weapon_Controller,

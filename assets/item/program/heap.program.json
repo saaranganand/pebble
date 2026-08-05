@@ -1,4 +1,5 @@
 // +20% max HP while equipped
+
 sprite: "heap"
 
 entity_buffs: [

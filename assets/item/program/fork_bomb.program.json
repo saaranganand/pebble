@@ -1,4 +1,5 @@
 // +60% damage, but take +40% damage
+
 buffs: [
   { stat: "DAMAGE", multiplier: 1.6 }
 ]

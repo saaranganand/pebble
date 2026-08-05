@@ -1,4 +1,5 @@
 // -10% dmg, but slows enemies
+
 buffs: [
   { stat: "DAMAGE", multiplier: 0.9 }
 ]

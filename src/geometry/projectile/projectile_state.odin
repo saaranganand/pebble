@@ -116,7 +116,7 @@ projectile_state_check_collision :: proc(state: Projectile_State, circle: geo.Ci
     case Ray:
         return geo.line_circle_colliding(state.position, state.shoot_angle, circle)
     case Line:
-        return false
+        return geo.line_angle_segment_circle_colliding(state.position, s.length, state.shoot_angle, circle)
     case Tracking_Line:
         shape := state.shape.(Tracking_Line)
         return geo.line_angle_segment_circle_colliding(state.position, shape.length, state.shoot_angle,circle)

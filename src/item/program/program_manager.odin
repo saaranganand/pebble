@@ -55,8 +55,8 @@ program_manager_get_definition :: proc(definition_tag: Program_Definition_Tag) -
 PROGRAM_MASTER_FOLDER :: "assets/"
 PROGRAM_DATA_EXTENSION :: ".program.json"
 
-// Must load after the weapon and effect managers:
-// program definitions resolve weapon tags and effect instance tags to IDs at load.
+// program definitions resolve weapon tags and effect instance tags to IDs at load
+// loaded after weapon and effect managers
 program_manager_load :: proc() {
     log.infof("Loading program manager")
 
