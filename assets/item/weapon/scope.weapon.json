@@ -1,6 +1,4 @@
 // hold to charge, damage scales with charge time
-// hits whatever the crosshair is on when you let go - no projectile, so enemies
-// standing in front of your target dont soak it. crosshair on nothing wastes the shot
 
 category: "CHARGE"
 
