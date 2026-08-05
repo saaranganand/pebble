@@ -27,7 +27,7 @@ MAX_HP :: 100
 AIM_DIST :: 50
 
 player_init :: proc() -> (player: Player_Character) {
-    entity_data := entity.entity_make_data({0.0,0.0}, PLAYER_SPEED, MAX_HP, 10, .ALLY, .PLAYER, "player.animation")
+    entity_data := entity.entity_make_data({0.0,0.0}, PLAYER_SPEED, MAX_HP, 5, .ALLY, .PLAYER, "player.animation")
     player.entity = entity.entity_manager_add_entity(entity_data)
 
     weapon.weapon_controller_create(&player.weapon_controller)
@@ -46,14 +46,13 @@ player_destroy :: proc(player: ^Player_Character) {
 }
 
 draw_player_accessories :: proc(player: ^Player_Character) {
-    entity, ok := entity.entity_get(player.entity, .ALLY)
+    player_entity, ok := entity.entity_get(player.entity, .ALLY)
     if !ok do return
-    if !entity.active do return
 
     color.sdl_set_color(color.Default_Palette_Color.BABY_BLUE)
-    camera.fill_circle({{entity.collision.position.x, entity.collision.position.y}, 10})
+    camera.fill_circle({{player_entity.collision.position.x, player_entity.collision.position.y}, player_entity.collision.radius})
 
-    weapon.weapon_controller_draw(&player.weapon_controller, entity.collision.position)
+    weapon.weapon_controller_draw(&player.weapon_controller, player_entity.collision.position)
 }
 
 update_player :: proc(player: ^Player_Character, input: input.Input) {

@@ -3,7 +3,7 @@ animations: {
   idle: {
     fps: 0
     looping: false
-    scale: 1
+    scale: 0.75
     frames: [
       { source: { x: 0, y: 0, w: 82, h: 128 }, hang_frames: 1, dest_scale: [1, 1] }
     ]
@@ -11,7 +11,7 @@ animations: {
   moving_facing_right: {
     fps: 0
     looping: false
-    scale: 1
+    scale: 0.75
     frames: [
       { source: { x: 164, y: 0, w: 82, h: 128 }, hang_frames: 1, dest_scale: [1, 1] }
     ]
@@ -19,7 +19,7 @@ animations: {
   moving_facing_left: {
     fps: 0
     looping: false
-    scale: 1
+    scale: 0.75
     frames: [
       { source: { x: 82, y: 0, w: 82, h: 128 }, hang_frames: 1, dest_scale: [1, 1] }
     ]

@@ -69,7 +69,7 @@ horde_update :: proc(horde: ^Horde) {
     target_entity, target_ok := entity.entity_get(horde.target, .ALLY)
     if !target_ok do return
 
-    if leader_entity.active do leader_entity.collision.position += leader_entity.move_speed * primatives.dt * geo.normalize_point(
+    leader_entity.collision.position += leader_entity.move_speed * primatives.dt * geo.normalize_point(
         target_entity.collision.position - leader_entity.collision.position
     )
 }

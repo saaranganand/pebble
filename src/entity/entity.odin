@@ -21,7 +21,6 @@ Team :: enum { ALLY, NEUTRAL, ENEMY }
 Category :: enum { PLAYER, BULLET, NPC, VIP }
 
 Entity :: struct {
-    active: bool,
     handle: util.Handle,
     collision: geo.Circle,
     animation_controller: animation.Animation_Controller,
@@ -38,7 +37,6 @@ entity_make_data :: proc(
     col_position: sdl.FPoint, base_move_speed, max_hp, col_radius: f32, team: Team, category: Category,
     animation_source_tag: string
 ) -> (entity: Entity) {
-    entity.active = true
     entity.collision = geo.Circle{ position = col_position, radius = col_radius}
     entity.animation_controller = animation.animation_controller_create(animation_source_tag)
     entity.team = team
@@ -62,7 +60,6 @@ entity_create :: proc(entity: ^Entity) {
 @(private)
 entity_destroy :: proc(entity: ^Entity) {
     //delete(entity.forces)
-    entity.active = false
 }
 
 entity_deal_damage :: proc(entity: ^Entity, damage: f32) {
@@ -75,19 +72,15 @@ entity_set_animation :: proc(entity: ^Entity, new_animation: string) {
 }
 
 entity_update :: proc(entity: ^Entity) {
-    if !entity.active do return
     entity.collision.position += entity.direction * entity.move_speed * primatives.dt
 
     entity.move_speed = entity.base_move_speed
 
     if entity.hp <= 0 {
         entity_manager_remove_entity(entity.handle, entity.team)
-        entity.active = false
     }
 }
 
-entity_draw :: proc(entity: ^Entity) {
-    if !entity.active do return
-    
+entity_draw :: proc(entity: ^Entity) {    
     camera.draw_animation(&entity.animation_controller, entity.collision.position)
 }

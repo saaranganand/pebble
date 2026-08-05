@@ -50,7 +50,6 @@ spatial_grid_build :: proc(grid: ^Spatial_Grid) {
             defer i += 1
             follower_entity, ok := entity.entity_get(follower, HORDE_TEAM)
             if !ok do continue
-            if !follower_entity.active do continue
 
             cell_pos := spatial_grid_get_cell_pos(follower_entity.collision.position)
             if cell_pos not_in grid.cells {
@@ -79,7 +78,6 @@ spatial_grid_get_nearby_followers :: proc(grid: ^Spatial_Grid, searcher: util.Ha
 
                 neighbour, ok := entity.entity_get(neighbour_handle, HORDE_TEAM)
                 if !ok do continue
-                if !neighbour.active do continue
 
                 distance := neighbour.collision.position - position
                 distance_squared := math.pow(distance.x, 2) + math.pow(distance.y, 2)

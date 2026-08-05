@@ -65,7 +65,7 @@ state_check_collision :: proc(state: State, circle: geo.Circle) -> bool {
 
 state_check_lifetime :: proc(state: ^State, index: uint) {
     if state.total_lifetime > state.max_lifetime do projectile_manager_remove(index, state.team, state.category)
-    if state.piercing == 0 do projectile_manager_remove(index, state.team, state.category)
+    else if state.piercing == 0 do projectile_manager_remove(index, state.team, state.category)
 
     state.total_lifetime += primatives.dt
 }

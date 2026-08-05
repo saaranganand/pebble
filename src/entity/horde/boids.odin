@@ -45,7 +45,6 @@ horde_boid_update :: proc() {
         for follower_handle in horde_followers {
             follower_entity, follower_ok := entity.entity_get(follower_handle, HORDE_TEAM)
             if !follower_ok do continue
-            if !follower_entity.active do continue
 
             spatial_grid_get_nearby_followers(grid, follower_handle, follower_entity.collision.position)
 

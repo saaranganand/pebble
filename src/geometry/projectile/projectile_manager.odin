@@ -5,6 +5,7 @@ import sdl "vendor:sdl3"
 import entity "src:entity"
 
 import xar "core:container/xar"
+import log "core:log"
 
 @(private)
 global_projectile_manager: Projectile_Manager
@@ -84,7 +85,6 @@ projectile_manager_remove :: proc(index: uint, team: entity.Team, category: Cate
         append(&global_projectile_manager.tracking_arrow_remove_queues[team], index)
         return
     }
-
     append(&global_projectile_manager.projectile_remove_queues[team], index)
 }
 
