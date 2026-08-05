@@ -6,8 +6,6 @@ import ttf "vendor:sdl3/ttf"
 import primatives "src:sdl_primatives"
 import color "src:util/color"
 
-// The bar widens with max health, so a program that raises max HP visibly grows the bar
-// rather than just making each point of health worth less of it.
 draw_hud_health_bar :: proc(health, max_health, base_max_health: f32) {
     HEALTH_BAR_WIDTH :: 300
     HEALTH_BAR_HEIGHT :: 20

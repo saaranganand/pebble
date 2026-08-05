@@ -33,9 +33,16 @@ img_get_instance :: proc(tag: string, expected_state: util.Data_Load_State) -> (
     return
 }
 
+// the file an img tag came from, for callers that need the raw file rather than the texture
+// (SDL cursors need a surface, not a texture)
+img_get_path :: proc(tag: string) -> (path: string, ok: bool) {
+    instance, exists := &global_img_manager[tag]
+    if !exists do return "", false
+    return instance.path, true
+}
+
 img_load :: proc(tag: string) {
-    // Several data files can name the same sprite (every program without its own
-    // icon falls back to one), so loading an already-loaded texture is a no-op, not an error.
+    // lots of files can name the same sprite (programs without their own sprite icons uses default one), so loading twice is fine
     if loaded, exists := &global_img_manager[tag]; exists && loaded.state == .LOADED do return
 
     instance, ok := img_get_instance(tag, .UNLOADED)

@@ -98,26 +98,49 @@ Effect_Position_Fn_Data :: struct {
 Effect_Force_Fn_Data :: entity.Force
 */
 
+// An instance only writes the fields it cares about - speed_reduce_low sets mult and no add -
+// so a missing key is normal, not a mistake. Asserting straight off the map crashes on those.
+@(private)
+effect_data_f32 :: proc(data: Effect_Callback_Data, key: string, fallback: f32 = 0) -> f32 {
+    value, exists := data[key]
+    if !exists do return fallback
+
+    number, is_number := value.(f32)
+    if !is_number do return fallback
+
+    return number
+}
+
+@(private)
+effect_data_point :: proc(data: Effect_Callback_Data, key: string) -> sdl.FPoint {
+    value, exists := data[key]
+    if !exists do return {}
+
+    point, is_point := value.(sdl.FPoint)
+    if !is_point do return {}
+
+    return point
+}
+
 effect_damage_fn   :: proc(data: Effect_Callback_Data, target_entity: entity.Entity) -> (damage: f32) {
     // TODO: add stuff like defense? aka entity impact in damage formula?
-    damage = data["damage"].(f32)
+    damage = effect_data_f32(data, "damage")
     return
 }
 effect_speed_fn    :: proc(data: Effect_Callback_Data, target_entity: entity.Entity) -> (new_speed: f32) {
-    new_speed = (target_entity.move_speed + data["add"].(f32)) * data["mult"].(f32)
+    new_speed = (target_entity.move_speed + effect_data_f32(data, "add", 0)) * effect_data_f32(data, "mult", 1)
     return
 }
 effect_position_fn :: proc(data: Effect_Callback_Data, target_entity: entity.Entity) -> (new_pos: sdl.FPoint) {
-    new_pos = target_entity.position + data["direction"].(sdl.FPoint) * data["speed"].(f32) * primatives.dt
+    new_pos = target_entity.position + effect_data_point(data, "direction") * effect_data_f32(data, "speed") * primatives.dt
     return
 }
 effect_heal_fn     :: proc(data: Effect_Callback_Data, target_entity: entity.Entity) -> (heal: f32) {
-    heal = data["amount"].(f32)
+    heal = effect_data_f32(data, "amount")
     return
 }
 
-// Scratch buffer for handing an instance's numeric callback data to Lua.
-// Reused across triggers so a scripted effect does not allocate a map every pulse.
+// scratch buffer for handing an instance's numeric callback data to lua
 @(private)
 lua_param_scratch: map[string]f32
 

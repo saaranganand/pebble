@@ -18,10 +18,8 @@ Stat_Buff :: struct {
     stat: weapon.Weapon_Stat,
     multiplier: f32,
 
-    // Data files name the weapon; "" means every weapon.
-    // Resolved to weapon_id once at load, so per-shot reads stay an index.
     weapon_tag: string,
-    weapon_id: Maybe(weapon.Weapon_Definition_ID),
+    weapon_id: Maybe(weapon.Weapon_Definition_ID), // nil = every weapon
 }
 
 Entity_Stat_Buff :: struct {
@@ -37,7 +35,7 @@ Self_Effect :: struct {
 
 // --- PROGRAMS ---
 // 3 types: buffs (weapons), self effects (applied to player), hit effects (applied to whatever projectile hits)
-// All references are resolved to IDs at load time, so bad names fail loudly at boot, not during play.
+// All references are resolved to IDs here at load time, so bad names fail loudly at boot, not during play.
 Program_Definition :: struct {
     unique_tag: Program_Definition_Tag,
     unique_id: Program_Definition_ID,
@@ -46,11 +44,9 @@ Program_Definition :: struct {
     buffs: []Stat_Buff,
     entity_buffs: []Entity_Stat_Buff,
 
-    // Tags as written in the data file...
     self_effect_tags: []string,
     hit_effect_tags: []string,
 
-    // ...and the IDs they resolve to.
     self_effects: []Self_Effect,
     hit_effects: []effect.Effect_Instance_ID,
 }
@@ -61,8 +57,6 @@ PROGRAM_DEFAULT_SPRITE :: "program"
 @(private)
 PROGRAM_TAG_SUFFIX :: ".program"
 
-// unique_tag is the data file's stem, so it carries the category suffix ("charger.program").
-// Anything the player reads wants the bare name.
 program_definition_display_name :: proc(definition: ^Program_Definition) -> string {
     return strings.trim_suffix(definition.unique_tag, PROGRAM_TAG_SUFFIX)
 }
@@ -83,13 +77,13 @@ program_definition_load :: proc(definition: ^Program_Definition, path: string) {
 	}
 }
 
-// Turns the tags a program's data file refers to into the IDs the rest of the game indexes by.
-// Must run after the weapon and effect managers have loaded.
 @(private)
 program_definition_resolve :: proc(definition: ^Program_Definition) {
+    // SPRITE --------------------------------------------
     if definition.sprite == "" do definition.sprite = strings.clone(PROGRAM_DEFAULT_SPRITE)
     img.img_load(definition.sprite)
 
+    // BUFFS ---------------------------------------------
     for &buff in definition.buffs {
         if buff.weapon_tag == "" do continue
 
@@ -98,6 +92,7 @@ program_definition_resolve :: proc(definition: ^Program_Definition) {
         buff.weapon_id = weapon_id
     }
 
+    // SELF EFFECTS
     definition.self_effects = make([]Self_Effect, len(definition.self_effect_tags))
     for instance_tag, i in definition.self_effect_tags {
         instance_id, instance_ok := effect.effect_manager_get_instance_id(instance_tag)
@@ -109,6 +104,7 @@ program_definition_resolve :: proc(definition: ^Program_Definition) {
         }
     }
 
+    // HIT EFFECTS
     definition.hit_effects = make([]effect.Effect_Instance_ID, len(definition.hit_effect_tags))
     for instance_tag, i in definition.hit_effect_tags {
         instance_id, instance_ok := effect.effect_manager_get_instance_id(instance_tag)

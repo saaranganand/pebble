@@ -1,8 +1,17 @@
 package audio
 
 import ma "vendor:miniaudio"
+import sdl "vendor:sdl3"
 
 import log "core:log"
+
+// A single trigger can land a lot of hits at once - trace throws 6 homing shots that
+// pierce 4 each - and every one of them asks for the same hit sound on the same frame.
+// Played straight that is 20+ copies of one wav stacking into a wall of noise.
+// So the same sound will not restart until this many ms have passed.
+// Long enough to collapse one burst, short enough that rapid weapons still tick per shot
+// (the fastest gcd right now is bus at 100ms).
+SOUND_RETRIGGER_GUARD_MS :: 60
 
 // TODO: look more into miniaudio flags
 @(private)
@@ -53,6 +62,13 @@ sound_play_from_audio_entry :: proc(entry: ^Audio_Entry, loop: bool = false) {
 sound_play :: proc(tag: string, loop: bool = false) {
     entry, success := sound_get_entry(tag)
     if !success do return
+
+    // Looping sounds are started deliberately (charge etc), so they skip the guard
+    if !loop {
+        now := sdl.GetTicks()
+        if entry.last_play_ms != 0 && now - entry.last_play_ms < SOUND_RETRIGGER_GUARD_MS do return
+        entry.last_play_ms = now
+    }
 
     sound_play_from_audio_entry(entry, loop)
 }

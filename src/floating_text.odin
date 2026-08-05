@@ -91,7 +91,9 @@ floating_text_system_draw :: proc(system: ^Floating_Text_System) {
 
 // part of reaction systme
 reaction_number_popup :: proc(world_position: sdl.FPoint, value: f32, popup_color: color.Default_Palette_Color) {
-    label := fmt.caprint(int(value))
+    damage := int(value)
+
+    label := fmt.caprint(damage) if damage != 0 else fmt.caprint("0")
     defer delete(label)
     floating_text_spawn(&game.floating_texts, label, world_position + {0, -30}, popup_color)
 }

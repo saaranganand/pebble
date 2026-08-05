@@ -92,6 +92,12 @@ entity_manager_update :: proc() {
     }
 }
 
+// the pool of every entity on a team, for callers that need to sweep it themselves
+// and build handles as they go (beam weapons, collision)
+entity_manager_get_team_pool :: proc(team: Team) -> ^handle.Pool(handle.Entity_Tag, Entity) {
+    return &global_entity_manager.pools[team]
+}
+
 // deals damage to every entity of `team` whose center is within `radius` of `center`.
 // used by aoe
 entity_damage_in_radius :: proc(center: sdl.FPoint, radius: f32, team: Team, amount: f32) {

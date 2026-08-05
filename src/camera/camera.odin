@@ -142,6 +142,32 @@ camera_fill_circle :: proc(circle: geo.Circle) {
     geo.fill_circle(view_adjusted_circle)
 }
 
+// solid world-space line. thickness is faked by stacking parallel lines either side of the
+// centre, same as the old bus beam did. caller sets the colour first
+camera_draw_line :: proc(start, end: sdl.FPoint, thickness: f32 = 1) {
+    view_start := world_position_to_view(start)
+    view_end := world_position_to_view(end)
+
+    if thickness <= 1 {
+        sdl.RenderLine(primatives.global_renderer, view_start.x, view_start.y, view_end.x, view_end.y)
+        return
+    }
+
+    // perpendicular to the line, to offset each parallel copy along
+    along := geo.normalize_point(view_end - view_start)
+    perp := sdl.FPoint{ -along.y, along.x }
+
+    half := int(thickness / 2)
+    for i in -half..=half {
+        offset := perp * f32(i)
+        sdl.RenderLine(
+            primatives.global_renderer,
+            view_start.x + offset.x, view_start.y + offset.y,
+            view_end.x + offset.x, view_end.y + offset.y,
+        )
+    }
+}
+
 camera_draw_center_lines :: proc() {
     color.sdl_set_color(color.Default_Palette_Color.GRASS_GREEN)
 

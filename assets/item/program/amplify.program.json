@@ -1,4 +1,5 @@
 // +10% damage on every weapon
+
 buffs: [
   { stat: "DAMAGE", multiplier: 1.10 }
 ]

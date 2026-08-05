@@ -1,18 +1,26 @@
+// homing missiles
+
 category: "RANGED"
 
 projectile_shell: {
-  category: "BULLET"
-  piercing: 1
-  speed: 600.0
-  lifetime: 3.0
+  category: "TRACKING_ARROW"
+  piercing: 4
+  speed: 700
+  lifetime: 10
+  shots: 6
 
-  animation_source: "bullet.animation"
+  animation_source: "arrow.animation"
 
-  shape_radius: 8.0
+  shape_length: 40
+  shape_turn_speed: 6
 }
 
-gcd_interval: 1.0
-damage: 25
+gcd_interval: 0.5
+damage: 2
 
-animation_source: "bit_rifle.animation"
+sounds: {
+  SELECT: "bow_draw.wav"
+  SHOOT: "bow_shoot.wav"
+}
+animation_source: "trace.animation"
 animation_default_angle: 0.0

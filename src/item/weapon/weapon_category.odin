@@ -22,5 +22,5 @@ weapon_category_from_string :: proc(cat_str: string) -> Category {
     }
 
     log.errorf("Passed weapon category from string did not match any expected result for enum")
-    log.panic("Please check data/weapon/*.yaml for 'category' values")
+    log.panic("Please check assets/**/*.weapon.json for 'category' values")
 }
