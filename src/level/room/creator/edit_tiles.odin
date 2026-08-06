@@ -34,7 +34,7 @@ edit_tiles_tool_update :: proc(grid_box: sdl.FRect) {
     tile_x, tile_y := edit_tiles_window_pos_to_grid_pos(mouse_pos - grid_box_pos)
 
     if geo.point_in_rect(mouse_pos, grid_box) {
-        if .LEFT in ui.mu_ctx.mouse_down_bits {
+        if .LEFT in creator_ui.mu_ctx.mouse_down_bits {
             if creator.current_tool == .ERASER do edit_tiles_erase(int(tile_x), int(tile_y))
             else if creator.current_tool == .PEN do edit_tiles_write(int(tile_x), int(tile_y))
         }

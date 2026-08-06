@@ -6,6 +6,7 @@ import log "core:log"
 
 import primatives "src:sdl_primatives"
 import util "src:util"
+import ui "src:ui"
 
 APP_SHUTDOWN_KEY :: sdl.K_ESCAPE
 
@@ -67,7 +68,7 @@ poll_app_input :: proc() -> (input: App_Input) {
     event: sdl.Event
     for sdl.PollEvent(&event) {
         mu_ctx, mu_ctx_ok := app.active_mu_ctx.(^mu.Context)
-        if mu_ctx_ok do util.mu_ctx_read_input(event, mu_ctx)
+        if mu_ctx_ok do ui.mu_ctx_read_input(event, mu_ctx)
 
         input.exit |= event.type == .WINDOW_CLOSE_REQUESTED || event.type == .QUIT
 

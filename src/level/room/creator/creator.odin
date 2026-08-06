@@ -4,6 +4,7 @@ import sdl "vendor:sdl3"
 
 import primatives "src:sdl_primatives"
 import color "src:util/color"
+import ui "src:ui"
 
 import log "core:log"
 import fmt "core:fmt"
@@ -134,7 +135,7 @@ creator_new_file :: proc() {
     }
 
     creator.edit_name = "untitled.room.tiles"
-    ui_set_currently_loaded_text(creator.edit_name)
+    ui.set_cache_text(creator_ui.text_cache, "Current Loaded:", fmt.tprint("Current Loaded:", "\n", creator.edit_name, sep = ""))
     
     creator_level_tiles_create(20, 20)
 }
@@ -142,15 +143,11 @@ creator_new_file :: proc() {
 creator_set_tool :: proc(tool: Tool) {
     creator.current_tool = tool
 
-    tool_text := fmt.caprint(tool)
-    defer delete(tool_text)
-    ui_set_current_tool_text(tool_text)
+    ui.set_cache_text(creator_ui.text_cache, "Current tool:", fmt.tprint("Current tool:", "\n", tool, sep = ""))
 }
 
 creator_set_tile :: proc(tile: Tile) {
     creator.current_tile = tile
 
-    tile_text := fmt.caprint(tile)
-    defer delete(tile_text)
-    ui_set_current_tile_text(tile_text)
+    ui.set_cache_text(creator_ui.text_cache, "Current tile:", fmt.tprint("Current tile:", "\n", tile, sep = ""))
 }

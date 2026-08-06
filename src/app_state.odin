@@ -63,7 +63,7 @@ switch_to_game_state :: proc() {
 switch_to_room_creator_state :: proc() {
     audio.pause_audio(.GAME)
 
-    app.active_mu_ctx = &room_creator.ui.mu_ctx
+    app.active_mu_ctx = &room_creator.creator_ui.mu_ctx
 }
 
 switch_to_level_creator_state :: proc() {

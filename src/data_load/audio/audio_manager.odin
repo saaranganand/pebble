@@ -29,7 +29,7 @@ audio_manager_create :: proc() {
         result := ma.engine_init(nil, &engine)
         if result != .SUCCESS do log.panicf("Failed to init Miniaudio: %v", ma.result_description(result))
 
-        ma.engine_set_volume(&engine, .50)
+        ma.engine_set_volume(&engine, .25)
     }    
 
     global_audio_manager.data_map = make(map[string]Audio_Entry)

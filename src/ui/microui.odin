@@ -1,4 +1,4 @@
-package util
+package ui
 
 import sdl_ttf "vendor:sdl3/ttf"
 import mu "vendor:microui"
@@ -6,8 +6,6 @@ import sdl "vendor:sdl3"
 
 import strings "core:strings"
 import log "core:log"
-
-MU_Text_Cache :: map[string]^sdl_ttf.Text
 
 mu_ctx_init :: proc(ctx: ^mu.Context, renderer: ^sdl.Renderer, atlas_tex: ^^sdl.Texture, font: ^sdl_ttf.Font = nil) {
     mu.init(ctx)
@@ -97,11 +95,13 @@ mu_ctx_read_input :: proc(ev: sdl.Event, ctx: ^mu.Context) {
 }
 
 
-mu_ctx_draw :: proc(ctx: ^mu.Context, renderer: ^sdl.Renderer, atlas_tex: ^sdl.Texture, text_cache: MU_Text_Cache) {
+mu_ctx_draw :: proc(ctx: ^mu.Context, renderer: ^sdl.Renderer, atlas_tex: ^sdl.Texture, text_cache: Maybe(MU_Text_Cache)) {
     cmd: ^mu.Command
     for variant in mu.next_command_iterator(ctx, &cmd) {
         switch v in variant {
         case ^mu.Command_Text:
+            if v.str == "" do break
+
             if text_cache == nil {
                 dst := sdl.FRect{f32(v.pos.x), f32(v.pos.y), 0, 0}
                 sdl.SetTextureColorMod(atlas_tex, v.color.r, v.color.g, v.color.b)
@@ -117,12 +117,11 @@ mu_ctx_draw :: proc(ctx: ^mu.Context, renderer: ^sdl.Renderer, atlas_tex: ^sdl.T
 
                 break
             }
+            text_cache, _ := text_cache.(MU_Text_Cache) 
 
-            if cached_text, ok := text_cache[v.str]; ok {
-                sdl_ttf.SetTextColor(cached_text, v.color.r, v.color.g, v.color.b, v.color.a)
-                sdl_ttf.DrawRendererText(cached_text, f32(v.pos.x), f32(v.pos.y))
-            }
-
+            draw_cache_text(text_cache, v.str, cast(f32) v.pos.x, cast(f32) v.pos.y)
+            set_cache_color(text_cache, v.str, {v.color.r, v.color.g, v.color.b, v.color.a})
+            
         case ^mu.Command_Rect:
             sdl.SetRenderDrawColor(renderer, v.color.r, v.color.g, v.color.b, v.color.a)
             sdl.RenderFillRect(renderer, &sdl.FRect{f32(v.rect.x), f32(v.rect.y), f32(v.rect.w), f32(v.rect.h)})
