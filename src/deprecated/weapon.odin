@@ -8,7 +8,7 @@ import "core:math"
 import primatives "src:sdl_primatives"
 import data_load "src:data_load" 
 import entity "src:entity"
-import effect "src:entity/entity_effect"
+import effect "src:entity/effect"
 import input "src:input"
 
 WeaponCategory :: enum {

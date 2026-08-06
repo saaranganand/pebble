@@ -36,9 +36,6 @@ Handle :: struct($Handle_Tag: typeid) {
 Effect_Tag :: struct {}
 Entity_Tag :: struct {}
 
-Effect_Handle :: Handle(Effect_Tag)
-Entity_Handle :: Handle(Entity_Tag)
-
 // Our generic pool struct does not include data on whether its data entries are "active" or not.
 // We still for pool owners, say the effect manager, to be able to know when their data has "died", in order to skip on updates though!
 // Thus, it is important that generation is NOT updated on replacement into the data array.

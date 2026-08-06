@@ -1,16 +1,16 @@
 package program
 
-import effect "src:entity/entity_effect"
+import effect "src:entity/effect"
 import weapon "src:item/weapon"
 import entity "src:entity"
-import handle "src:handle"
+import util "src:util"
 
 import log "core:log"
 
 // a program loadout is owned by a program-wielding entity (player)
 // equip/unequip rebuilds below
 Program_Loadout :: struct {
-    owner: handle.Entity_Handle,
+    owner: util.Handle,
     owner_team: entity.Team,
     weapon_controller: ^weapon.Weapon_Controller,
 
@@ -23,7 +23,7 @@ Program_Loadout :: struct {
 
 // must be called after weapon manager load
 program_loadout_create :: proc(
-    loadout: ^Program_Loadout, owner: handle.Entity_Handle, owner_team: entity.Team,
+    loadout: ^Program_Loadout, owner: util.Handle, owner_team: entity.Team,
     weapon_controller: ^weapon.Weapon_Controller,
 ) {
     loadout.owner = owner
@@ -121,10 +121,10 @@ program_loadout_recompute :: proc(loadout: ^Program_Loadout) {
 
     loadout.entity_stat_mults = entity_mults
     if owner, ok := entity.entity_get(loadout.owner, loadout.owner_team); ok {
-        old_max_health := owner.max_health
-        owner.max_health = owner.base_max_health * entity_mults[.MAX_HEALTH]
-        if old_max_health > 0 do owner.health *= owner.max_health / old_max_health
-        owner.health = min(owner.health, owner.max_health)
+        old_max_hp := owner.max_hp
+        owner.max_hp = owner.base_max_hp * entity_mults[.MAX_HEALTH]
+        if old_max_hp > 0 do owner.hp *= owner.max_hp / old_max_hp
+        owner.hp = min(owner.hp, owner.max_hp)
         owner.damage_taken_mult = entity_mults[.DAMAGE_TAKEN]
         owner.move_speed_mult = entity_mults[.MOVE_SPEED]
     }
