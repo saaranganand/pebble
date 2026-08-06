@@ -1,7 +1,6 @@
 package main
 
 import sdl "vendor:sdl3"
-import ma "vendor:miniaudio"
 import mu "vendor:microui"
 
 import primatives "src:sdl_primatives"
@@ -11,22 +10,6 @@ import level_creator "src:level/creator"
 import audio "src:data_load/audio"
 
 import log "core:log"
-
-App_State :: enum{ GAME, ROOM_CREATOR, LEVEL_CREATOR }
-
-@(rodata)
-app_loops := [App_State]proc(){
-    .GAME = game_loop,
-    .ROOM_CREATOR = room_creator.creator_loop,
-    .LEVEL_CREATOR = level_creator.creator_loop,
-}
-
-@(rodata)
-app_state_shortkeys := [App_State]sdl.Keycode {
-    .GAME = sdl.K_F1,
-    .ROOM_CREATOR = sdl.K_F2,
-    .LEVEL_CREATOR = sdl.K_F3,
-}
 
 App :: struct {
     display_id: sdl.DisplayID,
@@ -71,17 +54,13 @@ app_create :: proc() {
 
     data_load.global_init()
 
-    room_creator.creator_init()
-
-    game_create()
+    app_states_init()
 }
 
 app_destroy :: proc() {
-    game_destroy()
+    app_states_destroy()
 
     log.infof("\n\n\n\n==================== APP DE-INITIALIZATION ====================")
-
-    room_creator.creator_destroy()
 
     primatives.global_renderer_destroy()
     primatives.global_window_destroy()
@@ -122,7 +101,7 @@ app_loop :: proc() -> bool {
 
     handle_app_input(poll_app_input())
 
-    app_loops[app.state]()
+    app_state_loops[app.state]()
 
     sdl.RenderPresent(primatives.global_renderer)
 
