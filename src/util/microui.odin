@@ -47,11 +47,17 @@ mu_ctx_init :: proc(ctx: ^mu.Context, renderer: ^sdl.Renderer, atlas_tex: ^^sdl.
     sdl.SetTextureBlendMode(atlas_tex^, sdl.BLENDMODE_BLEND)
 }
 
+mu_ctx_reset_mouse_left_after_dialog :: proc(ctx: ^mu.Context) {
+    mouse_pos := sdl.FPoint{}
+    buttons_state := sdl.GetMouseState(&mouse_pos.x, &mouse_pos.y)
+    mu.input_mouse_up(ctx, cast(i32) mouse_pos.x, cast(i32) mouse_pos.y, .LEFT)
+}
+
 mu_ctx_read_input :: proc(ev: sdl.Event, ctx: ^mu.Context) {
     #partial switch ev.type {
     case .MOUSE_MOTION:
         mu.input_mouse_move(ctx, i32(ev.motion.x), i32(ev.motion.y))
-    case .MOUSE_BUTTON_DOWN, .MOUSE_BUTTON_UP:
+    case .MOUSE_BUTTON_DOWN, .MOUSE_BUTTON_UP:     
         btn: mu.Mouse
 
         switch ev.button.button {

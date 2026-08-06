@@ -1,4 +1,4 @@
-package level_creator
+package room_creator
 
 import color "src:util/color"
 

@@ -1,8 +1,9 @@
-package level_creator
+package room_creator
 
 import sdl "vendor:sdl3"
 
 import primatives "src:sdl_primatives"
+import util "src:util"
 
 import runtime "base:runtime"
 import fmt "core:fmt"
@@ -15,6 +16,8 @@ room_tiles_save_user_data: Dialog_User_Data
 room_tiles_save_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, filter: i32) {
     data := cast(^Dialog_User_Data)userdata
     context = data.ctx
+
+    util.mu_ctx_reset_mouse_left_after_dialog(&ui.mu_ctx)
 
     if filelist == nil do return
     if filelist[0] == "" do return
@@ -47,6 +50,8 @@ room_tiles_load_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, fi
     data := cast(^Dialog_User_Data)userdata
     context = data.ctx
 
+    util.mu_ctx_reset_mouse_left_after_dialog(&ui.mu_ctx)
+
     if filelist == nil do return
     if filelist[0] == "" do return
 
@@ -55,8 +60,6 @@ room_tiles_load_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, fi
 }
 
 room_tiles_load_dialog :: proc() {
-    if creator.edit_tiles_loaded do creator_level_tiles_destroy()
-
     filters := [?]sdl.DialogFileFilter{
         {name = "room tiles files", pattern = "room.tiles"},
     }

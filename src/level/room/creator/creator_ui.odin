@@ -1,4 +1,4 @@
-package level_creator
+package room_creator
 
 import sdl_ttf "vendor:sdl3/ttf"
 import mu "vendor:microui"
@@ -125,6 +125,7 @@ room_tiles_save :: proc(path: cstring) {
 }
 
 room_tiles_load :: proc(path: cstring) {
+    if creator.edit_tiles_loaded do creator_level_tiles_destroy()
     if creator.loaded_name {
         delete(creator.edit_name)
         creator.loaded_name = false

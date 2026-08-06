@@ -1,4 +1,4 @@
-package level_creator
+package room_creator
 
 import mu "vendor:microui"
 import sdl "vendor:sdl3"

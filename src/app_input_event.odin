@@ -89,13 +89,8 @@ poll_app_input :: proc() -> (input: App_Input) {
         case .KEY_DOWN:
             input.exit |= event.key.key == APP_SHUTDOWN_KEY
 
-            if event.key.key == sdl.K_F1 {
-                app_queue_state(.GAME)
-            }
 
-            if event.key.key == sdl.K_F2 {
-                app_queue_state(.LEVEL_CREATOR)
-            }
+            for state in App_State do if event.key.key == app_state_shortkeys[state] do app_queue_state(state)
         }
     }
 

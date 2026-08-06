@@ -6,17 +6,26 @@ import mu "vendor:microui"
 
 import primatives "src:sdl_primatives"
 import data_load "src:data_load"
+import room_creator "src:level/room/creator"
 import level_creator "src:level/creator"
 import audio "src:data_load/audio"
 
 import log "core:log"
 
-App_State :: enum{ GAME, LEVEL_CREATOR }
+App_State :: enum{ GAME, ROOM_CREATOR, LEVEL_CREATOR }
 
 @(rodata)
 app_loops := [App_State]proc(){
     .GAME = game_loop,
+    .ROOM_CREATOR = room_creator.creator_loop,
     .LEVEL_CREATOR = level_creator.creator_loop,
+}
+
+@(rodata)
+app_state_shortkeys := [App_State]sdl.Keycode {
+    .GAME = sdl.K_F1,
+    .ROOM_CREATOR = sdl.K_F2,
+    .LEVEL_CREATOR = sdl.K_F3,
 }
 
 App :: struct {
@@ -40,7 +49,7 @@ app_create :: proc() {
 
     default_state :: App_State.GAME
     app.state = default_state
-    app.target_state = .LEVEL_CREATOR
+    app.target_state = .ROOM_CREATOR
     app.active_mu_ctx = nil
 
     app_switch_state()
@@ -62,7 +71,7 @@ app_create :: proc() {
 
     data_load.global_init()
 
-    level_creator.creator_init()
+    room_creator.creator_init()
 
     game_create()
 }
@@ -72,7 +81,7 @@ app_destroy :: proc() {
 
     log.infof("\n\n\n\n==================== APP DE-INITIALIZATION ====================")
 
-    level_creator.creator_destroy()
+    room_creator.creator_destroy()
 
     primatives.global_renderer_destroy()
     primatives.global_window_destroy()
@@ -91,8 +100,8 @@ app_switch_state :: proc() {
     if app.state != .GAME do audio.pause_audio(.GAME)
     else do audio.resume_audio(.GAME)
 
-    if app.state == .LEVEL_CREATOR {
-        app.active_mu_ctx = &level_creator.ui.mu_ctx
+    if app.state == .ROOM_CREATOR {
+        app.active_mu_ctx = &room_creator.ui.mu_ctx
     }
 }
 
