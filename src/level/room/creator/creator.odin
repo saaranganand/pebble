@@ -1,13 +1,10 @@
 package room_creator
 
-import mu "vendor:microui"
 import sdl "vendor:sdl3"
 
 import primatives "src:sdl_primatives"
 import color "src:util/color"
-import util "src:util"
 
-import strings "core:strings"
 import log "core:log"
 import fmt "core:fmt"
 import os "core:os"
@@ -48,7 +45,6 @@ creator_init :: proc() {
     defer delete(exec_dir)
 
     dialog_directory = fmt.caprint(exec_dir, "/", "assets/level", sep = "")
-    log.warnf("%v", dialog_directory)
 }
 
 creator_destroy :: proc() {
