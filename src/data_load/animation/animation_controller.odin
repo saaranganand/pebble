@@ -3,7 +3,7 @@ package animation
 import sdl "vendor:sdl3"
 
 import primatives "src:sdl_primatives"
-import img "../img"
+import img "src:data_load/img"
 
 import log "core:log"
 import math "core:math"

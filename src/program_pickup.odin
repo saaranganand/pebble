@@ -47,7 +47,7 @@ program_pickup_system_create :: proc() -> (system: Program_Pickup_System) {
     // spawn distances are measured from where the player is right now
     player_position := sdl.FPoint{ 0, 0 }
     if player_entity, ok := entity.entity_get(game.player.entity, .ALLY); ok {
-        player_position = player_entity.position
+        player_position = player_entity.collision.position
     }
 
     min_distance := game_config.pickup.min_spawn_distance
@@ -81,7 +81,7 @@ program_pickup_system_update :: proc(system: ^Program_Pickup_System) {
     player_entity, ok := entity.entity_get(game.player.entity, .ALLY)
     if !ok do return
 
-    player_circle := geo.Circle{ player_entity.position, player_entity.col_radius }
+    player_circle := geo.Circle{ player_entity.collision.position, player_entity.collision.radius }
 
     for &pickup in system.pickups {
         if !pickup.active do continue
@@ -89,7 +89,7 @@ program_pickup_system_update :: proc(system: ^Program_Pickup_System) {
         pickup_circle := geo.Circle{ pickup.world_position, game_config.pickup.radius }
         if !geo.are_circles_colliding(player_circle, pickup_circle) do continue
 
-        program_pickup_collect(&pickup, player_entity.position)
+        program_pickup_collect(&pickup, player_entity.collision.position)
     }
 }
 
@@ -123,6 +123,6 @@ program_pickup_system_draw :: proc(system: ^Program_Pickup_System) {
             w = size,
             h = size,
         }
-        camera.camera_draw_img(definition.sprite, dest)
+        camera.draw_img(definition.sprite, dest)
     }
 }

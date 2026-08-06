@@ -8,9 +8,12 @@ import weapon "src:item/weapon"
 import program "src:item/program"
 import color "src:util/color"
 import input "src:input"
+import util "src:util"
+
+import log "core:log"
 
 Player_Character :: struct {
-    entity: entity.Entity_Handle,
+    entity: util.Handle,
 
     tracking_position: sdl.FPoint,
 
@@ -55,9 +58,9 @@ draw_player_accessories :: proc(player: ^Player_Character) {
     if !entity.active do return
 
     color.sdl_set_color(color.Default_Palette_Color.BABY_BLUE)
-    camera.camera_fill_circle({{entity.position.x, entity.position.y}, 10})
+    camera.fill_circle({{entity.collision.position.x, entity.collision.position.y}, 10})
 
-    weapon.weapon_controller_draw(&player.weapon_controller, entity.position)
+    weapon.weapon_controller_draw(&player.weapon_controller, entity.collision.position)
 }
 
 update_player :: proc(player: ^Player_Character, input: input.Input) {
@@ -66,16 +69,18 @@ update_player :: proc(player: ^Player_Character, input: input.Input) {
 
     if input.select != player.weapon_controller.active_weapon do weapon.weapon_controller_select_weapon(&player.weapon_controller, input.select)
 
-    player.tracking_position = player_entity.position
+    player.tracking_position = player_entity.collision.position
 
-    if input.direction.x > 0 do entity.entity_set_animation(player_entity, "moving_facing_right")
+    if input.direction.x > 0 {
+        entity.entity_set_animation(player_entity, "moving_facing_right")
+    }
     else if input.direction.x < 0 do entity.entity_set_animation(player_entity, "moving_facing_left")
     else do entity.entity_set_animation(player_entity, "idle")
     
     // always centers player
-    player_entity.move_direction = input.direction
+    player_entity.direction = input.direction
 
-    player_view_position := camera.world_position_to_view(player_entity.position)
+    player_view_position := camera.world_position_to_view(player_entity.collision.position)
 
-    weapon.weapon_controller_update(&player.weapon_controller, input.mouse_pos, input.fire, player_entity.position)    
+    weapon.weapon_controller_update(&player.weapon_controller, input.mouse_pos, input.fire, player_entity.collision.position)    
 }

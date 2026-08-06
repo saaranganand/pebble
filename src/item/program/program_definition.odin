@@ -1,6 +1,6 @@
 package program
 
-import effect "src:entity/entity_effect"
+import effect "src:entity/effect"
 import weapon "src:item/weapon"
 import entity "src:entity"
 import img "src:data_load/img"
@@ -100,7 +100,7 @@ program_definition_resolve :: proc(definition: ^Program_Definition) {
 
         definition.self_effects[i] = Self_Effect{
             instance_id = instance_id,
-            definition_id = effect.effect_manager_get_instance(instance_id).definition.unique_id,
+            definition_id = effect.effect_manager_get_instance(instance_id).definition.id,
         }
     }
 

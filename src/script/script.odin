@@ -116,8 +116,8 @@ binding_get_position :: proc "c" (L: ^lua.State) -> c.int {
     target := cast(^entity.Entity) lua.touserdata(L, 1)
     if target == nil do return 0
 
-    lua.pushnumber(L, lua.Number(target.position.x))
-    lua.pushnumber(L, lua.Number(target.position.y))
+    lua.pushnumber(L, lua.Number(target.collision.position.x))
+    lua.pushnumber(L, lua.Number(target.collision.position.y))
     return 2
 }
 

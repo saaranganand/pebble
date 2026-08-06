@@ -1,6 +1,6 @@
 package img
 
-import util "../../util"
+import util "src:util"
 
 import filepath "core:path/filepath"
 import strings "core:strings"

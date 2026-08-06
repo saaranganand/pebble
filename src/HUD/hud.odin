@@ -4,7 +4,7 @@ import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 import img "vendor:sdl3/image"
 
-import font "../data_load/font"
+import font "src:data_load/font"
 import img_data "src:data_load/img"
 import color "src:util/color"
 import entity "src:entity"
@@ -89,13 +89,13 @@ destroy_hud :: proc(hud: ^HUD) {
 }
 
 draw_hud :: proc(hud: ^HUD, player_character: ^player.Player_Character, player_input: input.Input) {
-
+    
     player_entity, ok := entity.entity_get(player_character.entity, .ALLY)
     if !ok do return
 
 
     // top left player health bar
-    draw_hud_health_bar(player_entity.health, player_entity.max_health, player_entity.base_max_health)
+    draw_hud_health_bar(player_entity.hp, player_entity.max_hp, player_entity.base_max_hp)
     
     draw_hud_weapon_select(hud, player_character.weapon_controller)
 

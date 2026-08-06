@@ -9,13 +9,15 @@ import fmt "core:fmt"
 
 import animation "src:data_load/animation"
 import primatives "src:sdl_primatives"
-import img "../data_load/img"
-import font "../data_load/font"
+import img "src:data_load/img"
+import font "src:data_load/font"
 import color "src:util/color"
 import geo "src:geometry"
 
 Camera_Mode :: enum { STATIONARY, FOLLOW }
 
+// NOTE: if the target is set to a position belonging to something in a dynamic array,
+// the memory could get moved around. This probably isnt a problem thanks to solo player + xar, but still
 Camera_Follow :: struct {
 	target: ^sdl.FPoint,
     // A following camera lerps to target
@@ -44,14 +46,14 @@ Camera :: struct {
 global_camera: ^Camera
 
 global_camera_create :: proc(width, height: f32) {
-    global_camera = camera_create(width, height)
+    global_camera = create(width, height)
 }
 
 global_camera_destroy :: proc() {
-    camera_destroy(global_camera)
+    destroy(global_camera)
 }
 
-camera_create :: proc(width, height: f32) -> (camera: ^Camera) {
+create :: proc(width, height: f32) -> (camera: ^Camera) {
     log.infof("Allocating new camera")
     camera = new(Camera)
 
@@ -66,23 +68,23 @@ camera_create :: proc(width, height: f32) -> (camera: ^Camera) {
 	return
 }
 
-camera_destroy :: proc(camera: ^Camera) {
+destroy :: proc(camera: ^Camera) {
     log.infof("Destroying camera")
 
     sdl_ttf.DestroyText(camera.coordinate_text)
     free(camera)
 }
 
-camera_set_follow :: proc(target: ^sdl.FPoint, lerp_speed: f32) {
+set_follow :: proc(target: ^sdl.FPoint, lerp_speed: f32) {
     global_camera.mode = .FOLLOW
     global_camera.follow = {target, lerp_speed}
 }
 
-camera_set_stationary :: proc(target: ^sdl.FPoint, lerp_speed: f32) {
+set_stationary :: proc(target: ^sdl.FPoint, lerp_speed: f32) {
     global_camera.mode = .STATIONARY
 }
 
-camera_update :: proc() {
+update :: proc() {
     if global_camera.mode == .STATIONARY do return
 
     if global_camera.follow.target != nil {
@@ -106,7 +108,7 @@ view_position_to_world :: proc(view_position: sdl.FPoint) -> sdl.FPoint {
 }
 
 // Used for culling
-camera_check_circle_visible :: proc(circle: geo.Circle) -> (visible: bool) {
+check_circle_visible :: proc(circle: geo.Circle) -> (visible: bool) {
 	// camera bounds in world space
 	left   := global_camera.position.x - global_camera.width  / 2
 	right  := global_camera.position.x + global_camera.width  / 2
@@ -131,12 +133,12 @@ camera_check_circle_visible :: proc(circle: geo.Circle) -> (visible: bool) {
     return
 }
 
-camera_draw_circle :: proc(circle: geo.Circle) {
+draw_circle :: proc(circle: geo.Circle) {
     view_adjusted_circle := geo.Circle{ world_position_to_view(circle.position), circle.radius }
     geo.draw_circle(view_adjusted_circle)
 }
 
-camera_fill_circle :: proc(circle: geo.Circle) {
+fill_circle :: proc(circle: geo.Circle) {
     view_adjusted_circle := geo.Circle{ world_position_to_view(circle.position), circle.radius }
 
     geo.fill_circle(view_adjusted_circle)
@@ -144,7 +146,7 @@ camera_fill_circle :: proc(circle: geo.Circle) {
 
 // solid world-space line. thickness is faked by stacking parallel lines either side of the
 // centre, same as the old bus beam did. caller sets the colour first
-camera_draw_line :: proc(start, end: sdl.FPoint, thickness: f32 = 1) {
+draw_line :: proc(start, end: sdl.FPoint, thickness: f32 = 1) {
     view_start := world_position_to_view(start)
     view_end := world_position_to_view(end)
 
@@ -168,14 +170,14 @@ camera_draw_line :: proc(start, end: sdl.FPoint, thickness: f32 = 1) {
     }
 }
 
-camera_draw_center_lines :: proc() {
+draw_center_lines :: proc() {
     color.sdl_set_color(color.Default_Palette_Color.GRASS_GREEN)
 
     sdl.RenderLine(primatives.global_renderer, 0, global_camera.height / 2, global_camera.width, global_camera.height / 2)
     sdl.RenderLine(primatives.global_renderer, global_camera.width / 2, 0, global_camera.width / 2, global_camera.height)
 }
 
-camera_draw_img :: proc(
+draw_img :: proc(
     img_tag: string, dest: sdl.FRect, src: ^sdl.FRect = nil,
     angle: f64 = 0, flip_mode: sdl.FlipMode = .NONE, center: ^sdl.FPoint = nil
 ) {
@@ -188,7 +190,7 @@ camera_draw_img :: proc(
     img.img_draw(img_tag, &view_adjusted_dest, src, angle, flip_mode, center)
 }
 
-camera_draw_animation :: proc(
+draw_animation :: proc(
     animation_controller: ^animation.Animation_Controller,
     dest_center: sdl.FPoint,
     angle: f64 = 0, flip_mode: sdl.FlipMode = .NONE, center: ^sdl.FPoint = nil
@@ -197,7 +199,7 @@ camera_draw_animation :: proc(
     animation.animation_draw(animation_controller, view_adjusted_pos, angle, flip_mode, center)
 }
 
-camera_draw_grid :: proc() {
+draw_grid :: proc() {
     color.sdl_set_color(color.Default_Palette_Color.BLACK)
 
     // Calculate camera world bounds
