@@ -17,7 +17,6 @@ room_tiles_save_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, fi
     context = data.ctx
 
     if filelist == nil do return
-    fmt.printfln("%v", filelist[0])
     if filelist[0] == "" do return
 
     file_path := filelist[0]
@@ -32,13 +31,46 @@ room_tiles_save_dialog :: proc() {
     }
     room_tiles_save_user_data.ctx = context
 
-    //sdl.ShowSaveFileDialog(test_callback, nil, primatives.global_window, filters, 0, "assets/")
+    default_location := fmt.caprint(dialog_directory, "/", creator.edit_name, sep = "")
+    defer delete(default_location)
     sdl.ShowSaveFileDialog(
         room_tiles_save_callback,
         userdata = &room_tiles_save_user_data,
         window = primatives.global_window,
         filters = raw_data(filters[:]),
         nfilters = len(filters),
-        default_location = dialog_directory,
+        default_location = default_location,
+    )
+}
+
+room_tiles_load_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, filter: i32) {
+    data := cast(^Dialog_User_Data)userdata
+    context = data.ctx
+
+    if filelist == nil do return
+    if filelist[0] == "" do return
+
+    file_path := filelist[0]
+    room_tiles_load(file_path)
+}
+
+room_tiles_load_dialog :: proc() {
+    if creator.edit_tiles_loaded do creator_level_tiles_destroy()
+
+    filters := [?]sdl.DialogFileFilter{
+        {name = "room tiles files", pattern = "room.tiles"},
+    }
+    room_tiles_save_user_data.ctx = context
+
+    default_location := fmt.caprint(dialog_directory, "/", creator.edit_name, sep = "")
+    defer delete(default_location)
+    sdl.ShowOpenFileDialog(
+        room_tiles_load_callback,
+        userdata = &room_tiles_save_user_data,
+        window = primatives.global_window,
+        filters = raw_data(filters[:]),
+        nfilters = len(filters),
+        default_location = default_location,
+        allow_many = false,
     )
 }

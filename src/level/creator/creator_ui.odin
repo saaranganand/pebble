@@ -9,6 +9,7 @@ import font "src:data_load/font"
 import color "src:util/color"
 import util "src:util"
 
+import filepath "core:path/filepath"
 import runtime "base:runtime"
 import strings "core:strings"
 import log "core:log"
@@ -106,6 +107,11 @@ ui_destroy :: proc() {
     }
     delete(ui.text_cache)
 
+    if creator.loaded_name {
+        delete(creator.edit_name)
+        creator.loaded_name = false
+    }
+
     sdl_ttf.DestroyText(ui.loaded_text)
     sdl_ttf.DestroyText(ui.tool_text)
 
@@ -114,7 +120,22 @@ ui_destroy :: proc() {
 }
 
 room_tiles_save :: proc(path: cstring) {
-    log.warnf("saving %v", path)
+    log.infof("Saving file %v", path)
+    save_room(string(path))
+}
+
+room_tiles_load :: proc(path: cstring) {
+    if creator.loaded_name {
+        delete(creator.edit_name)
+        creator.loaded_name = false
+    }
+    log.infof("Loading file %v", path)
+    load_room(string(path))
+
+    creator.loaded_name = true
+    creator.edit_name = strings.clone(filepath.base(string(path)))
+    //
+    ui_set_currently_loaded_text(creator.edit_name)
 }
 
 ui_update :: proc() {
@@ -153,7 +174,7 @@ ui_update :: proc() {
         mu.layout_row(&ui.mu_ctx, {40, 40, 40, 80, 40, 40, 80, 40, 40}, 40)
 
         if .SUBMIT in mu.button(&ui.mu_ctx, "[L]") {
-            // handle load
+            room_tiles_load_dialog()
         }
         if .SUBMIT in mu.button(&ui.mu_ctx, "[S]") {
             room_tiles_save_dialog()

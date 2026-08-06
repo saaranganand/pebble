@@ -25,6 +25,8 @@ Creator :: struct {
     edit_tiles: [dynamic][dynamic]Tile,
     edit_tiles_loaded: bool,
     edit_name: string,
+
+    loaded_name: bool,
 }
 
 creator: Creator
@@ -40,6 +42,8 @@ creator_init :: proc() {
     creator.edit_tiles_loaded = false
     creator.edit_name = "nil"
 
+    creator.loaded_name = false
+
     exec_dir, err := os.get_executable_directory(context.allocator)
     defer delete(exec_dir)
 
@@ -49,10 +53,7 @@ creator_init :: proc() {
 creator_destroy :: proc() {
     ui_destroy()
 
-    if creator.edit_tiles_loaded {
-        for arr in creator.edit_tiles do delete(arr)
-        delete(creator.edit_tiles)
-    }
+    creator_level_tiles_destroy()
 
     delete(dialog_directory)
 }
@@ -71,6 +72,15 @@ creator_level_tiles_create :: proc(width, height: int) {
     creator.edit_tiles_loaded = true
 
     ui_set_room_size_text()
+}
+
+creator_level_tiles_destroy :: proc() {
+    if creator.edit_tiles_loaded {
+        for arr in creator.edit_tiles do delete(arr)
+        delete(creator.edit_tiles)
+    }
+
+    creator.edit_tiles_loaded = false
 }
 
 creator_level_tiles_resize :: proc(d_width, d_height: int) {
@@ -117,6 +127,15 @@ creator_draw :: proc() {
 }
 
 creator_new_file :: proc() {
+    if creator.edit_tiles_loaded {
+        creator_level_tiles_destroy()
+    }
+
+    if creator.loaded_name {
+        delete(creator.edit_name)
+        creator.loaded_name = false
+    }
+
     creator.edit_name = "untitled.room.tiles"
     ui_set_currently_loaded_text(creator.edit_name)
     
