@@ -16,7 +16,7 @@ App_State :: enum{ GAME, ROOM_CREATOR, LEVEL_CREATOR }
 @(rodata)
 app_state_loops := [App_State]proc(){
     .GAME = game_loop,
-    .ROOM_CREATOR = room_creator.creator_loop,
+    .ROOM_CREATOR = room_creator.room_creator_loop,
     .LEVEL_CREATOR = level_creator.creator_loop,
 }
 
@@ -30,7 +30,7 @@ app_state_shortkeys := [App_State]sdl.Keycode {
 @(rodata)
 app_state_init_procs := [App_State]proc() {
     .GAME = game_create,
-    .ROOM_CREATOR = room_creator.creator_init,
+    .ROOM_CREATOR = room_creator.room_creator_init,
     .LEVEL_CREATOR = level_creator.creator_init,
 }
 
@@ -41,7 +41,7 @@ app_states_init :: proc() {
 @(rodata)
 app_state_destruct_procs := [App_State]proc() {
     .GAME = game_destroy,
-    .ROOM_CREATOR = room_creator.creator_destroy,
+    .ROOM_CREATOR = room_creator.room_creator_destroy,
     .LEVEL_CREATOR = level_creator.creator_destroy,
 }
 

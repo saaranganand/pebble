@@ -7,8 +7,8 @@ import sdl "vendor:sdl3"
 import primatives "src:sdl_primatives"
 import font "src:data_load/font"
 import color "src:util/color"
-import util "src:util"
 import ui "src:ui"
+import room "src:level/room"
 
 import filepath "core:path/filepath"
 import runtime "base:runtime"
@@ -52,8 +52,8 @@ ui_init :: proc() {
     ui.append_text_cache(&creator_ui.text_cache, "-w")
     ui.append_text_cache(&creator_ui.text_cache, "+h")
     ui.append_text_cache(&creator_ui.text_cache, "-h")
-    for tile in Tile {
-        ui.append_text_cache(&creator_ui.text_cache, tile_labels[tile])
+    for tile in room.Tile {
+        ui.append_text_cache(&creator_ui.text_cache, tile_ui_labels[tile])
     }
 
     creator_ui.mu_ctx.style.spacing = 10
@@ -76,33 +76,29 @@ ui_init :: proc() {
 
 ui_destroy :: proc() {
     sdl.DestroyTexture(creator_ui.atlas_tex)
-
     ui.destroy_text_cache(&creator_ui.text_cache)
-
-    if creator.loaded_name {
-        delete(creator.edit_name)
-        creator.loaded_name = false
-    }
 }
 
 room_tiles_save :: proc(path: cstring) {
     log.infof("Saving file %v", path)
-    save_room(string(path))
+    room.room_data_save(string(path), creator.edit_data)
 }
 
 room_tiles_load :: proc(path: cstring) {
-    if creator.edit_tiles_loaded do creator_level_tiles_destroy()
-    if creator.loaded_name {
-        delete(creator.edit_name)
-        creator.loaded_name = false
-    }
-    log.infof("Loading file %v", path)
-    load_room(string(path))
+    room_creator_data_destroy()
 
-    creator.loaded_name = true
-    creator.edit_name = strings.clone(filepath.base(string(path)))
+    log.infof("Loading file %v", path)
+    room.room_data_load(string(path), &creator.edit_data)
+
+    if creator.edit_data.width == 0 || creator.edit_data.height == 0 {
+        room.room_data_init_dimensions(&creator.edit_data, 20, 20)
+        room.room_data_create(&creator.edit_data)
+    } else do creator.edit_data_loaded = true
+
+    creator.edit_data_name = strings.clone(filepath.base(string(path)))
+    creator.edit_data_name_loaded = true
     
-    ui.set_cache_text(creator_ui.text_cache, "Current Loaded:", fmt.tprint("Current Loaded:", "\n", creator.edit_name, sep = ""))
+    ui.set_cache_text(creator_ui.text_cache, "Currently Loaded:", fmt.tprint("Currently Loaded: ", creator.edit_data_name, sep = ""))
 }
 
 ui_update :: proc() {
@@ -116,11 +112,11 @@ ui_update :: proc() {
         mu.layout_row(&creator_ui.mu_ctx, {90}, 40)
 
         if .SUBMIT in mu.button(&creator_ui.mu_ctx, "Pen") {
-            creator_set_tool(.PEN)
+            room_creator_set_tool(.PEN)
         }
 
         if .SUBMIT in mu.button(&creator_ui.mu_ctx, "Eraser") {
-            creator_set_tool(.ERASER)
+            room_creator_set_tool(.ERASER)
         }
 
         mu.layout_row(&creator_ui.mu_ctx, {-1}, 5 + 12 + 12 + 5)
@@ -128,10 +124,10 @@ ui_update :: proc() {
 
         mu.layout_row(&creator_ui.mu_ctx, {40, 40}, 40)
 
-        for tile in Tile {
-            ui_set_button_color(&creator_ui.mu_ctx, tile_colors[tile])
-            if .SUBMIT in mu.button(&creator_ui.mu_ctx, tile_labels[tile]) {
-                creator_set_tile(tile)
+        for tile in room.Tile {
+            ui_set_button_color(&creator_ui.mu_ctx, tile_ui_colors[tile])
+            if .SUBMIT in mu.button(&creator_ui.mu_ctx, tile_ui_labels[tile]) {
+                room_creator_set_tile(tile)
             }
         }
     }
@@ -147,25 +143,25 @@ ui_update :: proc() {
             room_tiles_save_dialog()
         }
         if .SUBMIT in mu.button(&creator_ui.mu_ctx, "[N]") {
-            creator_new_file()
+            room_creator_new_edit_data()
         }
 
         mu.label(&creator_ui.mu_ctx, "")
 
         if .SUBMIT in mu.button(&creator_ui.mu_ctx, "+w") {
-            creator_level_tiles_resize(1, 0)
+            room_creator_edit_data_resize(1, 0)
         }
         if .SUBMIT in mu.button(&creator_ui.mu_ctx, "-w") {
-            creator_level_tiles_resize(-1, 0)
+            room_creator_edit_data_resize(-1, 0)
         }
 
         mu.label(&creator_ui.mu_ctx, "")
 
         if .SUBMIT in mu.button(&creator_ui.mu_ctx, "+h") {
-            creator_level_tiles_resize(0, 1)
+            room_creator_edit_data_resize(0, 1)
         }
         if .SUBMIT in mu.button(&creator_ui.mu_ctx, "-h") {
-            creator_level_tiles_resize(0, -1)
+            room_creator_edit_data_resize(0, -1)
         }
     }
 
@@ -186,7 +182,7 @@ ui_draw :: proc() {
 }
 
 ui_set_room_size_text :: proc() {
-    ui.set_cache_text(creator_ui.text_cache, "Room width:", fmt.tprint("Room width:", "\n", creator.room_width, sep = ""))
+    ui.set_cache_text(creator_ui.text_cache, "Room width:", fmt.tprint("Room width:", "\n", creator.edit_data.width, sep = ""))
 
-    ui.set_cache_text(creator_ui.text_cache, "Room height:", fmt.tprint("Room height:", "\n", creator.room_height, sep = ""))
+    ui.set_cache_text(creator_ui.text_cache, "Room height:", fmt.tprint("Room height:", "\n", creator.edit_data.height, sep = ""))
 }

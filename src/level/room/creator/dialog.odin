@@ -28,14 +28,14 @@ room_tiles_save_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, fi
 }
 
 room_tiles_save_dialog :: proc() {
-    if !creator.edit_tiles_loaded do return
+    if !creator.edit_data_loaded do return
 
     filters := [?]sdl.DialogFileFilter{
         {name = "room tiles files", pattern = "room.tiles"},
     }
     room_tiles_save_user_data.ctx = context
 
-    default_location := fmt.caprint(dialog_directory, "/", creator.edit_name, sep = "")
+    default_location := fmt.caprint(creator.dialog_directory, "/", creator.edit_data_name, sep = "")
     defer delete(default_location)
     sdl.ShowSaveFileDialog(
         room_tiles_save_callback,
@@ -66,7 +66,7 @@ room_tiles_load_dialog :: proc() {
     }
     room_tiles_save_user_data.ctx = context
 
-    default_location := fmt.caprint(dialog_directory, "/", creator.edit_name, sep = "")
+    default_location := fmt.caprint(creator.dialog_directory, "/", creator.edit_data_name, sep = "")
     defer delete(default_location)
     sdl.ShowOpenFileDialog(
         room_tiles_load_callback,
