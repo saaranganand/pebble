@@ -75,13 +75,8 @@ app_queue_state :: proc(new_state: App_State) {
 app_switch_state :: proc() {
     if app.state == app.target_state do return
     app.state = app.target_state
-    
-    if app.state != .GAME do audio.pause_audio(.GAME)
-    else do audio.resume_audio(.GAME)
 
-    if app.state == .ROOM_CREATOR {
-        app.active_mu_ctx = &room_creator.ui.mu_ctx
-    }
+    app_state_switch_procs[app.state]()
 }
 
 // this proc will just handle things like auto saving progress
