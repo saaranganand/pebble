@@ -38,8 +38,8 @@ room_creator_init :: proc() {
     creator.edit_data_name = "nil"
     creator.edit_data_name_loaded = false
 
-    exec_dir, err := os.get_executable_directory(context.allocator)
-    defer delete(exec_dir)
+    exec_dir, err := os.get_executable_directory(context.temp_allocator)
+    if err != os.General_Error.None do log.errorf("Could not get executable directory")
     creator.dialog_directory = fmt.caprint(exec_dir, "/", "assets/level", sep = "")
 
     ui_init()
@@ -112,7 +112,7 @@ room_creator_input :: proc() {
 room_creator_update :: proc() {
     ui_update()
 
-    if creator.edit_data_loaded do edit_tiles_update()
+    if creator.edit_data_loaded do edit_data_update()
 }
 
 room_creator_draw :: proc() {
@@ -121,5 +121,5 @@ room_creator_draw :: proc() {
 
     ui_draw()
 
-    if creator.edit_data_loaded do edit_tiles_draw()
+    if creator.edit_data_loaded do edit_data_draw()
 }

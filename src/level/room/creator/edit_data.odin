@@ -9,61 +9,61 @@ import geo "src:geometry"
 
 import math "core:math"
 
-edit_tiles_window_pos_to_grid_pos :: proc(p: sdl.FPoint) -> (x, y: f32) {
+edit_data_window_pos_to_grid_pos :: proc(p: sdl.FPoint) -> (x, y: f32) {
     x = math.floor( p.x / TILE_SIZE )
     y = math.floor( p.y / TILE_SIZE )
 
     return
 }
 
-edit_tiles_update :: proc() {
+edit_data_update :: proc() {
     grid_box := sdl.FRect{
         130, 80,
         f32(creator.edit_data.width)  * TILE_SIZE,
         f32(creator.edit_data.height) * TILE_SIZE,
     }
 
-    edit_tiles_tool_update(grid_box)
+    edit_data_tool_update(grid_box)
 }
 
-edit_tiles_tool_update :: proc(grid_box: sdl.FRect) {
+edit_data_tool_update :: proc(grid_box: sdl.FRect) {
     mouse_pos := sdl.FPoint{}
     buttons_state := sdl.GetMouseState(&mouse_pos.x, &mouse_pos.y)
 
     grid_box_pos := sdl.FPoint{ grid_box.x, grid_box.y }
-    tile_x, tile_y := edit_tiles_window_pos_to_grid_pos(mouse_pos - grid_box_pos)
+    tile_x, tile_y := edit_data_window_pos_to_grid_pos(mouse_pos - grid_box_pos)
 
     if geo.point_in_rect(mouse_pos, grid_box) {
         if .LEFT in creator_ui.mu_ctx.mouse_down_bits {
-            if creator.current_tool == .ERASER do edit_tiles_erase(int(tile_x), int(tile_y))
-            else if creator.current_tool == .PEN do edit_tiles_write(int(tile_x), int(tile_y))
+            if creator.current_tool == .ERASER do edit_data_erase(int(tile_x), int(tile_y))
+            else if creator.current_tool == .PEN do edit_data_write(int(tile_x), int(tile_y))
         }
     }
 }
 
-edit_tiles_erase :: proc(x, y: int) {
+edit_data_erase :: proc(x, y: int) {
     creator.edit_data.tiles[x][y] = .EMPTY
 }
 
-edit_tiles_write :: proc(x, y: int) {
+edit_data_write :: proc(x, y: int) {
     creator.edit_data.tiles[x][y] = creator.current_tile
 }
 
-edit_tiles_draw :: proc() {
+edit_data_draw :: proc() {
     grid_box := sdl.FRect{
         130, 80,
         f32(creator.edit_data.width)  * TILE_SIZE,
         f32(creator.edit_data.height) * TILE_SIZE,
     }
 
-    edit_tiles_draw_tiles(grid_box)
+    edit_data_draw_tiles(grid_box)
 
-    edit_tiles_draw_highlight(grid_box)
+    edit_data_draw_highlight(grid_box)
     
-    edit_tiles_draw_grid(grid_box)
+    edit_data_draw_grid(grid_box)
 }
 
-edit_tiles_draw_tiles :: proc(grid_box: sdl.FRect) {
+edit_data_draw_tiles :: proc(grid_box: sdl.FRect) {
     for x in 0..<creator.edit_data.width {
         for y in 0..<creator.edit_data.height {
 
@@ -81,7 +81,7 @@ edit_tiles_draw_tiles :: proc(grid_box: sdl.FRect) {
     }
 }
 
-edit_tiles_draw_highlight :: proc(grid_box: sdl.FRect) {
+edit_data_draw_highlight :: proc(grid_box: sdl.FRect) {
     mouse_pos := sdl.FPoint{}
     buttons_state := sdl.GetMouseState(&mouse_pos.x, &mouse_pos.y)
     if geo.point_in_rect(mouse_pos, grid_box) {
@@ -90,7 +90,7 @@ edit_tiles_draw_highlight :: proc(grid_box: sdl.FRect) {
         color.sdl_set_color(highlight_color)
 
         grid_box_pos := sdl.FPoint{ grid_box.x, grid_box.y }
-        tile_x, tile_y := edit_tiles_window_pos_to_grid_pos(mouse_pos - grid_box_pos)
+        tile_x, tile_y := edit_data_window_pos_to_grid_pos(mouse_pos - grid_box_pos)
 
         tile_rect := sdl.FRect{
             grid_box.x + tile_x * TILE_SIZE,
@@ -103,7 +103,7 @@ edit_tiles_draw_highlight :: proc(grid_box: sdl.FRect) {
     }
 }
 
-edit_tiles_draw_grid :: proc(grid_box: sdl.FRect) {
+edit_data_draw_grid :: proc(grid_box: sdl.FRect) {
     color.sdl_set_color(color.Default_Palette_Color.BLACK)
 
     for x in 0..=creator.edit_data.width {

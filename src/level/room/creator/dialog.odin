@@ -14,7 +14,7 @@ Dialog_User_Data :: struct {
 }
 room_tiles_save_user_data: Dialog_User_Data
 
-room_tiles_save_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, filter: i32) {
+edit_data_save_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, filter: i32) {
     data := cast(^Dialog_User_Data)userdata
     context = data.ctx
 
@@ -27,7 +27,7 @@ room_tiles_save_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, fi
     room_tiles_save(file_path)
 }
 
-room_tiles_save_dialog :: proc() {
+edit_data_save_dialog :: proc() {
     if !creator.edit_data_loaded do return
 
     filters := [?]sdl.DialogFileFilter{
@@ -38,7 +38,7 @@ room_tiles_save_dialog :: proc() {
     default_location := fmt.caprint(creator.dialog_directory, "/", creator.edit_data_name, sep = "")
     defer delete(default_location)
     sdl.ShowSaveFileDialog(
-        room_tiles_save_callback,
+        edit_data_save_callback,
         userdata = &room_tiles_save_user_data,
         window = primatives.global_window,
         filters = raw_data(filters[:]),
@@ -47,7 +47,7 @@ room_tiles_save_dialog :: proc() {
     )
 }
 
-room_tiles_load_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, filter: i32) {
+edit_data_load_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, filter: i32) {
     data := cast(^Dialog_User_Data)userdata
     context = data.ctx
 
@@ -60,7 +60,7 @@ room_tiles_load_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, fi
     room_tiles_load(file_path)
 }
 
-room_tiles_load_dialog :: proc() {
+edit_data_load_dialog :: proc() {
     filters := [?]sdl.DialogFileFilter{
         {name = "room tiles files", pattern = "room.tiles"},
     }
@@ -69,7 +69,7 @@ room_tiles_load_dialog :: proc() {
     default_location := fmt.caprint(creator.dialog_directory, "/", creator.edit_data_name, sep = "")
     defer delete(default_location)
     sdl.ShowOpenFileDialog(
-        room_tiles_load_callback,
+        edit_data_load_callback,
         userdata = &room_tiles_save_user_data,
         window = primatives.global_window,
         filters = raw_data(filters[:]),

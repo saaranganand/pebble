@@ -137,10 +137,10 @@ ui_update :: proc() {
         mu.layout_row(&creator_ui.mu_ctx, {40, 40, 40, 80, 40, 40, 80, 40, 40}, 40)
 
         if .SUBMIT in mu.button(&creator_ui.mu_ctx, "[L]") {
-            room_tiles_load_dialog()
+            edit_data_load_dialog()
         }
         if .SUBMIT in mu.button(&creator_ui.mu_ctx, "[S]") {
-            room_tiles_save_dialog()
+            edit_data_save_dialog()
         }
         if .SUBMIT in mu.button(&creator_ui.mu_ctx, "[N]") {
             room_creator_new_edit_data()
