@@ -3,6 +3,7 @@ package projectile
 import sdl "vendor:sdl3"
 
 import animation "src:data_load/animation"
+import effect "src:entity/effect"
 import primatives "src:sdl_primatives"
 import entity "src:entity"
 import geo "src:geometry"
@@ -25,6 +26,8 @@ State :: struct {
     max_lifetime: f32,
 
     apply_effect: Maybe(string),
+    extra_effects: [MAX_EXTRA_EFFECTS]effect.Effect_Instance_ID,
+    num_extra_effects: int,
     animation_controller: animation.Animation_Controller,
 
     total_lifetime: f32,
@@ -44,6 +47,8 @@ state_init :: proc(shell: Shell, position: sdl.FPoint, shoot_angle: f32) -> (sta
     state.max_lifetime = shell.lifetime
 
     state.apply_effect = shell.apply_effect
+    state.extra_effects = shell.extra_effects
+    state.num_extra_effects = shell.num_extra_effects
     state.animation_controller = animation.animation_controller_create(shell.animation_source, shell.scale)
 
     state.total_lifetime = 0

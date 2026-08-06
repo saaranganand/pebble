@@ -16,10 +16,13 @@ reaction_data_map: {
     external_animation_tag: "flame_small.animation"
 
     show_damage_number: true
-    show_damage_number_color: "RED"
+    show_damage_number_color: "ORANGE"
   }
 
   "ANY,NPC": {
     external_animation_tag: "flame_small.animation"
+
+    show_damage_number: true
+    show_damage_number_color: "ORANGE"
   }
 }

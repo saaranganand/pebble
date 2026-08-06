@@ -9,7 +9,9 @@ import projectile "src:geometry/projectile"
 import collision  "src:geometry/collision"
 import primatives "src:sdl_primatives"
 import player     "src:entity/player"
+import program    "src:item/program"
 import weapon     "src:item/weapon"
+import script     "src:script"
 import color      "src:util/color"
 import data_load  "src:data_load"
 import camera     "src:camera"
@@ -34,7 +36,10 @@ game := struct {
     entity_manager: ^entity.Entity_Manager,
     reaction_manager: ^reaction.Reaction_Manager,
     weapon_manager: ^weapon.Weapon_Manager,
+    program_manager: ^program.Program_Manager,
     projectile_manager: ^projectile.Projectile_Manager,
+    program_pickups: Program_Pickup_System,
+    floating_texts: Floating_Text_System,
     hud: hud.HUD,
 }{}
 
@@ -51,6 +56,11 @@ game_create :: proc() {
     primatives.global_timer_init()
 
     log.infof("\n\n\n\n==================== GAME INITIALIZATION ====================")
+
+    // lua scripts
+    script.script_create()
+    script.script_load()
+
     // Effect manager must be created and loaded before other entity processes.
     // This is because the number of total effect definitions is important for the ability to use
     // malloced arrays instead of dynamic ones.
@@ -58,17 +68,28 @@ game_create :: proc() {
 
     game.entity_manager = entity.entity_manager_create()
     game.reaction_manager = reaction.reaction_manager_create(game.effect_manager.num_definitions, game.effect_manager.definition_id_map)
-    
+    reaction.number_popup_callback = reaction_number_popup
+
     game.weapon_manager = weapon.weapon_manager_create()
+
+    // programs resolve weapon and effect tags to IDs at load, so this is after both of those
+    game.program_manager = program.program_manager_create()
+    program.program_manager_load()
 
     game.projectile_manager = projectile.projectile_manager_create()
 
-    program_system_create()
-
     game.player = player.player_init()
 
+    program.program_loadout_create(&game.player.program_loadout, game.player.entity, .ALLY, &game.player.weapon_controller)
+
+    // program.program_loadout_equip(&game.player.program_loadout, "amplify")
+
+    game.floating_texts = floating_text_system_create()
+    game.program_pickups = program_pickup_system_create()
+
     game.horde_manager = horde.horde_manager_create()
-    horde.horde_manager_spawn_horde({0,0}, game.player.entity)
+
+    horde.horde_manager_spawn_horde({600,400}, game.player.entity)
     //horde.horde_manager_spawn_horde({500,0}, game.player.entity)
 
     //game.horde = horde.create(&game.player.tracking_position)
@@ -86,9 +107,9 @@ game_destroy :: proc() {
     log.infof("\n\n\n\n==================== GAME DE-INITIALIZATION ====================")
 
     hud.destroy_hud(&game.hud)
-    program_system_destroy()
 
-    //data.global_manager_destroy()
+    program_pickup_system_destroy(&game.program_pickups)
+    floating_text_system_destroy(&game.floating_texts)
 
     horde.horde_manager_destroy()
 
@@ -100,11 +121,15 @@ game_destroy :: proc() {
 
     camera.global_camera_destroy()
 
+    program.program_manager_destroy()
     weapon.weapon_manager_destroy()
 
     reaction.reaction_manager_destroy()
     entity.entity_manager_destroy()
     effect.effect_manager_destroy()
+
+    script.script_destroy()
+    effect.effect_callback_lua_params_destroy()
 
     data_load.global_destroy()
 }
@@ -131,6 +156,8 @@ game_input :: proc() {
 
 game_update :: proc() {
     player.update_player(&game.player, game.input)
+    program_pickup_system_update(&game.program_pickups)
+    floating_text_system_update(&game.floating_texts)
 
     horde.horde_manager_update()
 
@@ -146,37 +173,6 @@ game_update :: proc() {
     // Since reactions are explicitly reactions to effects, must update this after effects.
     effect.effect_manager_update()
     reaction.reaction_manager_update(game.effect_manager)
-
-    /*
-    is_ping_selected := player.active_category == .Auto && player.weaponAuto == .Ping
-    is_daemon_selected := player.active_category == .Auto && player.weaponAuto == .Daemon
-
-    if (is_ping_selected && input.fire && !player.ping.is_active) ||
-    (is_daemon_selected && input.fire && !player.daemon.is_active) {
-        reset_auto_weapons(&player, &waves)
-    }
-    */
-
-    
-    //update_ping(&player.ping, &waves, player.x, player.y, input, is_ping_selected, dt)
-    //update_daemon(&player.daemon, &bullets, &enemies, player.x, player.y, is_daemon_selected, input, dt)
-
-    //update_enemies(game.player.x, game.player.y)
-
-    //detect_collision()
-    //detect_bullet_collision()
-
-    
-
-    //if game.player.ping.is_active {
-        //detect_ping_damage()
-    //}
-    
-    //if game.player.hp <=0 {
-      //  game.game_over = true
-    //}
-
-    
 }
 
 game_draw :: proc() {
@@ -188,9 +184,15 @@ game_draw :: proc() {
     camera.draw_grid()
 
     entity.entity_manager_draw()
+
+    program_pickup_system_draw(&game.program_pickups)
+
     projectile.projectile_manager_draw()
 
     player.draw_player_accessories(&game.player)
 
+    floating_text_system_draw(&game.floating_texts)
+
     hud.draw_hud(&game.hud, &game.player, game.input)
+    //camera.draw_center_lines()
 }

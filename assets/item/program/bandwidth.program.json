@@ -1,0 +1,7 @@
+// +50% projectile speed
+
+sprite: "bandwidth"
+
+buffs: [
+  { stat: "PROJECTILE_SPEED", multiplier: 1.5 }
+]

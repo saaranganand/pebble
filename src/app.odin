@@ -33,8 +33,6 @@ app_loop :: proc() -> bool {
 
     handle_app_input(poll_app_input())
 
-    //update_cursor(player, crosshair_cursor)
-
     game_loop()
 
     sdl.RenderPresent(primatives.global_renderer)

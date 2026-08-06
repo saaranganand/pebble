@@ -20,11 +20,16 @@ Stack_Behaviour :: enum { NONE, REFRESH, STACK, EXTEND }
 
 Effect_Type :: enum { PULSE, CONTINUOUS, SINGLE }
 
+Effect_Definition_Tag :: string
+Effect_Definition_ID :: uint
+
 Effect_Definition :: struct {
-    id: uint,
-    tag: string,
+    id: Effect_Definition_ID,
+    tag: Effect_Definition_Tag,
 
     callback: Effect_Callback,
+    // Name of the global Lua function to call. Only read when callback is .LUA.
+    lua_callback: string,
     stack_behaviour: Stack_Behaviour,
     type: Effect_Type,
 }
@@ -84,6 +89,7 @@ effect_definitions_unload :: proc() {
 
     for &definition in &global_effect_manager.definitions {
         delete(definition.tag)
+        delete(definition.lua_callback)
     }
     defer delete(global_effect_manager.definitions)
 }

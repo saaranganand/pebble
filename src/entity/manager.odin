@@ -1,5 +1,7 @@
 package entity
 
+import sdl "vendor:sdl3"
+
 import util "src:util"
 
 import hm "core:container/handle_map"
@@ -83,6 +85,26 @@ entity_manager_remove_entity :: proc(to_remove: util.Handle, team: Team) {
     entity_destroy(e)
 
     hm.remove(&global_manager.entities[team], to_remove)
+}
+
+// the handle map of every entity on a team, for callers that need to sweep it themselves
+// and want the handle alongside the entity (beam weapons, scope targeting, collision)
+entity_manager_get_team_map :: proc(team: Team) -> ^hm.Dynamic_Handle_Map(Entity, util.Handle) {
+    return &global_manager.entities[team]
+}
+
+// deals damage to every entity of `team` whose center is within `radius` of `center`.
+// used by aoe and the lua damage_area binding
+entity_damage_in_radius :: proc(center: sdl.FPoint, radius: f32, team: Team, amount: f32) {
+    pool := &global_manager.entities[team]
+
+    it := hm.iterator_make(pool)
+    for e, h in hm.iterate(&it) {
+        if !e.active do continue
+
+        delta := e.collision.position - center
+        if delta.x * delta.x + delta.y * delta.y <= radius * radius do entity_deal_damage(e, amount)
+    }
 }
 
 entity_manager_update :: proc() {

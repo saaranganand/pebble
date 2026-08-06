@@ -1,4 +1,4 @@
-source_img_tag: "player_arrow"
+source_img_tag: "trace"
 animations: {
   idle: {
     fps: 0

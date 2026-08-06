@@ -1,0 +1,7 @@
+// -20% damage taken while equipped
+
+sprite: "firewall"
+
+entity_buffs: [
+  { stat: "DAMAGE_TAKEN", multiplier: 0.8 }
+]

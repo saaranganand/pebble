@@ -1,6 +1,10 @@
 package projectile
 
+import effect "src:entity/effect"
 import entity "src:entity"
+
+// cap on how many program-granted on-hit effects one projectile can carry
+MAX_EXTRA_EFFECTS :: 4
 
 // Used for a go-between for loading weapons from json and spawning projectiles from weapons
 // Contains the needed information to spawn projectile states, at which point th
@@ -16,6 +20,10 @@ Shell :: struct {
 
     animation_source: string,
     apply_effect: Maybe(string),
+
+    // on-hit effects granted by the shooter's programs
+    extra_effects: [MAX_EXTRA_EFFECTS]effect.Effect_Instance_ID,
+    num_extra_effects: int,
 
     shape_radius: f32,
     shape_length: f32,

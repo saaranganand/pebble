@@ -1,6 +1,5 @@
 package effect
 
-import handle "src:handle"
 import entity "src:entity"
 import util "src:util"
 
@@ -12,6 +11,16 @@ Effect_Application_Data :: struct {
     callback_data: Effect_Callback_Data,
     source, target: util.Handle,
     target_team: entity.Team,
+}
+
+effect_application_data_from_id :: proc(instance_id: Effect_Instance_ID, source, target: util.Handle, target_team: entity.Team) -> (data: Effect_Application_Data) {
+    data.source = source
+    data.target = target
+    data.target_team = target_team
+
+    data.instance = effect_manager_get_instance(instance_id)
+
+    return
 }
 
 effect_application_data_from_tag :: proc(

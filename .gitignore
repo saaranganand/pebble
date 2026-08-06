@@ -4,3 +4,4 @@ log/*
 *.docx
 *.pdf
 ols.json
+.vscode

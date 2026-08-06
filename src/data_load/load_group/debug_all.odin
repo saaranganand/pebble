@@ -25,7 +25,7 @@ debug_all_load :: proc() {
     img.img_load("player")
     img.img_load("weapons")
     img.img_load("player_bullet")
-    img.img_load("player_arrow")
+    img.img_load("trace")
     img.img_load("enemy_horde")
 }
 

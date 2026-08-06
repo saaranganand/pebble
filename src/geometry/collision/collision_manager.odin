@@ -55,6 +55,11 @@ resolve_projectile_collisions :: proc(
                 tag = "damage", data = projectile_state.damage
             })
 
+            apply_projectile_hit_effects(
+                projectile_state.apply_effect, projectile_state.extra_effects[:], projectile_state.num_extra_effects,
+                check_entity_handle, check_entity.team,
+            )
+
             if projectile_state.piercing > 0 do projectile_state.piercing -= 1
         }
 
@@ -85,6 +90,29 @@ resolve_tracking_arrow_collisions :: proc(
             tag = "damage", data = tracking_arrow_state.damage
         })
 
+        apply_projectile_hit_effects(
+            tracking_arrow_state.apply_effect, tracking_arrow_state.extra_effects[:], tracking_arrow_state.num_extra_effects,
+            check_entity_handle, check_entity.team,
+        )
+
         if tracking_arrow_state.piercing > 0 do tracking_arrow_state.piercing -= 1
+    }
+}
+
+// A hit carries two extra payloads beyond its damage: whatever the weapon itself applies,
+// and whatever the shooter's equipped programs added. Both land on the thing that was hit.
+@(private)
+apply_projectile_hit_effects :: proc(
+    apply_effect: Maybe(string), extra_effects: []effect.Effect_Instance_ID, num_extra_effects: int,
+    target: util.Handle, target_team: entity.Team,
+) {
+    if apply_tag, has_apply := apply_effect.(effect.Effect_Instance_Tag); has_apply {
+        apply_data := effect.effect_application_data_from_tag(apply_tag, {}, target, target_team)
+        effect.effect_manager_queue_apply(apply_data)
+    }
+
+    for i in 0..<num_extra_effects {
+        extra_data := effect.effect_application_data_from_id(extra_effects[i], {}, target, target_team)
+        effect.effect_manager_queue_apply(extra_data)
     }
 }

@@ -1,6 +1,6 @@
-category: "RANGED"
+// homing missiles
 
-shoot_callback: "tracking_bow_shoot"
+category: "RANGED"
 
 projectile_shell: {
   category: "TRACKING_ARROW"
@@ -22,5 +22,5 @@ sounds: {
   SELECT: "bow_draw.wav"
   SHOOT: "bow_shoot.wav"
 }
-animation_source: "tracking_bow.animation"
+animation_source: "trace.animation"
 animation_default_angle: 0.0

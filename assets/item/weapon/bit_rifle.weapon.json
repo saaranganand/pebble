@@ -11,6 +11,7 @@ projectile_shell: {
   shape_radius: 5
 }
 
+miss_chance: 0.65 // fires faster than the pistol, so it whiffs more often
 gcd_interval: 0.2
 damage: 12
 

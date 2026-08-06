@@ -1,4 +1,4 @@
-FLAGS := -define:YAML_STATIC=true
+FLAGS := -collection:src=./src
 
 run:
 	odin run src/ $(FLAGS)

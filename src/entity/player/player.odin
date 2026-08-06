@@ -5,6 +5,7 @@ import sdl "vendor:sdl3"
 import camera "src:camera"
 import entity "src:entity"
 import weapon "src:item/weapon"
+import program "src:item/program"
 import color "src:util/color"
 import input "src:input"
 import util "src:util"
@@ -20,6 +21,7 @@ Player_Character :: struct {
 
     weapon_controller: weapon.Weapon_Controller,
     weapon_select: int,
+    program_loadout: program.Program_Loadout,
 }
 
 PLAYER_SPEED :: 400
@@ -31,17 +33,22 @@ player_init :: proc() -> (player: Player_Character) {
     player.entity = entity.entity_manager_add_entity(entity_data)
 
     weapon.weapon_controller_create(&player.weapon_controller)
+    // manual
     weapon.weapon_controller_add_weapon(&player.weapon_controller, "bit_pistol.weapon", true)
     weapon.weapon_controller_add_weapon(&player.weapon_controller, "bit_rifle.weapon", true)
-    weapon.weapon_controller_add_weapon(&player.weapon_controller, "bit_scope.weapon", true)
+    weapon.weapon_controller_add_weapon(&player.weapon_controller, "scope.weapon", true)
+    // hold
+    weapon.weapon_controller_add_weapon(&player.weapon_controller, "bus.weapon", true)
+    weapon.weapon_controller_add_weapon(&player.weapon_controller, "trace.weapon", true)
+    // not a doc weapon, sits at the end
     weapon.weapon_controller_add_weapon(&player.weapon_controller, "energy_charge.weapon", true)
-    weapon.weapon_controller_add_weapon(&player.weapon_controller, "tracking_bow.weapon", true)
-    weapon.weapon_controller_init(&player.weapon_controller, AIM_DIST, .ALLY)
+    weapon.weapon_controller_init(&player.weapon_controller, AIM_DIST, .ALLY, player.entity)
     player.weapon_select = 0
     return
 }
 
 player_destroy :: proc(player: ^Player_Character) {
+    program.program_loadout_destroy(&player.program_loadout)
     weapon.weapon_controller_destroy(&player.weapon_controller)
 }
 

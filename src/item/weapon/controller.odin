@@ -5,6 +5,8 @@ import sdl "vendor:sdl3"
 import primatives "src:sdl_primatives"
 import camera "src:camera"
 import entity "src:entity"
+import util "src:util"
+import effect "src:entity/effect"
 
 import math "core:math"
 import log "core:log"
@@ -16,11 +18,21 @@ import log "core:log"
 // TODO: add support for having no active weapon
 Weapon_Controller :: struct {
     aim_angle: f32,
+    mouse_pos: sdl.FPoint, // view space, kept for callbacks that aim at a point rather than an angle
     weapons: [dynamic]Weapon_State,
     active_weapon: int,
     gcd_counter: f32,
     draw_distance: f32,
     team: entity.Team,
+    owner: util.Handle,
+
+    stat_mults: Stat_Mult_Table,
+    hit_effects: []effect.Effect_Instance_ID,
+}
+
+weapon_controller_set_program_data :: proc(controller: ^Weapon_Controller, stat_mults: Stat_Mult_Table, hit_effects: []effect.Effect_Instance_ID) {
+    controller.stat_mults = stat_mults
+    controller.hit_effects = hit_effects
 }
 
 weapon_controller_create :: proc(controller: ^Weapon_Controller) {
@@ -31,11 +43,12 @@ weapon_controller_destroy :: proc(controller: ^Weapon_Controller) {
     delete(controller.weapons)
 }
 
-weapon_controller_init :: proc(controller: ^Weapon_Controller, draw_distance: f32, team: entity.Team) {
+weapon_controller_init :: proc(controller: ^Weapon_Controller, draw_distance: f32, team: entity.Team, owner: util.Handle) {
     controller.active_weapon = 0
     controller.gcd_counter = 0.0
     controller.draw_distance = draw_distance
     controller.team = team
+    controller.owner = owner
 }
 
 weapon_controller_add_weapon :: proc(controller: ^Weapon_Controller, definition_tag: string, animated: bool = false) {
@@ -78,6 +91,8 @@ weapon_controller_select_weapon :: proc{
 weapon_controller_update :: proc(controller: ^Weapon_Controller, mouse_pos: sdl.FPoint, fire: bool, controller_position: sdl.FPoint) {
     if controller.gcd_counter > 0 do controller.gcd_counter -= primatives.dt
 
+    controller.mouse_pos = mouse_pos
+
     controller_view_position := camera.world_position_to_view(controller_position)
     controller.aim_angle = math.atan2(mouse_pos.y - controller_view_position.y, mouse_pos.x - controller_view_position.x)
     if controller.aim_angle < 0 {
@@ -85,8 +100,8 @@ weapon_controller_update :: proc(controller: ^Weapon_Controller, mouse_pos: sdl.
     }
 
     // Update all weapons
-    for &weapon in controller.weapons {
-        weapon_state_update(&weapon)
+    for &weapon, i in controller.weapons {
+        weapon_state_update(&weapon, i == controller.active_weapon)
     }
 
     shoot_position := controller_position + { math.cos(controller.aim_angle), math.sin(controller.aim_angle) } * controller.draw_distance

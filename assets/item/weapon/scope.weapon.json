@@ -1,0 +1,21 @@
+// hold to charge, damage scales with charge time
+
+category: "CHARGE"
+
+charge_callback: "charge_slow"
+shoot_callback: "scope"
+no_projectile: true
+cursor: "crosshair"
+
+gcd_interval: 1.0
+max_charge_time: 1.2
+charge_move_speed_mult: 0.2 // -80% movement while charging
+damage: 90
+
+sounds: {
+  SELECT: "weapon_select.wav"
+  CHARGE: "weapon_charge.wav"
+  SHOOT: "weapon_shoot.wav"
+}
+animation_source: "scope.animation"
+animation_default_angle: 0.0

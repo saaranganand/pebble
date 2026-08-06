@@ -1,0 +1,26 @@
+// continuous beam with a heat meter
+
+category: "RANGED"
+
+beam: {
+  length: 700
+  thickness: 5
+  beam_color: "SKY_BLUE"
+  damage_per_second: 100
+}
+
+heat: {
+  max: 3.0
+  build_rate: 1.0
+  cool_rate: 2.0
+  overheat_cool_rate: 1.0
+}
+
+gcd_interval: 0.0
+damage: 0
+
+sounds: {
+  SELECT: "weapon_select.wav"
+}
+animation_source: "bit_rifle.animation"
+animation_default_angle: 0.0

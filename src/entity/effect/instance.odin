@@ -9,12 +9,15 @@ import strings "core:strings"
 import log "core:log"
 import os "core:os"
 
+Effect_Instance_Tag :: string
+Effect_Instance_ID :: uint
+
 Effect_Instance :: struct {
     definition: ^Effect_Definition,
     definition_tag: string,
 
-    tag: string,
-    id: uint,
+    tag: Effect_Instance_Tag,
+    id: Effect_Instance_ID,
 
     duration: f32,
     interval: f32,

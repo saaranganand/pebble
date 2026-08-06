@@ -1,0 +1,7 @@
+// +50% firerate
+
+sprite: "overclock"
+
+buffs: [
+  { stat: "GCD_INTERVAL", multiplier: 0.667 }
+]
