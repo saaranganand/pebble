@@ -9,6 +9,7 @@ import font "src:data_load/font"
 import color "src:util/color"
 import util "src:util"
 
+import runtime "base:runtime"
 import strings "core:strings"
 import log "core:log"
 import fmt "core:fmt"
@@ -23,6 +24,8 @@ Creator_UI :: struct {
     loaded_text: ^sdl_ttf.Text,
     tool_text: ^sdl_ttf.Text,
     tile_text: ^sdl_ttf.Text,
+    tile_width_text: ^sdl_ttf.Text,
+    tile_height_text: ^sdl_ttf.Text,
 }
 
 ui: Creator_UI
@@ -60,6 +63,10 @@ ui_init :: proc() {
     append_toolbar_cache("[N]")
     append_toolbar_cache("Pen")
     append_toolbar_cache("Eraser")
+    append_toolbar_cache("+w")
+    append_toolbar_cache("-w")
+    append_toolbar_cache("+h")
+    append_toolbar_cache("-h")
     for tile in Tile {
         append_toolbar_cache(tile_labels[tile])
     }
@@ -83,6 +90,12 @@ ui_init :: proc() {
 
     ui.tile_text = font.font_create_text(CTX_FONT_TAG, 12, "Current tile:")
     color.sdl_set_text_color(ui.tile_text, color.Default_Palette_Color.WHITE)
+
+    ui.tile_width_text = font.font_create_text(CTX_FONT_TAG, 12, "Room width:")
+    color.sdl_set_text_color(ui.tile_text, color.Default_Palette_Color.WHITE)
+
+    ui.tile_height_text = font.font_create_text(CTX_FONT_TAG, 12, "Room height:")
+    color.sdl_set_text_color(ui.tile_text, color.Default_Palette_Color.WHITE)
 }
 
 ui_destroy :: proc() {
@@ -95,6 +108,13 @@ ui_destroy :: proc() {
 
     sdl_ttf.DestroyText(ui.loaded_text)
     sdl_ttf.DestroyText(ui.tool_text)
+
+    sdl_ttf.DestroyText(ui.tile_width_text)
+    sdl_ttf.DestroyText(ui.tile_height_text)
+}
+
+room_tiles_save :: proc(path: cstring) {
+    log.warnf("saving %v", path)
 }
 
 ui_update :: proc() {
@@ -130,16 +150,34 @@ ui_update :: proc() {
 
     ui_set_button_color_default(&ui.mu_ctx)
     if mu.window(&ui.mu_ctx, "Toolbar", mu.Rect{0, 0, 800, 50}, {.NO_TITLE, .NO_CLOSE, .NO_RESIZE, .NO_SCROLL}) {
-        mu.layout_row(&ui.mu_ctx, {40, 40, 40, 80, 80}, 40)
+        mu.layout_row(&ui.mu_ctx, {40, 40, 40, 80, 40, 40, 80, 40, 40}, 40)
 
         if .SUBMIT in mu.button(&ui.mu_ctx, "[L]") {
             // handle load
         }
         if .SUBMIT in mu.button(&ui.mu_ctx, "[S]") {
-            // handle save
+            room_tiles_save_dialog()
         }
         if .SUBMIT in mu.button(&ui.mu_ctx, "[N]") {
             creator_new_file()
+        }
+
+        mu.label(&ui.mu_ctx, "")
+
+        if .SUBMIT in mu.button(&ui.mu_ctx, "+w") {
+            creator_level_tiles_resize(1, 0)
+        }
+        if .SUBMIT in mu.button(&ui.mu_ctx, "-w") {
+            creator_level_tiles_resize(-1, 0)
+        }
+
+        mu.label(&ui.mu_ctx, "")
+
+        if .SUBMIT in mu.button(&ui.mu_ctx, "+h") {
+            creator_level_tiles_resize(0, 1)
+        }
+        if .SUBMIT in mu.button(&ui.mu_ctx, "-h") {
+            creator_level_tiles_resize(0, -1)
         }
     }
 
@@ -153,6 +191,9 @@ ui_draw :: proc() {
     sdl_ttf.DrawRendererText(ui.tool_text, 5, 51 + 5)
 
     sdl_ttf.DrawRendererText(ui.tile_text, 5, 51 + 5 + 12 * 2 + 5 + 10 + 40 * 2 + 10 * 2 + 5)
+
+    sdl_ttf.DrawRendererText(ui.tile_width_text, 10 * 3 + 40 * 3, 5)
+    sdl_ttf.DrawRendererText(ui.tile_height_text, 10 * 3 + 40 * 3 + 80 + 40 * 2 + 10 * 3, 5)
 }
 
 ui_set_currently_loaded_text :: proc(txt: string) {
@@ -174,4 +215,15 @@ ui_set_current_tile_text :: proc(txt: cstring) {
     defer delete(new_text)
 
     sdl_ttf.SetTextString(ui.tile_text, new_text, 0)
+}
+
+ui_set_room_size_text :: proc() {
+    new_text := fmt.caprint("Room width:\n", creator.room_width, sep = "")
+    sdl_ttf.SetTextString(ui.tile_width_text, new_text, 0)
+    delete(new_text)
+
+    new_text = fmt.caprint("Room width:\n", creator.room_height, sep = "")
+    defer delete(new_text)
+
+    sdl_ttf.SetTextString(ui.tile_height_text, new_text, 0)
 }

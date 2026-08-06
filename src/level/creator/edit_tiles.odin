@@ -19,8 +19,8 @@ edit_tiles_window_pos_to_grid_pos :: proc(p: sdl.FPoint) -> (x, y: f32) {
 edit_tiles_update :: proc() {
     grid_box := sdl.FRect{
         130, 80,
-        f32(creator.level_width)  * TILE_SIZE,
-        f32(creator.level_height) * TILE_SIZE,
+        f32(creator.room_width)  * TILE_SIZE,
+        f32(creator.room_height) * TILE_SIZE,
     }
 
     edit_tiles_tool_update(grid_box)
@@ -52,8 +52,8 @@ edit_tiles_write :: proc(x, y: int) {
 edit_tiles_draw :: proc() {
     grid_box := sdl.FRect{
         130, 80,
-        f32(creator.level_width)  * TILE_SIZE,
-        f32(creator.level_height) * TILE_SIZE,
+        f32(creator.room_width)  * TILE_SIZE,
+        f32(creator.room_height) * TILE_SIZE,
     }
 
     edit_tiles_draw_tiles(grid_box)
@@ -64,8 +64,8 @@ edit_tiles_draw :: proc() {
 }
 
 edit_tiles_draw_tiles :: proc(grid_box: sdl.FRect) {
-    for x in 0..<creator.level_width {
-        for y in 0..<creator.level_height {
+    for x in 0..<creator.room_width {
+        for y in 0..<creator.room_height {
             tile := creator.edit_tiles[x][y]
             tile_rect := sdl.FRect{
                 grid_box.x + f32(x) * TILE_SIZE,
@@ -105,12 +105,12 @@ edit_tiles_draw_highlight :: proc(grid_box: sdl.FRect) {
 edit_tiles_draw_grid :: proc(grid_box: sdl.FRect) {
     color.sdl_set_color(color.Default_Palette_Color.BLACK)
 
-    for x in 0..=creator.level_width {
+    for x in 0..=creator.room_width {
         // Vertical lines
         sdl.RenderLine(primatives.global_renderer, grid_box.x + f32(x) * TILE_SIZE, grid_box.y, grid_box.x + f32(x) * TILE_SIZE, grid_box.y + grid_box.h)
     }
 
-    for y in 0..=creator.level_height {
+    for y in 0..=creator.room_height {
         // Horizontal lines
         sdl.RenderLine(primatives.global_renderer, grid_box.x, grid_box.y + f32(y) * TILE_SIZE, grid_box.x + grid_box.w, grid_box.y + f32(y) * TILE_SIZE)
     }

@@ -7,8 +7,11 @@ import primatives "src:sdl_primatives"
 import color "src:util/color"
 import util "src:util"
 
+import strings "core:strings"
 import log "core:log"
 import fmt "core:fmt"
+import os "core:os"
+
 
 Tool :: enum { PEN, ERASER }
 
@@ -18,13 +21,15 @@ Creator :: struct {
     current_tool: Tool,
     current_tile: Tile,
 
-    level_width, level_height: uint,
+    room_width, room_height: int,
     edit_tiles: [dynamic][dynamic]Tile,
     edit_tiles_loaded: bool,
     edit_name: string,
 }
 
 creator: Creator
+
+dialog_directory: cstring
 
 creator_init :: proc() {
     ui_init()
@@ -34,6 +39,11 @@ creator_init :: proc() {
 
     creator.edit_tiles_loaded = false
     creator.edit_name = "nil"
+
+    exec_dir, err := os.get_executable_directory(context.allocator)
+    defer delete(exec_dir)
+
+    dialog_directory = strings.clone_to_cstring(exec_dir)
 }
 
 creator_destroy :: proc() {
@@ -43,32 +53,42 @@ creator_destroy :: proc() {
         for arr in creator.edit_tiles do delete(arr)
         delete(creator.edit_tiles)
     }
+
+    delete(dialog_directory)
 }
 
-creator_level_tiles_create :: proc(width, height: uint) {
+creator_level_tiles_create :: proc(width, height: int) {
     if creator.edit_tiles_loaded do return
 
-    creator.level_width = width
-    creator.level_height = height
+    creator.room_width = width
+    creator.room_height = height
 
-    creator.edit_tiles = make([dynamic][dynamic]Tile, creator.level_width)
-    for x in 0..<creator.level_width {
-        creator.edit_tiles[x] = make([dynamic]Tile, creator.level_height)
+    creator.edit_tiles = make([dynamic][dynamic]Tile, creator.room_width)
+    for x in 0..<creator.room_width {
+        creator.edit_tiles[x] = make([dynamic]Tile, creator.room_height)
     }
 
     creator.edit_tiles_loaded = true
+
+    ui_set_room_size_text()
 }
 
-creator_level_tiles_resize :: proc(width, height: uint) {
+creator_level_tiles_resize :: proc(d_width, d_height: int) {
     if !creator.edit_tiles_loaded do return
 
-    creator.level_width = width
-    creator.level_height = height
-
-    resize(&creator.edit_tiles, creator.level_width)
-    for x in 0..<creator.level_width {
-        resize(&creator.edit_tiles[x], creator.level_height)
+    if d_width == -1 {
+        delete(creator.edit_tiles[creator.room_width - 1])
     }
+
+    creator.room_width += d_width
+    creator.room_height += d_height
+
+    resize(&creator.edit_tiles, creator.room_width)
+    for x in 0..<creator.room_width {
+        resize(&creator.edit_tiles[x], creator.room_height)
+    }
+
+    ui_set_room_size_text()
 }
 
 creator_loop :: proc() {
@@ -97,7 +117,7 @@ creator_draw :: proc() {
 }
 
 creator_new_file :: proc() {
-    creator.edit_name = "untitled.level.tiles"
+    creator.edit_name = "untitled.room.tiles"
     ui_set_currently_loaded_text(creator.edit_name)
     
     creator_level_tiles_create(20, 20)
