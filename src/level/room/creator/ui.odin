@@ -10,11 +10,24 @@ import color "src:util/color"
 import ui "src:ui"
 import room "src:level/room"
 
-import filepath "core:path/filepath"
 import runtime "base:runtime"
-import strings "core:strings"
+
 import log "core:log"
 import fmt "core:fmt"
+
+@(rodata)
+tile_ui_colors := [room.Tile]color.Default_Palette_Color{
+    .EMPTY = .WHITE,
+    .WALL =  .DARK_GRAY,
+    .DOOR =  .RED,
+}
+
+@(rodata)
+tile_ui_labels := [room.Tile]string{
+    .EMPTY = "Em",
+    .WALL = "Wl",
+    .DOOR = "Do",
+}
 
 Creator_UI :: struct {
     mu_ctx: mu.Context,
@@ -77,28 +90,6 @@ ui_init :: proc() {
 ui_destroy :: proc() {
     sdl.DestroyTexture(creator_ui.atlas_tex)
     ui.destroy_text_cache(&creator_ui.text_cache)
-}
-
-room_tiles_save :: proc(path: cstring) {
-    log.infof("Saving file %v", path)
-    room.room_data_save(string(path), creator.edit_data)
-}
-
-room_tiles_load :: proc(path: cstring) {
-    room_creator_data_destroy()
-
-    log.infof("Loading file %v", path)
-    room.room_data_load(string(path), &creator.edit_data)
-
-    if creator.edit_data.width == 0 || creator.edit_data.height == 0 {
-        room.room_data_init_dimensions(&creator.edit_data, 20, 20)
-        room.room_data_create(&creator.edit_data)
-    } else do creator.edit_data_loaded = true
-
-    creator.edit_data_name = strings.clone(filepath.base(string(path)))
-    creator.edit_data_name_loaded = true
-    
-    ui.set_cache_text(creator_ui.text_cache, "Currently Loaded:", fmt.tprint("Currently Loaded: ", creator.edit_data_name, sep = ""))
 }
 
 ui_update :: proc() {

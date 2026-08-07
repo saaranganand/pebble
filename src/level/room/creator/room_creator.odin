@@ -68,7 +68,7 @@ room_creator_data_destroy :: proc() {
 room_creator_new_edit_data :: proc() {
     room_creator_data_destroy()
 
-    creator.edit_data_name = "untitled.room.tiles"
+    creator.edit_data_name = "untitled.room.json"
     ui.set_cache_text(creator_ui.text_cache, "Currently Loaded:", fmt.tprint("Currently Loaded: ", creator.edit_data_name, sep = ""))
 
     room.room_data_init_dimensions(&creator.edit_data, 20, 20)

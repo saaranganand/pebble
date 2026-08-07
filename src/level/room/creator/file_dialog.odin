@@ -3,11 +3,14 @@ package room_creator
 import sdl "vendor:sdl3"
 
 import primatives "src:sdl_primatives"
-import util "src:util"
+import room "src:level/room"
 import ui "src:ui"
 
+import filepath "core:path/filepath"
+import strings "core:strings"
 import runtime "base:runtime"
 import fmt "core:fmt"
+import log "core:log"
 
 Dialog_User_Data :: struct {
     ctx: runtime.Context,
@@ -24,14 +27,15 @@ edit_data_save_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, fil
     if filelist[0] == "" do return
 
     file_path := filelist[0]
-    room_tiles_save(file_path)
+    log.infof("Saving file %v", file_path)
+    room.room_data_save(string(file_path), creator.edit_data)
 }
 
 edit_data_save_dialog :: proc() {
     if !creator.edit_data_loaded do return
 
     filters := [?]sdl.DialogFileFilter{
-        {name = "room tiles files", pattern = "room.tiles"},
+        {name = "room files", pattern = "room.json"},
     }
     room_tiles_save_user_data.ctx = context
 
@@ -57,24 +61,36 @@ edit_data_load_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, fil
     if filelist[0] == "" do return
 
     file_path := filelist[0]
-    room_tiles_load(file_path)
+    room_creator_data_destroy()
+
+    log.infof("Loading file %v", file_path)
+    room.room_data_load(string(file_path), &creator.edit_data)
+
+    if creator.edit_data.width == 0 || creator.edit_data.height == 0 {
+        room.room_data_init_dimensions(&creator.edit_data, 20, 20)
+        room.room_data_create(&creator.edit_data)
+    } 
+    creator.edit_data_loaded = true
+
+    creator.edit_data_name = strings.clone(filepath.base(string(file_path)))
+    creator.edit_data_name_loaded = true
+    
+    ui.set_cache_text(creator_ui.text_cache, "Currently Loaded:", fmt.tprint("Currently Loaded: ", creator.edit_data_name, sep = ""))
 }
 
 edit_data_load_dialog :: proc() {
     filters := [?]sdl.DialogFileFilter{
-        {name = "room tiles files", pattern = "room.tiles"},
+        {name = "room files", pattern = "room.json"},
     }
     room_tiles_save_user_data.ctx = context
 
-    default_location := fmt.caprint(creator.dialog_directory, "/", creator.edit_data_name, sep = "")
-    defer delete(default_location)
     sdl.ShowOpenFileDialog(
         edit_data_load_callback,
         userdata = &room_tiles_save_user_data,
         window = primatives.global_window,
         filters = raw_data(filters[:]),
         nfilters = len(filters),
-        default_location = default_location,
+        default_location = creator.dialog_directory,
         allow_many = false,
     )
 }

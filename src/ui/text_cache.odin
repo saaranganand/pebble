@@ -10,15 +10,19 @@ import color "src:util/color"
 import strings "core:strings"
 import log "core:log"
 
+Cache_Text :: struct {
+    obj: ^sdl_ttf.Text,
+}
+
 MU_Text_Cache :: struct{
-    cache: map[string]^sdl_ttf.Text,
+    cache: map[string]Cache_Text,
     default_size: f32,
     default_color: color.Default_Palette_Color,
     default_font_tag: string
 }
 
 create_text_cache :: proc(def_size: f32, def_color: color.Default_Palette_Color, def_font: string) -> (cache: MU_Text_Cache) {
-    cache.cache = make(map[string]^sdl_ttf.Text)
+    cache.cache = make(map[string]Cache_Text)
 
     cache.default_size = def_size
     cache.default_color = def_color
@@ -29,7 +33,7 @@ create_text_cache :: proc(def_size: f32, def_color: color.Default_Palette_Color,
 
 destroy_text_cache :: proc(text_cache: ^MU_Text_Cache) {
     for key, text in text_cache.cache {
-        sdl_ttf.DestroyText(text)
+        sdl_ttf.DestroyText(text.obj)
     }
     delete(text_cache.cache)
 }
@@ -50,31 +54,37 @@ append_text_cache :: proc(
     cstr_text := strings.clone_to_cstring(key)
     defer delete(cstr_text)
 
-    text_cache.cache[key] = font.font_create_text(font_tag, font_size, cstr_text)
+    text_cache.cache[key] = { obj = font.font_create_text(font_tag, font_size, cstr_text) }
     
     col, _ := font_color.(color.Default_Palette_Color)
-    color.sdl_set_text_color(text_cache.cache[key], col)
+    color.sdl_set_text_color(text_cache.cache[key].obj, col)
 }
 
-get_cache_text :: proc(text_cache: MU_Text_Cache, key: string) -> (text: ^sdl_ttf.Text, success: bool) {
+get_cache_text :: proc(text_cache: MU_Text_Cache, key: string) -> (text: Cache_Text, success: bool) {
     return text_cache.cache[key]
 }
 
 set_cache_text :: proc(text_cache: MU_Text_Cache, key: string, new_text: string) {
-    cstr_text := strings.clone_to_cstring(new_text)
-    defer delete(cstr_text)
+    cstr_text := strings.clone_to_cstring(new_text, context.temp_allocator)
+    
+    t_cache, success := get_cache_text(text_cache, key)
+    if !success do return
 
-    sdl_ttf.SetTextString(text_cache.cache[key], cstr_text, 0)
+    sdl_ttf.SetTextString(t_cache.obj, cstr_text, 0)
 }
 
 set_cache_color :: proc(text_cache: MU_Text_Cache, key: string, new_color: sdl.Color) {
-    cstr_text := strings.clone_to_cstring(key)
-    defer delete(cstr_text)
+    cstr_text := strings.clone_to_cstring(key, context.temp_allocator)
 
-    sdl_ttf.SetTextColor(text_cache.cache[key], new_color.r, new_color.g, new_color.b, new_color.a)
+    t_cache, success := get_cache_text(text_cache, key)
+    if !success do return
+
+    sdl_ttf.SetTextColor(t_cache.obj, new_color.r, new_color.g, new_color.b, new_color.a)
 }
 
 draw_cache_text :: proc(text_cache: MU_Text_Cache, key: string, x, y: f32) {
-    text_obj, success := text_cache.cache[key]
-    sdl_ttf.DrawRendererText(text_obj, x, y)
+    t_cache, success := get_cache_text(text_cache, key)
+    if !success do return
+
+    sdl_ttf.DrawRendererText(t_cache.obj, x, y)
 }
