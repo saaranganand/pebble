@@ -6,6 +6,7 @@ import entity "src:entity"
 import img "src:data_load/img"
 
 import json "core:encoding/json"
+import reflect "core:reflect"
 import strings "core:strings"
 import log "core:log"
 import os "core:os"
@@ -17,6 +18,7 @@ Program_Definition_ID :: uint
 Stat_Buff :: struct {
     stat: weapon.Weapon_Stat,
     multiplier: f32,
+    add: f32,
 
     weapon_tag: string,
     weapon_id: Maybe(weapon.Weapon_Definition_ID), // nil = every weapon
@@ -25,6 +27,7 @@ Stat_Buff :: struct {
 Entity_Stat_Buff :: struct {
     stat: entity.Entity_Stat,
     multiplier: f32,
+    add: f32,
 }
 
 // effect instance applied to wielder
@@ -43,6 +46,9 @@ Program_Definition :: struct {
 
     buffs: []Stat_Buff,
     entity_buffs: []Entity_Stat_Buff,
+
+    // name-addressed tuning
+    entity_params: map[string]f32,
 
     self_effect_tags: []string,
     hit_effect_tags: []string,
@@ -92,6 +98,18 @@ program_definition_resolve :: proc(definition: ^Program_Definition) {
         buff.weapon_id = weapon_id
     }
 
+    // ENTITY PARAMS -------------------------------------
+    for name in definition.entity_params {
+        field := reflect.struct_field_by_name(typeid_of(entity.Entity), name)
+
+        if field.name == "" {
+            log.panicf("Program %v sets entity param %v, which is not a field on Entity", definition.unique_tag, name)
+        }
+        if field.type == nil || field.type.id != f32 {
+            log.panicf("Program %v sets entity param %v, which is not an f32 field", definition.unique_tag, name)
+        }
+    }
+
     // SELF EFFECTS
     definition.self_effects = make([]Self_Effect, len(definition.self_effect_tags))
     for instance_tag, i in definition.self_effect_tags {
@@ -119,6 +137,9 @@ program_definition_unload :: proc(definition: ^Program_Definition) {
     delete(definition.sprite)
 
     for buff in definition.buffs do delete(buff.weapon_tag)
+    for name in definition.entity_params do delete(name)
+    delete(definition.entity_params)
+
     delete(definition.buffs)
     delete(definition.entity_buffs)
 

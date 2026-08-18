@@ -94,6 +94,10 @@ script_register_bindings :: proc(L: ^lua.State) {
     lua.register(L, "heal", binding_heal)
     lua.register(L, "get_position", binding_get_position)
     lua.register(L, "damage_area", binding_damage_area)
+    lua.register(L, "damage", binding_damage)
+    lua.register(L, "get_hp", binding_get_hp)
+    lua.register(L, "get_age", binding_get_age)
+    lua.register(L, "set_damage_taken", binding_set_damage_taken)
 }
 
 // heal(target, amount)
@@ -132,5 +136,55 @@ binding_damage_area :: proc "c" (L: ^lua.State) -> c.int {
     amount := f32(lua.L_checknumber(L, 4))
 
     entity.entity_damage_in_radius({x, y}, radius, .ENEMY, amount)
+    return 0
+}
+
+// damage(target, amount) - damages the entity the effect landed on
+@(private)
+binding_damage :: proc "c" (L: ^lua.State) -> c.int {
+    context = runtime.default_context()
+
+    target := cast(^entity.Entity) lua.touserdata(L, 1)
+    amount := f32(lua.L_checknumber(L, 2))
+
+    if target != nil do entity.entity_deal_damage(target, amount)
+    return 0
+}
+
+// get_hp(target) -> hp, max_hp
+@(private)
+binding_get_hp :: proc "c" (L: ^lua.State) -> c.int {
+    context = runtime.default_context()
+
+    target := cast(^entity.Entity) lua.touserdata(L, 1)
+    if target == nil do return 0
+
+    lua.pushnumber(L, lua.Number(target.hp))
+    lua.pushnumber(L, lua.Number(target.max_hp))
+    return 2
+}
+
+// get_age(target) -> seconds this entity has been alive
+@(private)
+binding_get_age :: proc "c" (L: ^lua.State) -> c.int {
+    context = runtime.default_context()
+
+    target := cast(^entity.Entity) lua.touserdata(L, 1)
+    if target == nil do return 0
+
+    lua.pushnumber(L, lua.Number(target.age))
+    return 1
+}
+
+// set_damage_taken(target, mult) - scales every point of damage this entity takes from now on.
+// used by (program: timer)
+@(private)
+binding_set_damage_taken :: proc "c" (L: ^lua.State) -> c.int {
+    context = runtime.default_context()
+
+    target := cast(^entity.Entity) lua.touserdata(L, 1)
+    mult := f32(lua.L_checknumber(L, 2))
+
+    if target != nil do target.damage_taken_mult = mult
     return 0
 }

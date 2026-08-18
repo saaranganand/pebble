@@ -23,6 +23,22 @@ animation_controller_create :: proc(data_tag: string, scale: f32 = 1.0) -> (cont
     return
 }
 
+// the size the current frame will actually be drawn at
+animation_drawn_size :: proc(controller: ^Animation_Controller) -> (width, height: f32, ok: bool) {
+    instance, instance_ok := animation_instance_get(controller.data_tag)
+    if !instance_ok do return 0, 0, false
+
+    anim, anim_ok := &instance.animations[controller.current_animation]
+    if !anim_ok do return 0, 0, false
+    if len(anim.frames) == 0 do return 0, 0, false
+
+    frame := anim.frames[0]
+
+    width  = frame.source.w * anim.scale * frame.dest_scale.x * controller.scale
+    height = frame.source.h * anim.scale * frame.dest_scale.y * controller.scale
+    return width, height, true
+}
+
 animation_draw :: proc(
     controller: ^Animation_Controller,
     dest_center: sdl.FPoint,

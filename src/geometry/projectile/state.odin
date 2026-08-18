@@ -9,6 +9,8 @@ import entity "src:entity"
 import geo "src:geometry"
 
 import xar "core:container/xar"
+import math "core:math"
+import rand "core:math/rand"
 
 Category :: enum { BULLET, RAY, AOE, RADIAL, LINE, TRACKING_ARROW }
 
@@ -22,6 +24,7 @@ State :: struct {
 
     damage: f32,
     piercing: uint, // Determines how many times a fired projectile can register a hit before it is destroyed, -1 means ad infinitum
+    bounces: uint,
     speed: f32,
     max_lifetime: f32,
 
@@ -43,6 +46,7 @@ state_init :: proc(shell: Shell, position: sdl.FPoint, shoot_angle: f32) -> (sta
 
     state.damage = shell.damage
     state.piercing = shell.piercing
+    state.bounces = shell.bounces
     state.speed = shell.speed
     state.max_lifetime = shell.lifetime
 
@@ -62,6 +66,24 @@ state_init :: proc(shell: Shell, position: sdl.FPoint, shoot_angle: f32) -> (sta
 state_spawn :: proc(shell: Shell, position: sdl.FPoint, shoot_angle: f32) {
     state := state_init(shell, position, shoot_angle)
     xar.array_push_back_elem(&global_projectile_manager.projectiles[shell.team], state)
+}
+
+// spend one bounce to send a round back the way it came, instead of consuming a pierce.
+BOUNCE_MIN_DEFLECTION :: math.PI * 0.5 // 90 degrees
+BOUNCE_MAX_DEFLECTION :: math.PI * 1.5 // 270 degrees
+
+state_try_bounce :: proc(state: ^State) -> bool {
+    if state.bounces == 0 do return false
+
+    state.bounces -= 1
+
+    // deflect somewhere in the back half
+    state.shoot_angle += rand.float32_range(BOUNCE_MIN_DEFLECTION, BOUNCE_MAX_DEFLECTION)
+
+    NUDGE :: 4.0
+    state.position += sdl.FPoint{ math.cos(state.shoot_angle), math.sin(state.shoot_angle) } * NUDGE
+
+    return true
 }
 
 state_check_collision :: proc(state: State, circle: geo.Circle) -> bool {

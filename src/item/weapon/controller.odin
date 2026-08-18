@@ -27,11 +27,16 @@ Weapon_Controller :: struct {
     owner: util.Handle,
 
     stat_mults: Stat_Mult_Table,
+    stat_adds: Stat_Add_Table,
     hit_effects: []effect.Effect_Instance_ID,
 }
 
-weapon_controller_set_program_data :: proc(controller: ^Weapon_Controller, stat_mults: Stat_Mult_Table, hit_effects: []effect.Effect_Instance_ID) {
+weapon_controller_set_program_data :: proc(
+    controller: ^Weapon_Controller, stat_mults: Stat_Mult_Table, stat_adds: Stat_Add_Table,
+    hit_effects: []effect.Effect_Instance_ID,
+) {
     controller.stat_mults = stat_mults
+    controller.stat_adds = stat_adds
     controller.hit_effects = hit_effects
 }
 

@@ -108,13 +108,13 @@ effect_state_update :: proc(state: ^Effect_State, target_entity: ^entity.Entity)
     }
 
     if should_call {
-        effect_callback_trigger(state, target_entity)
+        applied_magnitude := effect_callback_trigger(state, target_entity)
 
         effect_manager_queue_event(Effect_Event{
             type = .TRIGGER, target = state.target,
             target_team = state.target_team,
             definition_id = state.instance.definition.id,
-            magnitude = effect_fn_data_get_reaction_magnitude(state.callback_data)
+            magnitude = applied_magnitude
         })
     }
 

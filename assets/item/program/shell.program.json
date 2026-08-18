@@ -1,0 +1,6 @@
+// a shield that absorbs damage before hp does, then grows back once it has gone
+
+entity_params: {
+  max_shield: 50.0
+  shield_regen_delay: 8.0
+}

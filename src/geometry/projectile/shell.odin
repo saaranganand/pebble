@@ -25,6 +25,10 @@ Shell :: struct {
     extra_effects: [MAX_EXTRA_EFFECTS]effect.Effect_Instance_ID,
     num_extra_effects: int,
 
+    // how many times this round can reverse off something
+    // Chain spends these on enemies; Ricochet spends these on walls.
+    bounces: uint,
+
     shape_radius: f32,
     shape_length: f32,
     shape_turn_speed: f32,

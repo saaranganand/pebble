@@ -1,0 +1,5 @@
+// marks an enemy on hit; from then on it takes more damage the longer it stays alive
+
+hit_effect_tags: [
+  "timer.effect.instance"
+]

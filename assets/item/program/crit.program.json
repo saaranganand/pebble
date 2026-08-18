@@ -1,0 +1,5 @@
+// +25% chance for a shot to hit for double
+
+buffs: [
+  { stat: "CRIT_CHANCE", add: 0.25 }
+]

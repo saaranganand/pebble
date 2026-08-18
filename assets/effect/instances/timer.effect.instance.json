@@ -1,0 +1,9 @@
+definition_tag: "timer.effect.definition"
+
+duration: -1.0 // permanent once applied
+
+callback_data: {
+  seconds_per_step: 10.0 // every 10s alive...
+  percent_per_step: 0.01 // ...it takes 1% more damage
+  max_percent: 0.5 // caps at +50%
+}

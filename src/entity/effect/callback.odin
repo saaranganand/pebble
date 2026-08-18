@@ -164,14 +164,14 @@ effect_callback_lua_params_destroy :: proc() {
     lua_param_scratch = nil
 }
 
-effect_callback_trigger :: proc(state: ^Effect_State, target_entity: ^entity.Entity) {
+effect_callback_trigger :: proc(state: ^Effect_State, target_entity: ^entity.Entity) -> (magnitude: f32) {
 
     // We straight up just expect these types to be matching.
     // This should never ever be different, so panic-ing when its not is fine.
     switch state.instance.definition.callback {
     case .DAMAGE:
         damage := effect_damage_fn(state.callback_data, target_entity^)
-        entity.entity_deal_damage(target_entity, damage)
+        return entity.entity_deal_damage(target_entity, damage)
 
     case .SPEED:
         target_entity.move_speed = effect_speed_fn(state.callback_data, target_entity^)
@@ -185,7 +185,9 @@ effect_callback_trigger :: proc(state: ^Effect_State, target_entity: ^entity.Ent
         //append(&target_entity.forces, data)
 
     case .HEAL:
-        entity.entity_heal(target_entity, effect_heal_fn(state.callback_data, target_entity^))
+        healed := effect_heal_fn(state.callback_data, target_entity^)
+        entity.entity_heal(target_entity, healed)
+        return healed
 
     case .LUA:
         script.script_run_effect_callback(
@@ -195,4 +197,5 @@ effect_callback_trigger :: proc(state: ^Effect_State, target_entity: ^entity.Ent
         )
     }
 
+    return effect_fn_data_get_reaction_magnitude(state.callback_data)
 }

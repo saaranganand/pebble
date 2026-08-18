@@ -12,6 +12,7 @@ import color "src:util/color"
 
 import log "core:log"
 import fmt "core:fmt"
+import math "core:math"
 
 FLOATING_TEXT_LIFETIME :: 2.5
 FLOATING_TEXT_RISE_SPEED :: 40.0
@@ -91,9 +92,17 @@ floating_text_system_draw :: proc(system: ^Floating_Text_System) {
 
 // part of reaction systme
 reaction_number_popup :: proc(world_position: sdl.FPoint, value: f32, popup_color: color.Default_Palette_Color) {
-    damage := int(value)
+    // show decimal only when there is one
+    shown := math.round(value * 10) / 10
 
-    label := fmt.caprint(damage) if damage != 0 else fmt.caprint("0")
+    label: cstring
+    if shown == 0 {
+        label = fmt.caprint("0")
+    } else if shown == f32(int(shown)) {
+        label = fmt.caprint(int(shown))
+    } else {
+        label = fmt.caprintf("%.1f", shown)
+    }
     defer delete(label)
     floating_text_spawn(&game.floating_texts, label, world_position + {0, -30}, popup_color)
 }

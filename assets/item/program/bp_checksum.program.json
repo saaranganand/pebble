@@ -1,0 +1,5 @@
+// halves how often bp whiffs
+
+buffs: [
+  { stat: "MISS_CHANCE", weapon_tag: "bit_pistol.weapon", multiplier: 0.5 }
+]

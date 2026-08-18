@@ -137,6 +137,8 @@ weapon_beam_update :: proc(controller: ^Weapon_Controller, state: ^Weapon_State,
 
     mults := STAT_MULTS_IDENTITY
     if controller.stat_mults != nil do mults = controller.stat_mults[state.definition.id]
+    adds := STAT_ADDS_ZERO
+    if controller.stat_adds != nil do adds = controller.stat_adds[state.definition.id]
 
     direction := sdl.FPoint{ math.cos(controller.aim_angle), math.sin(controller.aim_angle) }
     state.beam_start = shoot_position
@@ -224,6 +226,8 @@ weapon_shoot :: proc(controller: ^Weapon_Controller, state: ^Weapon_State, shoot
     // weapon buffs from programs
     mults := STAT_MULTS_IDENTITY
     if controller.stat_mults != nil do mults = controller.stat_mults[state.definition.id]
+    adds := STAT_ADDS_ZERO
+    if controller.stat_adds != nil do adds = controller.stat_adds[state.definition.id]
 
     // gcd
     controller.gcd_counter = state.definition.gcd_interval * mults[.GCD_INTERVAL]
@@ -240,10 +244,18 @@ weapon_shoot :: proc(controller: ^Weapon_Controller, state: ^Weapon_State, shoot
     proj_shell.damage = state.definition.damage * mults[.DAMAGE]
 
     // a dud round still flies and still connects, it just lands for nothing
-    miss_chance := state.definition.miss_chance * mults[.MISS_CHANCE]
+    miss_chance := (state.definition.miss_chance + adds[.MISS_CHANCE]) * mults[.MISS_CHANCE]
     if miss_chance > 0 && rand.float32() < miss_chance do proj_shell.damage = 0
 
+    // crit base chance is 0 on every weapon, so this only relevant once a program adds some
+    crit_chance := (state.definition.crit_chance + adds[.CRIT_CHANCE]) * mults[.CRIT_CHANCE]
+    if crit_chance > 0 && rand.float32() < crit_chance {
+        crit_mult := state.definition.crit_mult if state.definition.crit_mult > 0 else CRIT_DEFAULT_MULT
+        proj_shell.damage *= crit_mult
+    }
+
     proj_shell.speed *= mults[.PROJECTILE_SPEED]
+    proj_shell.bounces += uint(max(adds[.PROJECTILE_BOUNCES], 0))
     proj_shell.team = state.owner_team
 
     // charging

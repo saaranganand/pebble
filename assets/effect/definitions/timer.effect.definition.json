@@ -1,0 +1,4 @@
+callback: "LUA"
+lua_callback: "timer_damage_taken"
+stack_behaviour: "NONE"
+type: "CONTINUOUS"

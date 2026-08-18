@@ -55,6 +55,10 @@ Weapon_Definition :: struct {
     // the bit weapons are unreliable by design; programs can buff this down
     miss_chance: f32,
 
+    // chance a shot crits. 0 by default - (program: Crit) adds it
+    crit_chance: f32,
+    crit_mult: f32, // damage multiplier on a crit
+
     // skip spawning projectiles entirely - the shoot callback is the whole shot
     no_projectile: bool,
 
@@ -78,9 +82,20 @@ Weapon_Stat :: enum {
     COOLDOWN,
     PROJECTILE_SPEED,
     MISS_CHANCE,
+    CRIT_CHANCE,
+    PROJECTILE_BOUNCES,
 }
 
 Stat_Mults :: [Weapon_Stat]f32
+
+// programs can also add flat amounts on top of the base, which is the only way to grant
+// a stat the weapon has none of - multiplying a base of 0 never gets anywhere
+Stat_Adds :: [Weapon_Stat]f32
+Stat_Add_Table :: []Stat_Adds
+STAT_ADDS_ZERO :: Stat_Adds{}
+
+// doc says crit is 2x damage
+CRIT_DEFAULT_MULT :: 2.0
 
 // apply it here - not on the definition - because definitions are shared by every wielder of that weapon not just player picking up the program
 Stat_Mult_Table :: []Stat_Mults
@@ -92,6 +107,8 @@ STAT_MULTS_IDENTITY :: Stat_Mults{
     .COOLDOWN = 1.0,
     .PROJECTILE_SPEED = 1.0,
     .MISS_CHANCE = 1.0,
+    .CRIT_CHANCE = 1.0,
+    .PROJECTILE_BOUNCES = 1.0,
 }
 
 weapon_stat_from_string :: proc(stat_string: string) -> (stat: Weapon_Stat) {
@@ -106,6 +123,10 @@ weapon_stat_from_string :: proc(stat_string: string) -> (stat: Weapon_Stat) {
         stat = .PROJECTILE_SPEED
     case "MISS_CHANCE":
         stat = .MISS_CHANCE
+    case "CRIT_CHANCE":
+        stat = .CRIT_CHANCE
+    case "PROJECTILE_BOUNCES":
+        stat = .PROJECTILE_BOUNCES
     case:
         log.panicf("No weapon stat parsable from string %v", stat_string)
     }

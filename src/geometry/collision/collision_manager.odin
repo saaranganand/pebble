@@ -50,17 +50,19 @@ resolve_projectile_collisions :: proc(
             if !collision do continue
 
             effect_data := effect.effect_application_data_from_tag("damage.effect.instance", {}, check_entity_handle, check_entity.team)
-
             effect.effect_manager_queue_apply(effect_data, effect.Effect_Callback_Data_Override{
                 tag = "damage", data = projectile_state.damage
             })
 
             apply_projectile_hit_effects(
                 projectile_state.apply_effect, projectile_state.extra_effects[:], projectile_state.num_extra_effects,
-                check_entity_handle, check_entity.team,
+                check_entity_handle, check_entity.team, projectile_state.damage,
             )
 
-            if projectile_state.piercing > 0 do projectile_state.piercing -= 1
+            // a round with bounces left turns around rather than being used up
+            if !projectile.state_try_bounce(projectile_state) {
+                if projectile_state.piercing > 0 do projectile_state.piercing -= 1
+            }
         }
 
         resolve_tracking_arrow_collisions(projectile_manager, entity_manager, check_entity, check_entity_handle, projectile_team)
@@ -84,16 +86,15 @@ resolve_tracking_arrow_collisions :: proc(
         )
         if !collision do continue
 
-        effect_data := effect.effect_application_data_from_tag("damage.effect.instance", {}, check_entity_handle, check_entity.team)
+        apply_projectile_hit_effects(
+            tracking_arrow_state.apply_effect, tracking_arrow_state.extra_effects[:], tracking_arrow_state.num_extra_effects,
+            check_entity_handle, check_entity.team, tracking_arrow_state.damage,
+        )
 
+        effect_data := effect.effect_application_data_from_tag("damage.effect.instance", {}, check_entity_handle, check_entity.team)
         effect.effect_manager_queue_apply(effect_data, effect.Effect_Callback_Data_Override{
             tag = "damage", data = tracking_arrow_state.damage
         })
-
-        apply_projectile_hit_effects(
-            tracking_arrow_state.apply_effect, tracking_arrow_state.extra_effects[:], tracking_arrow_state.num_extra_effects,
-            check_entity_handle, check_entity.team,
-        )
 
         if tracking_arrow_state.piercing > 0 do tracking_arrow_state.piercing -= 1
     }
@@ -104,8 +105,11 @@ resolve_tracking_arrow_collisions :: proc(
 @(private)
 apply_projectile_hit_effects :: proc(
     apply_effect: Maybe(string), extra_effects: []effect.Effect_Instance_ID, num_extra_effects: int,
-    target: util.Handle, target_team: entity.Team,
+    target: util.Handle, target_team: entity.Team, damage: f32,
 ) {
+    // dud round from bitpistol/rifle
+    if damage <= 0 do return
+
     if apply_tag, has_apply := apply_effect.(effect.Effect_Instance_Tag); has_apply {
         apply_data := effect.effect_application_data_from_tag(apply_tag, {}, target, target_team)
         effect.effect_manager_queue_apply(apply_data)

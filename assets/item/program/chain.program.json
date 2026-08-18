@@ -1,0 +1,5 @@
+// projectile reverse off the first enemy they hit and fly back through the pack
+
+buffs: [
+  { stat: "PROJECTILE_BOUNCES", add: 1 }
+]
