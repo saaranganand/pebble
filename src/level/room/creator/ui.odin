@@ -32,7 +32,7 @@ tile_ui_labels := [room.Tile]string{
 Creator_UI :: struct {
     mu_ctx: mu.Context,
     atlas_tex: ^sdl.Texture,
-    text_cache: ui.MU_Text_Cache,
+    text_cache: ui.Text_Cache,
 }
 
 creator_ui: Creator_UI
@@ -56,35 +56,39 @@ ui_init :: proc() {
 
     creator_ui.text_cache = ui.create_text_cache(16, .WHITE, "ubuntu")
 
-    ui.append_text_cache(&creator_ui.text_cache, "[L]")
-    ui.append_text_cache(&creator_ui.text_cache, "[S]")
-    ui.append_text_cache(&creator_ui.text_cache, "[N]")
-    ui.append_text_cache(&creator_ui.text_cache, "Pen")
-    ui.append_text_cache(&creator_ui.text_cache, "Eraser")
-    ui.append_text_cache(&creator_ui.text_cache, "+w")
-    ui.append_text_cache(&creator_ui.text_cache, "-w")
-    ui.append_text_cache(&creator_ui.text_cache, "+h")
-    ui.append_text_cache(&creator_ui.text_cache, "-h")
+    ui.append_cache_texts(&creator_ui.text_cache, appends = {
+        ui.default_text_cache_append("[L]"),
+        ui.default_text_cache_append("[L]"),
+        ui.default_text_cache_append("[S]"),
+        ui.default_text_cache_append("[N]"),
+        ui.default_text_cache_append("Pen"),
+        ui.default_text_cache_append("Eraser"),
+        ui.default_text_cache_append("+w"),
+        ui.default_text_cache_append("-w"),
+        ui.default_text_cache_append("+h"),
+        ui.default_text_cache_append("-h"),
+
+        ui.default_text_cache_append("Currently Loaded:", size = 12, mu_label = false, color = .BLACK),
+        ui.default_text_cache_append("Current tool:",     size = 12, mu_label = false),
+        ui.default_text_cache_append("Current tile:",     size = 12, mu_label = false),
+        ui.default_text_cache_append("Room width:",       size = 12, mu_label = false),
+        ui.default_text_cache_append("Room height:",      size = 12, mu_label = false),
+    })
+
     for tile in room.Tile {
-        ui.append_text_cache(&creator_ui.text_cache, tile_ui_labels[tile])
+        ui.append_cache_texts(&creator_ui.text_cache, ui.default_text_cache_append(tile_ui_labels[tile]))
     }
 
     creator_ui.mu_ctx.style.spacing = 10
 
     ui_set_button_color_default(&creator_ui.mu_ctx)
+    
     creator_ui.mu_ctx.style.colors[.BUTTON_HOVER] = color.mu_color_from_color_palette(.GRAY)
     creator_ui.mu_ctx.style.colors[.BUTTON_FOCUS] = color.mu_color_from_color_palette(.LIGHT_GRAY)
-
     creator_ui.mu_ctx.style.colors[.WINDOW_BG] = color.mu_color_from_color_palette(.BLACK)
     creator_ui.mu_ctx.style.colors[.TITLE_BG] = color.mu_color_from_color_palette(.BLACK)
-
     creator_ui.mu_ctx.style.colors[.BORDER] = color.mu_color_from_color_palette(.BLACK)
 
-    ui.append_text_cache(&creator_ui.text_cache, "Currently Loaded:", 12, .BLACK)
-    ui.append_text_cache(&creator_ui.text_cache, "Current tool:", 12)
-    ui.append_text_cache(&creator_ui.text_cache, "Current tile:", 12)
-    ui.append_text_cache(&creator_ui.text_cache, "Room width:", 12)
-    ui.append_text_cache(&creator_ui.text_cache, "Room height:", 12)
 }
 
 ui_destroy :: proc() {
